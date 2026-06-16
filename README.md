@@ -244,52 +244,52 @@
 ## 🌆 真机演示预览
 
 ### 🏠 首页学习地图
-<img src="demo/01-home-map.png" alt="首页学习地图" width="200" />
+<img src="public/demo/01-home-map.png" alt="首页学习地图" width="200" />
 
 Z字形关卡布局，当前关卡脉动光环提示，已完成关卡显示星级评价。
 
 ### ⚔️ 答题战斗界面
-<img src="demo/02-battle-page.png" alt="答题战斗界面" width="200" />
+<img src="public/demo/02-battle-page.png" alt="答题战斗界面" width="200" />
 
 大号数字键盘输入，即时视觉反馈，连击奖励系统。
 
 ### 📊 结算结果页
-<img src="demo/03-result-page.png" alt="结算结果页" width="200" />
+<img src="public/demo/03-result-page.png" alt="结算结果页" width="200" />
 
 关卡总结：星级评价、获得经验/金币、新成就解锁提示。
 
 ### 🏆 排行榜
-<img src="demo/04-leaderboard.png" alt="排行榜" width="200" />
+<img src="public/demo/04-leaderboard.png" alt="排行榜" width="200" />
 
 好友榜 / 全国榜 / 年级榜 多维度榜单切换。
 
 ### 📖 错题本
-<img src="demo/05-mistakes.png" alt="错题本" width="200" />
+<img src="public/demo/05-mistakes.png" alt="错题本" width="200" />
 
 自动收录错题，按时间/知识点分组，支持一键重做。
 
 ### 👤 个人中心
-<img src="demo/06-profile.png" alt="个人中心" width="200" />
+<img src="public/demo/06-profile.png" alt="个人中心" width="200" />
 
 学习数据总览，成就徽章墙，个人资料编辑。
 
 ### 🎯 每日目标
-<img src="demo/07-daily-goals.png" alt="每日目标" width="200" />
+<img src="public/demo/07-daily-goals.png" alt="每日目标" width="200" />
 
 今日任务清单：答题数量、通关关卡、连击挑战。
 
 ### 📈 学习统计
-<img src="demo/08-stats.png" alt="学习统计" width="200" />
+<img src="public/demo/08-stats.png" alt="学习统计" width="200" />
 
 累计答题、正确率、学习时长、最近趋势图表。
 
 ### 🔐 登录页面
-<img src="demo/09-login-page.png" alt="登录页面" width="200" />
+<img src="public/demo/09-login-page.png" alt="登录页面" width="200" />
 
 手机号 + 验证码登录，简洁的登录体验。
 
 ### 📝 能力测评
-<img src="demo/10-assessment.png" alt="能力测评" width="200" />
+<img src="public/demo/10-assessment.png" alt="能力测评" width="200" />
 
 新用户能力评估测试，智能推荐学习难度。
 
