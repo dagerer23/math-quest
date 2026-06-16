@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '@/store/useUserStore'
 import { motion } from 'framer-motion'
@@ -5,19 +6,50 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowLeft, Target, Zap, BookOpen, TrendingUp, Award, Calendar, Flame } from 'lucide-react'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ArrowLeft, Target, Zap, BookOpen, TrendingUp, Award, Calendar, Flame, Flower2 } from 'lucide-react'
 import { getRankInfo, getRankProgress } from '@/utils/rank'
-import { useState, useEffect } from 'react'
+import { getEncouragements, type EncouragementItem } from '@/services/classApi'
+
+function formatTime(ts: number): string {
+  const diff = Date.now() - ts
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return '刚刚'
+  if (mins < 60) return `${mins}分钟前`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}小时前`
+  const days = Math.floor(hrs / 24)
+  return `${days}天前`
+}
 
 export default function Stats() {
   const navigate = useNavigate()
   const user = useUserStore()
   const [isLoading, setIsLoading] = useState(true)
+  const [encouragements, setEncouragements] = useState<EncouragementItem[]>([])
+  const [encouragementTotal, setEncouragementTotal] = useState(0)
+  const [encouragementLoading, setEncouragementLoading] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 500)
     return () => clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    if (!user?.userId) return
+    let active = true
+    setEncouragementLoading(true)
+    getEncouragements(user.userId).then((res) => {
+      if (!active) return
+      if (res?.success) {
+        setEncouragements(res.list || [])
+        setEncouragementTotal(res.total || 0)
+      }
+    }).finally(() => {
+      if (active) setEncouragementLoading(false)
+    })
+    return () => { active = false }
+  }, [user?.userId])
 
   const stats = user.learningStats || {}
   const accuracy = (stats.totalQuestions || 0) > 0
@@ -200,6 +232,61 @@ export default function Stats() {
                     +{user.achievements.length - 8} 更多
                   </Badge>
                 )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* 收到的鼓励 */}
+        <Card className="p-4 mb-4">
+          <CardHeader className="p-0 mb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Flower2 size={16} className="text-pink-500" />
+                <CardTitle className="text-sm font-bold text-foreground">收到的鼓励</CardTitle>
+              </div>
+              <span className="text-xs text-muted-foreground">共 {encouragementTotal} 朵</span>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {encouragementLoading ? (
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-14 w-full rounded-lg" />
+                <Skeleton className="h-14 w-full rounded-lg" />
+              </div>
+            ) : encouragements.length > 0 ? (
+              <div className="flex flex-col gap-2 max-h-80 overflow-y-auto">
+                {encouragements.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 p-2 rounded-lg bg-muted/40 border border-border/40"
+                  >
+                    <Avatar className="h-9 w-9 rounded-full bg-background border">
+                      <AvatarFallback className="bg-transparent text-xl">
+                        {item.fromUserAvatar || '😊'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-foreground truncate">
+                          {item.fromUserName || '同学'}
+                        </span>
+                        <span className="text-lg leading-none">{item.emoji || '🌸'}</span>
+                      </div>
+                      {item.context && (
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{item.context}</p>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                      {formatTime(item.createdAt)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6">
+                <div className="text-3xl mb-2">🌸</div>
+                <p className="text-sm text-muted-foreground">还没有收到鼓励，快邀请同学加入班级吧</p>
               </div>
             )}
           </CardContent>

@@ -14,8 +14,26 @@ export interface User {
   learningStage?: 'primary' | 'middle' | 'high' | 'adult'
   learningGoal?: 'consolidation' | 'improvement' | 'interest' | 'training'
   targetGrade?: number
+  classId?: string
   createdAt: number
   lastLoginAt?: number
+}
+
+export interface ClassEntity {
+  id: string
+  code: string
+  name: string
+  createdBy: string
+  createdAt: number
+}
+
+export interface Encouragement {
+  id: string
+  fromUserId: string
+  toUserId: string
+  emoji: string
+  context?: string
+  createdAt: number
 }
 
 export interface VerificationRecord {

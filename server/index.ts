@@ -6,6 +6,7 @@ import express from 'express'
 import cors from 'cors'
 import authRoutes from './routes/auth'
 import contentRoutes from './routes/content'
+import classRoutes from './routes/class'
 import adminStatsRoutes from './routes/adminStats'
 import adminImportRoutes from './routes/adminImport'
 import adminConfigRoutes from './routes/adminConfig'
@@ -50,6 +51,7 @@ app.use('/api', apiLimiter)
 
 // 路由
 app.use('/api/auth', authLimiter, authRoutes)
+app.use('/api/class', classRoutes)
 app.use('/api/content', contentRoutes)
 // 管理后台路由：login 不需要认证，其他需要
 app.use('/api/admin/stats', requireAdminAuth, adminStatsRoutes)

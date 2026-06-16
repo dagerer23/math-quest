@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '@/store/useUserStore'
 import { motion } from 'framer-motion'
-import { Crown, Medal, Trophy, Star, Sparkles, Award, Target, ChevronRight, Zap, Gem, Loader2 } from 'lucide-react'
+import { Crown, Medal, Trophy, Star, Sparkles, Award, Target, ChevronRight, Zap, Gem, Loader2, Users, Globe2, Flower2 } from 'lucide-react'
 import clsx from 'clsx'
 import { RANK_COLORS, getRankFromXp, getRankInfo, getRankProgress, getNextRankInfo } from '@/utils/rank'
 import { getLeaderboard, type LeaderboardUser } from '@/services/content'
+import * as classApi from '@/services/classApi'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
 
 // ═══════════════════════════════════════════════════════════════════
 // 排行榜类型（兼容 API 返回字段）
@@ -44,24 +49,84 @@ const RANK_DETAILS: Record<RankName, {
 // ═══════════════════════════════════════════════════════════════════
 export default function Leaderboard() {
   const user = useUserStore()
-  const [tab, setTab] = useState<'friends' | 'rank'>('friends')
+  const [tab, setTab] = useState<'global' | 'classmates' | 'rank'>('classmates')
   const [loading, setLoading] = useState(true)
+  const [classmatesLoading, setClassmatesLoading] = useState(false)
   const [rankingData, setRankingData] = useState<RankUser[]>([])
+  const [classmatesData, setClassmatesData] = useState<ClassMemberItem[]>([])
+  const [sentFlowers, setSentFlowers] = useState<Set<string>>(new Set())
+  const [className, setClassName] = useState<string>('')
   const myNickname = user.profile.nickname || '我'
   const myXp = user.xp
   const myRank = getRankFromXp(myXp)
 
+  type ClassMemberItem = {
+    userId: string
+    nickname: string
+    avatar: string
+    targetGrade: number
+    xp: number
+    isMe?: boolean
+  }
+
   useEffect(() => {
-    if (tab !== 'friends') return
-    setLoading(true)
-    getLeaderboard(50, user.profile.targetGrade)
-      .then(data => setRankingData(data))
-      .catch(() => setRankingData([]))
-      .finally(() => setLoading(false))
+    if (tab === 'global') {
+      setLoading(true)
+      getLeaderboard(50, user.profile.targetGrade)
+        .then(data => setRankingData(data))
+        .catch(() => setRankingData([]))
+        .finally(() => setLoading(false))
+    } else if (tab === 'classmates') {
+      loadClassmates()
+    }
   }, [tab])
 
-  // 把当前用户信息注入榜单（若榜上没有则追加到末尾）
-  const rawList = tab === 'friends' ? rankingData : []
+  async function loadClassmates() {
+    if (!user.userId) return
+    setClassmatesLoading(true)
+    try {
+      const res = await classApi.getClassMembers(user.userId)
+      if (res.success && res.members.length > 0) {
+        const formatted: ClassMemberItem[] = res.members
+          .map(m => ({
+            userId: m.userId,
+            nickname: m.nickname || '同学',
+            avatar: m.avatar || '😊',
+            targetGrade: m.targetGrade || 0,
+            xp: m.xp || 0,
+            isMe: m.userId === user.userId,
+          }))
+          .sort((a, b) => b.xp - a.xp)
+        setClassmatesData(formatted)
+        setClassName(res.className || '班级')
+      } else {
+        setClassmatesData([])
+        setClassName('')
+      }
+    } catch {
+      setClassmatesData([])
+    } finally {
+      setClassmatesLoading(false)
+    }
+  }
+
+  const handleSendFlower = async (toUserId: string, toNickname: string) => {
+    if (!user.userId) return
+    if (sentFlowers.has(toUserId)) {
+      toast.info('今天已给 TA 送过花啦 🌸')
+      return
+    }
+    const res = await classApi.sendEncouragement(user.userId, toUserId, '加油！')
+    if (res.success) {
+      setSentFlowers(prev => new Set(prev).add(toUserId))
+      toast.success(`已给 ${toNickname} 送上一朵花 🌸`)
+    } else {
+      toast.error(res.message || '送花失败')
+    }
+  }
+
+  // 把当前用户信息注入全局榜（若榜上没有则追加到末尾）
+  const rawList = tab === 'global' ? rankingData : []
   const meInList = rawList.find(u => u.nickname === myNickname)
   const list = meInList
     ? rawList
@@ -81,6 +146,7 @@ export default function Leaderboard() {
 
   const me = list.find(u => u.nickname === myNickname)
   const myIndex = list.findIndex(u => u.nickname === myNickname)
+  const navigate = useNavigate()
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
@@ -98,19 +164,31 @@ export default function Leaderboard() {
       <div className="flex-1 px-4 py-4 overflow-y-auto flex flex-col gap-4">
 
       {/* ═══ 分段 Tab 切换器 ═══ */}
-      <Tabs defaultValue="friends" value={tab} onValueChange={(v) => setTab(v as 'friends' | 'rank')}>
-        <TabsList className="w-full rounded-xl bg-muted p-1 grid grid-cols-2 gap-1">
+      <Tabs defaultValue="classmates" value={tab} onValueChange={(v) => setTab(v as 'global' | 'classmates' | 'rank')}>
+        <TabsList className="w-full rounded-xl bg-muted p-1 grid grid-cols-3 gap-1">
           <TabsTrigger
-            value="friends"
+            value="classmates"
             className={clsx(
               'h-10 rounded-lg text-sm font-medium transition-all',
-              tab === 'friends'
+              tab === 'classmates'
                 ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            <Trophy size={16} className="mr-1.5" />
-            排行榜
+            <Users size={16} className="mr-1.5" />
+            同学
+          </TabsTrigger>
+          <TabsTrigger
+            value="global"
+            className={clsx(
+              'h-10 rounded-lg text-sm font-medium transition-all',
+              tab === 'global'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            <Globe2 size={16} className="mr-1.5" />
+            总榜
           </TabsTrigger>
           <TabsTrigger
             value="rank"
@@ -122,7 +200,7 @@ export default function Leaderboard() {
             )}
           >
             <Award size={16} className="mr-1.5" />
-            段位说明
+            段位
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -159,47 +237,163 @@ export default function Leaderboard() {
       </Card>
 
       {/* ═══ 内容区 ═══ */}
-      {tab !== 'rank' ? (
-          <div className="space-y-5">
-            {loading ? (
-              <div className="space-y-2">
-                {/* Top3 skeleton */}
-                <div className="grid grid-cols-3 gap-2 mb-2">
-                  {[0, 1, 2].map((i) => (
-                    <Card key={i} className="p-3 text-center">
-                      <Skeleton className="w-8 h-8 mx-auto rounded-full mb-2" />
-                      <Skeleton className="h-4 w-16 mx-auto mb-1" />
-                      <Skeleton className="h-3 w-12 mx-auto" />
-                    </Card>
-                  ))}
-                </div>
-                {/* List skeleton */}
-                {[0, 1, 2, 3].map((i) => (
-                  <Card key={i} className="p-3">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="w-8 h-8 rounded-lg" />
-                      <Skeleton className="w-10 h-10 rounded-xl" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-3 w-20" />
-                        <Skeleton className="h-3 w-32" />
-                      </div>
-                      <Skeleton className="h-4 w-10" />
+      {tab === 'classmates' ? (
+        <div className="space-y-3">
+          {classmatesLoading ? (
+            <div className="space-y-2">
+              {[0, 1, 2, 3].map((i) => (
+                <Card key={i} className="p-3">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-8 h-8 rounded-lg" />
+                    <Skeleton className="w-10 h-10 rounded-xl" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-3 w-32" />
                     </div>
+                    <Skeleton className="h-4 w-10" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : classmatesData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <Users size={48} className="text-muted-foreground" />
+              <div className="text-center">
+                <div className="text-base font-bold text-muted-foreground">加入班级后查看同学排行</div>
+                <div className="text-xs text-muted-foreground mt-1">去「我的」页面创建或加入班级</div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/profile')}
+                className="mt-2 gap-1.5"
+              >
+                <Users size={14} /> 加入班级
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="text-xs text-muted-foreground px-1 flex items-center justify-between">
+                <span>{className || '班级'} · 共 {classmatesData.length} 人</span>
+                <span>按 XP 排序</span>
+              </div>
+              <div className="space-y-2">
+                {classmatesData.slice(0, 3).map((u, idx) => {
+                  const rank = idx + 1
+                  const rankColor = rank === 1 ? '#f59e0b' : rank === 2 ? '#64748b' : '#d97706'
+                  return (
+                    <Card key={u.userId} className={clsx('p-3 transition-all', u.isMe && 'border-primary/30 bg-primary/5')}>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={clsx('w-8 h-8 rounded-lg grid place-items-center font-bold text-sm', rank === 1 ? 'bg-amber-100 text-amber-700' : rank === 2 ? 'bg-slate-100 text-slate-700' : 'bg-amber-50 text-amber-800')}
+                          style={{ color: rankColor }}
+                        >
+                          {rank}
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-muted to-muted/50 border border-border grid place-items-center text-xl shrink-0">{u.avatar}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-sm text-foreground truncate flex items-center gap-1.5">
+                            {u.nickname}
+                            {u.isMe && <Badge variant="outline" className="text-[10px] h-4 px-1 border-primary/40 text-primary/80">我</Badge>}
+                          </div>
+                          <div className="text-xs text-muted-foreground">{u.targetGrade}年级</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-base font-bold text-foreground tabular-nums">{u.xp.toLocaleString()}</div>
+                          <div className="text-[10px] text-muted-foreground">XP</div>
+                        </div>
+                        {!u.isMe && (
+                          <Button
+                            size="sm"
+                            variant={sentFlowers.has(u.userId) ? 'default' : 'outline'}
+                            onClick={() => handleSendFlower(u.userId, u.nickname)}
+                            disabled={sentFlowers.has(u.userId)}
+                            className="shrink-0 gap-1 h-8 px-2"
+                          >
+                            <Flower2 size={14} className="text-pink-500" />
+                            {sentFlowers.has(u.userId) ? '已送' : '送花'}
+                          </Button>
+                        )}
+                      </div>
+                    </Card>
+                  )
+                })}
+                {classmatesData.length > 3 && classmatesData.slice(3).map((u, idx) => {
+                  const rank = idx + 4
+                  return (
+                    <Card key={u.userId} className={clsx('p-3 transition-all', u.isMe && 'border-primary/30 bg-primary/5')}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg grid place-items-center font-bold text-sm bg-muted text-muted-foreground">{rank}</div>
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-muted to-muted/50 border border-border grid place-items-center text-xl shrink-0">{u.avatar}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-sm text-foreground truncate flex items-center gap-1.5">
+                            {u.nickname}
+                            {u.isMe && <Badge variant="outline" className="text-[10px] h-4 px-1 border-primary/40 text-primary/80">我</Badge>}
+                          </div>
+                          <div className="text-xs text-muted-foreground">{u.targetGrade}年级</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold text-foreground tabular-nums">{u.xp.toLocaleString()}</div>
+                          <div className="text-[10px] text-muted-foreground">XP</div>
+                        </div>
+                        {!u.isMe && (
+                          <Button
+                            size="sm"
+                            variant={sentFlowers.has(u.userId) ? 'default' : 'outline'}
+                            onClick={() => handleSendFlower(u.userId, u.nickname)}
+                            disabled={sentFlowers.has(u.userId)}
+                            className="shrink-0 gap-1 h-8 px-2"
+                          >
+                            <Flower2 size={14} className="text-pink-500" />
+                            {sentFlowers.has(u.userId) ? '已送' : '送花'}
+                          </Button>
+                        )}
+                      </div>
+                    </Card>
+                  )
+                })}
+              </div>
+            </>
+          )}
+        </div>
+      ) : tab === 'global' ? (
+        <div className="space-y-5">
+          {loading ? (
+            <div className="space-y-2">
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                {[0, 1, 2].map((i) => (
+                  <Card key={i} className="p-3 text-center">
+                    <Skeleton className="w-8 h-8 mx-auto rounded-full mb-2" />
+                    <Skeleton className="h-4 w-16 mx-auto mb-1" />
+                    <Skeleton className="h-3 w-12 mx-auto" />
                   </Card>
                 ))}
               </div>
-            ) : list.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-3">
-                <Trophy size={48} className="text-muted" />
-                <div className="text-center">
-                  <div className="text-base font-bold text-muted-foreground">暂无排行数据</div>
-                  <div className="text-xs text-muted-foreground/60 mt-1">完成关卡后来这里看看</div>
-                </div>
+              {[0, 1, 2, 3].map((i) => (
+                <Card key={i} className="p-3">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-8 h-8 rounded-lg" />
+                    <Skeleton className="w-10 h-10 rounded-xl" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                    <Skeleton className="h-4 w-10" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : list.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <Trophy size={48} className="text-muted-foreground" />
+              <div className="text-center">
+                <div className="text-base font-bold text-muted-foreground">暂无排行数据</div>
+                <div className="text-xs text-muted-foreground mt-1">完成关卡后来这里看看</div>
               </div>
-            ) : (
-              <>
-                {/* ── Top 3 领奖台 ── */}
-                <Top3Podium list={list} />
+            </div>
+          ) : (
+            <>
+              <Top3Podium list={list} />
 
                 {/* ── 4 名以后的榜单 ── */}
                 <div className="space-y-2">

@@ -3,7 +3,7 @@
  */
 import { getPool, isMemoryMode } from '../db'
 import type { RowDataPacket, ResultSetHeader } from 'mysql2/promise'
-import type { User, VerificationRecord } from '../types'
+import type { User, VerificationRecord, ClassEntity, Encouragement } from '../types'
 import { cacheGet, cacheSet, cacheDel } from './cache'
 
 // ===== 内存存储数据 =====
@@ -384,4 +384,226 @@ export async function cleanExpiredCodes(): Promise<void> {
     'DELETE FROM t_verification_code WHERE expires_at < ?',
     [now]
   )
+}
+
+// ===== 班级和成员存储 =====
+
+const memoryClasses = new Map<string, ClassEntity>()
+const memoryClassMembers = new Map<string, Set<string>>() // classId -> Set<userId>
+
+export async function createClass(code: string, name: string, createdBy: string): Promise<ClassEntity> {
+  const cls: ClassEntity = {
+    id: 'class-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+    code,
+    name,
+    createdBy,
+    createdAt: Date.now(),
+  }
+  if (isMemoryMode()) {
+    memoryClasses.set(cls.id, cls)
+    memoryClassMembers.set(cls.id, new Set([createdBy]))
+    return cls
+  }
+  const pool = getPool()
+  if (pool) {
+    try {
+      await pool.query<ResultSetHeader>(
+        'INSERT INTO t_class (id, code, name, created_by, created_at) VALUES (?, ?, ?, ?, ?)',
+        [cls.id, cls.code, cls.name, cls.createdBy, cls.createdAt]
+      )
+      await pool.query<ResultSetHeader>(
+        'INSERT INTO t_class_member (class_id, user_id, created_at) VALUES (?, ?, ?)',
+        [cls.id, createdBy, cls.createdAt]
+      )
+    } catch { /* ignore */ }
+  }
+  return cls
+}
+
+export async function findClassByCode(code: string): Promise<ClassEntity | null> {
+  if (isMemoryMode()) {
+    for (const cls of memoryClasses.values()) {
+      if (cls.code === code) return cls
+    }
+    return null
+  }
+  const pool = getPool()
+  if (!pool) return null
+  const [rows] = await pool.query<RowDataPacket[]>(
+    'SELECT id, code, name, created_by, created_at FROM t_class WHERE code = ? LIMIT 1',
+    [code]
+  )
+  if (rows.length === 0) return null
+  const r = rows[0]
+  return { id: r.id, code: r.code, name: r.name, createdBy: r.created_by, createdAt: r.created_at }
+}
+
+export async function findClassById(classId: string): Promise<ClassEntity | null> {
+  if (isMemoryMode()) return memoryClasses.get(classId) || null
+  const pool = getPool()
+  if (!pool) return null
+  const [rows] = await pool.query<RowDataPacket[]>(
+    'SELECT id, code, name, created_by, created_at FROM t_class WHERE id = ? LIMIT 1',
+    [classId]
+  )
+  if (rows.length === 0) return null
+  const r = rows[0]
+  return { id: r.id, code: r.code, name: r.name, createdBy: r.created_by, createdAt: r.created_at }
+}
+
+export async function joinClass(userId: string, classId: string): Promise<void> {
+  if (isMemoryMode()) {
+    const members = memoryClassMembers.get(classId) || new Set<string>()
+    members.add(userId)
+    memoryClassMembers.set(classId, members)
+    return
+  }
+  const pool = getPool()
+  if (!pool) return
+  try {
+    await pool.query<ResultSetHeader>(
+      'INSERT INTO t_class_member (class_id, user_id, created_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE created_at = VALUES(created_at)',
+      [classId, userId, Date.now()]
+    )
+  } catch { /* ignore */ }
+}
+
+export async function leaveClass(userId: string, classId: string): Promise<void> {
+  if (isMemoryMode()) {
+    const members = memoryClassMembers.get(classId)
+    if (members) members.delete(userId)
+    return
+  }
+  const pool = getPool()
+  if (!pool) return
+  await pool.query<ResultSetHeader>(
+    'DELETE FROM t_class_member WHERE class_id = ? AND user_id = ?',
+    [classId, userId]
+  )
+}
+
+export async function getClassMemberCount(classId: string): Promise<number> {
+  if (isMemoryMode()) return memoryClassMembers.get(classId)?.size || 0
+  const pool = getPool()
+  if (!pool) return 0
+  const [rows] = await pool.query<RowDataPacket[]>(
+    'SELECT COUNT(*) as cnt FROM t_class_member WHERE class_id = ?',
+    [classId]
+  )
+  return Number(rows[0]?.cnt || 0)
+}
+
+export async function getClassMemberIds(classId: string): Promise<string[]> {
+  if (isMemoryMode()) return Array.from(memoryClassMembers.get(classId) || [])
+  const pool = getPool()
+  if (!pool) return []
+  const [rows] = await pool.query<RowDataPacket[]>(
+    'SELECT user_id FROM t_class_member WHERE class_id = ?',
+    [classId]
+  )
+  return rows.map((r) => r.user_id)
+}
+
+export async function findClassMembersByIds(userIds: string[]): Promise<ClassMember[]> {
+  if (userIds.length === 0) return []
+  if (isMemoryMode()) {
+    const result: ClassMember[] = []
+    for (const uid of userIds) {
+      const u = memoryUsers.get(uid)
+      if (u) {
+        result.push({
+          userId: u.id,
+          nickname: u.nickname || '同学',
+          avatar: u.avatar || '😊',
+          targetGrade: u.targetGrade || 0,
+          xp: 0,
+          createdAt: u.createdAt,
+        })
+      }
+    }
+    return result
+  }
+  const pool = getPool()
+  if (!pool) return []
+  const placeholders = userIds.map(() => '?').join(',')
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `SELECT id, nickname, avatar, target_grade, created_at FROM t_user WHERE id IN (${placeholders})`,
+    userIds
+  )
+  return rows.map((r) => ({
+    userId: r.id,
+    nickname: r.nickname || '同学',
+    avatar: r.avatar || '😊',
+    targetGrade: r.target_grade || 0,
+    xp: 0,
+    createdAt: r.created_at,
+  }))
+}
+
+// ===== 鼓励记录存储 =====
+
+const memoryEncouragements = new Map<string, Encouragement[]>() // userId -> list of encouragements received
+
+export async function sendEncouragement(fromUserId: string, toUserId: string, context?: string): Promise<Encouragement> {
+  const enc: Encouragement = {
+    id: 'enc-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+    fromUserId,
+    toUserId,
+    emoji: '🌸',
+    context,
+    createdAt: Date.now(),
+  }
+  if (isMemoryMode()) {
+    const list = memoryEncouragements.get(toUserId) || []
+    list.push(enc)
+    memoryEncouragements.set(toUserId, list)
+    return enc
+  }
+  const pool = getPool()
+  if (pool) {
+    try {
+      await pool.query<ResultSetHeader>(
+        'INSERT INTO t_encouragement (id, from_user_id, to_user_id, emoji, context, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+        [enc.id, fromUserId, toUserId, enc.emoji, context || null, enc.createdAt]
+      )
+    } catch { /* ignore */ }
+  }
+  return enc
+}
+
+export async function getEncouragementsReceived(userId: string): Promise<Array<Encouragement & { fromUserName: string; fromUserAvatar: string }>> {
+  if (isMemoryMode()) {
+    const list = memoryEncouragements.get(userId) || []
+    return list.slice(-10).map((enc) => {
+      const u = memoryUsers.get(enc.fromUserId)
+      return { ...enc, fromUserName: u?.nickname || '同学', fromUserAvatar: u?.avatar || '😊' }
+    })
+  }
+  const pool = getPool()
+  if (!pool) return []
+  const [rows] = await pool.query<RowDataPacket[]>(
+    'SELECT e.id, e.from_user_id, e.to_user_id, e.emoji, e.context, e.created_at, u.nickname as from_user_name, u.avatar as from_user_avatar FROM t_encouragement e LEFT JOIN t_user u ON e.from_user_id = u.id WHERE e.to_user_id = ? ORDER BY e.created_at DESC LIMIT 10',
+    [userId]
+  )
+  return rows.map((r) => ({
+    id: r.id,
+    fromUserId: r.from_user_id,
+    toUserId: r.to_user_id,
+    emoji: r.emoji,
+    context: r.context,
+    createdAt: r.created_at,
+    fromUserName: r.from_user_name || '同学',
+    fromUserAvatar: r.from_user_avatar || '😊',
+  }))
+}
+
+export async function getEncouragementCountReceived(userId: string): Promise<number> {
+  if (isMemoryMode()) return (memoryEncouragements.get(userId) || []).length
+  const pool = getPool()
+  if (!pool) return 0
+  const [rows] = await pool.query<RowDataPacket[]>(
+    'SELECT COUNT(*) as cnt FROM t_encouragement WHERE to_user_id = ?',
+    [userId]
+  )
+  return Number(rows[0]?.cnt || 0)
 }

@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '@/store/useUserStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Volume2, VolumeX, Vibrate, VibrateOff, Edit2, Save, RotateCcw,
   Settings, LogOut, Trophy, Zap, Target, Coins,
-  BookOpen, BarChart3, Swords, X, Crown, Sparkles, Download
+  BookOpen, BarChart3, Swords, X, Crown, Sparkles, Download,
+  Users, UserPlus, ArrowRight, Flower2, Copy, Check, ChevronRight,
 } from 'lucide-react'
 import { saveProfile, exportUserData } from '@/services/auth'
 import { getRankInfo, getNextRankInfo, getRankProgress } from '@/utils/rank'
@@ -20,6 +21,8 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import * as classApi from '@/services/classApi'
+import type { ClassInfo } from '@/services/classApi'
 
 const AVATAR_OPTIONS = [
   '😊', '😎', '🤓', '🥳', '😇',
@@ -38,6 +41,82 @@ export default function Profile() {
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [showClassDialog, setShowClassDialog] = useState(false)
+  const [showLeaveClassConfirm, setShowLeaveClassConfirm] = useState(false)
+  const [myClass, setMyClass] = useState<ClassInfo | null>(null)
+  const [classLoading, setClassLoading] = useState(false)
+  const [classDialogTab, setClassDialogTab] = useState<'join' | 'create'>('join')
+  const [classCode, setClassCode] = useState('')
+  const [className, setClassName] = useState('')
+  const [submittingClass, setSubmittingClass] = useState(false)
+  const [copiedCode, setCopiedCode] = useState(false)
+
+  // 加载班级信息
+  useEffect(() => {
+    if (user.userId) {
+      setClassLoading(true)
+      classApi.getMyClass(user.userId).then((res) => {
+        setMyClass(res.class || null)
+        setClassLoading(false)
+      }).catch(() => setClassLoading(false))
+    }
+  }, [user.userId])
+
+  const handleCreateClass = async () => {
+    if (!user.userId) return
+    if (!className.trim()) { toast.error('请输入班级名称'); return }
+    setSubmittingClass(true)
+    const res = await classApi.createClass(user.userId, className.trim())
+    setSubmittingClass(false)
+    if (res.success && res.class) {
+      setMyClass(res.class)
+      setShowClassDialog(false)
+      setClassName('')
+      toast.success('班级创建成功')
+    } else {
+      toast.error(res.message)
+    }
+  }
+
+  const handleJoinClass = async () => {
+    if (!user.userId) return
+    if (!classCode.trim()) { toast.error('请输入班级码'); return }
+    setSubmittingClass(true)
+    const res = await classApi.joinClass(user.userId, classCode.trim())
+    setSubmittingClass(false)
+    if (res.success && res.class) {
+      setMyClass(res.class)
+      setShowClassDialog(false)
+      setClassCode('')
+      toast.success('加入班级成功')
+    } else {
+      toast.error(res.message)
+    }
+  }
+
+  const handleLeaveClass = async () => {
+    if (!user.userId || !myClass) return
+    const res = await classApi.leaveClass(user.userId, myClass.id)
+    if (res.success) {
+      setMyClass(null)
+      setShowLeaveClassConfirm(false)
+      toast.success('已退出班级')
+    } else {
+      toast.error(res.message)
+    }
+  }
+
+  const handleCopyCode = async () => {
+    if (!myClass) return
+    try {
+      await navigator.clipboard.writeText(myClass.code)
+      setCopiedCode(true)
+      toast.success('已复制班级码')
+      setTimeout(() => setCopiedCode(false), 2000)
+    } catch {
+      toast.error('复制失败，请手动复制')
+    }
+  }
 
   const rankInfo = getRankInfo(user.xp, user.systemConfigs)
   const nextRank = getNextRankInfo(user.xp, user.systemConfigs)
@@ -372,6 +451,80 @@ export default function Profile() {
           </Card>
         </motion.div>
 
+        {/* ═══════════ 我的班级 ═══════════ */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28 }}
+        >
+          <Card>
+            <CardHeader className="pb-1">
+              <CardTitle className="text-sm flex items-center gap-1.5">
+                <Users size={15} className="text-primary" />
+                我的班级
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {classLoading ? (
+                <div className="py-4 text-center text-sm text-muted-foreground">加载中...</div>
+              ) : myClass ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-foreground">{myClass.name}</div>
+                      <div className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
+                        <span>班级码:</span>
+                        <code className="px-1.5 py-0.5 rounded bg-muted text-foreground font-mono text-xs">{myClass.code}</code>
+                        <button onClick={handleCopyCode} className="hover:text-primary transition-colors" aria-label="复制班级码">
+                          {copiedCode ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                        </button>
+                      </div>
+                    </div>
+                    <Badge variant="secondary">{myClass.memberCount} 人</Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/leaderboard')}
+                      className="gap-1.5 justify-center"
+                    >
+                      <Flower2 size={12} /> 同学榜
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowLeaveClassConfirm(true)}
+                      className="gap-1.5 justify-center"
+                    >
+                      退出班级
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">加入班级，和同学一起学习</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => { setClassDialogTab('join'); setShowClassDialog(true) }}
+                      className="gap-1.5 justify-center text-sm"
+                    >
+                      <UserPlus size={14} /> 加入班级
+                    </Button>
+                    <Button
+                      onClick={() => { setClassDialogTab('create'); setShowClassDialog(true) }}
+                      className="gap-1.5 justify-center text-sm"
+                    >
+                      <Users size={14} /> 创建班级
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* ═══════════ 设置 ═══════════ */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -470,6 +623,101 @@ export default function Profile() {
         }}
         onCancel={() => setShowResetConfirm(false)}
       />
+
+      <ConfirmDialog
+        isOpen={showLeaveClassConfirm}
+        message="确定退出当前班级吗？"
+        confirmText="退出"
+        onConfirm={handleLeaveClass}
+        onCancel={() => setShowLeaveClassConfirm(false)}
+      />
+
+      <AnimatePresence>
+        {showClassDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={() => !submittingClass && setShowClassDialog(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 10 }}
+              className="bg-background rounded-2xl shadow-xl border border-border w-full max-w-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <h3 className="font-bold text-foreground">
+                  {classDialogTab === 'join' ? '加入班级' : '创建班级'}
+                </h3>
+                <button onClick={() => !submittingClass && setShowClassDialog(false)} className="text-muted-foreground hover:text-foreground" aria-label="关闭">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="flex gap-2 p-4 pt-3">
+                <button
+                  onClick={() => setClassDialogTab('join')}
+                  className={clsx(
+                    'flex-1 py-2 rounded-lg text-sm font-medium transition-colors',
+                    classDialogTab === 'join' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  加入班级
+                </button>
+                <button
+                  onClick={() => setClassDialogTab('create')}
+                  className={clsx(
+                    'flex-1 py-2 rounded-lg text-sm font-medium transition-colors',
+                    classDialogTab === 'create' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  创建班级
+                </button>
+              </div>
+
+              <div className="px-4 pb-4 space-y-3">
+                {classDialogTab === 'join' ? (
+                  <>
+                    <label className="text-xs text-muted-foreground">输入班级码</label>
+                    <Input
+                      value={classCode}
+                      onChange={(e) => setClassCode(e.target.value.toUpperCase())}
+                      placeholder="例如：ABC123"
+                      className="font-mono uppercase text-center tracking-widest"
+                      maxLength={12}
+                      autoFocus
+                    />
+                    <p className="text-xs text-muted-foreground">向老师或同学获取班级码</p>
+                  </>
+                ) : (
+                  <>
+                    <label className="text-xs text-muted-foreground">班级名称</label>
+                    <Input
+                      value={className}
+                      onChange={(e) => setClassName(e.target.value)}
+                      placeholder="例如：三年级一班"
+                      maxLength={20}
+                      autoFocus
+                    />
+                    <p className="text-xs text-muted-foreground">创建后可分享班级码给同学加入</p>
+                  </>
+                )}
+
+                <Button
+                  onClick={classDialogTab === 'join' ? handleJoinClass : handleCreateClass}
+                  disabled={submittingClass}
+                  className="w-full mt-2"
+                >
+                  {submittingClass ? '处理中...' : classDialogTab === 'join' ? '加入' : '创建'}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
