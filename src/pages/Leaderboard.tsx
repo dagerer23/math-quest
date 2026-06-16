@@ -7,6 +7,7 @@ import { RANK_COLORS, getRankFromXp, getRankInfo, getRankProgress, getNextRankIn
 import { getLeaderboard, type LeaderboardUser } from '@/services/content'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 // ═══════════════════════════════════════════════════════════════════
 // 排行榜类型（兼容 API 返回字段）
@@ -161,16 +162,38 @@ export default function Leaderboard() {
       {tab !== 'rank' ? (
           <div className="space-y-5">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-3">
-                <Loader2 size={32} className="text-emerald-400 animate-spin" />
-                <span className="text-sm text-gray-400 font-medium">加载中...</span>
+              <div className="space-y-2">
+                {/* Top3 skeleton */}
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  {[0, 1, 2].map((i) => (
+                    <Card key={i} className="p-3 text-center">
+                      <Skeleton className="w-8 h-8 mx-auto rounded-full mb-2" />
+                      <Skeleton className="h-4 w-16 mx-auto mb-1" />
+                      <Skeleton className="h-3 w-12 mx-auto" />
+                    </Card>
+                  ))}
+                </div>
+                {/* List skeleton */}
+                {[0, 1, 2, 3].map((i) => (
+                  <Card key={i} className="p-3">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-8 h-8 rounded-lg" />
+                      <Skeleton className="w-10 h-10 rounded-xl" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-3 w-20" />
+                        <Skeleton className="h-3 w-32" />
+                      </div>
+                      <Skeleton className="h-4 w-10" />
+                    </div>
+                  </Card>
+                ))}
               </div>
             ) : list.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
-                <Trophy size={48} className="text-gray-200" />
+                <Trophy size={48} className="text-muted" />
                 <div className="text-center">
-                  <div className="text-base font-bold text-gray-400">暂无排行数据</div>
-                  <div className="text-xs text-gray-300 mt-1">完成关卡后来这里看看</div>
+                  <div className="text-base font-bold text-muted-foreground">暂无排行数据</div>
+                  <div className="text-xs text-muted-foreground/60 mt-1">完成关卡后来这里看看</div>
                 </div>
               </div>
             ) : (

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import clsx from 'clsx'
 import { useSessionStore } from '@/store/useSessionStore'
 import { useUserStore } from '@/store/useUserStore'
 import StarRow from '@/components/StarRow'
@@ -198,35 +199,28 @@ export default function Result() {
       >
         <Card className="p-5 text-center relative overflow-hidden">
         {/* 装饰性背景 */}
-        <div className="absolute top-0 left-0 size-20 bg-duolingo-green/5 rounded-full -translate-y-1/2 -translate-x-1/2" />
-        <div className="absolute bottom-0 right-0 size-24 bg-duolingo-gold/5 rounded-full translate-y-1/2 translate-x-1/2" />
-        <div className="absolute top-8 right-8 text-3xl opacity-20">
+        <div className="absolute top-0 left-0 size-20 bg-primary/10 rounded-full -translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute bottom-0 right-0 size-24 bg-primary/10 rounded-full translate-y-1/2 translate-x-1/2" />
+        <div className="absolute top-8 right-8 text-3xl text-muted-foreground/20">
           <Star />
         </div>
-        <div className="absolute bottom-12 left-6 text-2xl opacity-20">
+        <div className="absolute bottom-12 left-6 text-2xl text-muted-foreground/20">
           <Zap />
         </div>
 
         <div className="text-xs font-bold text-muted-foreground">{level.chapter}</div>
         
         {/* 动态标题 */}
-        <motion.h1 
-          className="font-bold text-xl mt-2"
-          animate={{ 
-            color: accuracy === 100 ? '#58CC02' : accuracy >= 80 ? '#1CB0F6' : accuracy >= 40 ? '#FFC800' : '#FF4B4B',
-            scale: [1, 1.05, 1]
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
+        <div className="font-bold text-xl mt-2 text-foreground">
           {accuracy === 100 ? '🏆 PERFECT!' : record.stars >= 1 ? '🎉 VICTORY!' : '💪 继续加油!'}
-        </motion.h1>
+        </div>
 
         {/* 花式赞美 */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-xs text-muted-foreground mt-2 font-medium"
+          className="text-xs text-muted-foreground mt-2"
         >
           {praiseText}
         </motion.div>
@@ -245,7 +239,7 @@ export default function Result() {
                 <motion.div
                   animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                  className="absolute inset-0 bg-duolingo-gold/20 rounded-full"
+                  className="absolute inset-0 bg-primary/20 rounded-full"
                 />
               )}
               {starStage > i ? (
@@ -264,9 +258,10 @@ export default function Result() {
           transition={{ delay: 0.3, type: 'spring' }}
           className="relative"
         >
-          <div className="text-5xl font-black" style={{ 
-            color: accuracy === 100 ? '#58CC02' : accuracy >= 80 ? '#1CB0F6' : accuracy >= 60 ? '#FFC800' : '#FF4B4B'
-          }}>
+          <div className={clsx(
+            "text-5xl font-black",
+            accuracy === 100 ? "text-primary" : accuracy >= 60 ? "text-foreground" : "text-destructive"
+          )}>
             {accuracy}%
           </div>
           <div className="text-xs text-muted-foreground mt-1">正确率 · {record.correctCount} / {record.totalCount}</div>
@@ -274,9 +269,9 @@ export default function Result() {
 
         {/* 奖励卡片 */}
         <div className="grid grid-cols-3 gap-2 mt-4">
-          <RewardBadge icon={<Sparkles size={16} className="text-duolingo-purple" />} label="XP" value={`+${record.xpGained}`} color="purple" />
-          <RewardBadge icon={<Coins size={16} className="text-duolingo-gold" />} label="金币" value={`+${record.coinsGained}`} color="gold" />
-          <RewardBadge icon={<Zap size={16} className="text-duolingo-red" />} label="连击" value={`×${record.comboMax}`} color="red" />
+          <RewardBadge icon={<Sparkles size={16} className="text-primary" />} label="XP" value={`+${record.xpGained}`} color="purple" />
+          <RewardBadge icon={<Coins size={16} className="text-primary" />} label="金币" value={`+${record.coinsGained}`} color="gold" />
+          <RewardBadge icon={<Zap size={16} className="text-primary" />} label="连击" value={`×${record.comboMax}`} color="red" />
         </div>
         </Card>
       </motion.section>
@@ -288,7 +283,7 @@ export default function Result() {
         >
           <Card className="p-4">
           <div className="font-bold text-sm text-foreground mb-2 flex items-center gap-2">
-            <Trophy size={14} className="text-duolingo-gold" />
+            <Trophy size={14} className="text-primary" />
             🎉 解锁成就
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -300,7 +295,7 @@ export default function Result() {
                   key={a.id}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="bg-gradient-to-br from-duolingo-gold/10 to-duolingo-green/10 rounded-xl p-2 flex items-center gap-2 border border-duolingo-gold/20"
+                  className="bg-muted rounded-xl p-2 flex items-center gap-2 border border-border"
                 >
                   <div className="text-xl">{ach.icon}</div>
                   <div>
@@ -323,9 +318,9 @@ export default function Result() {
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 1, repeat: Infinity, repeatDelay: 3 }}
             >
-              <CheckCircle2 className="mx-auto text-duolingo-green" size={36} />
+              <CheckCircle2 className="mx-auto text-primary" size={36} />
             </motion.div>
-            <p className="mt-2 text-sm font-medium text-duolingo-green">太棒了！零失误完美通关 🎉</p>
+            <p className="mt-2 text-sm font-medium text-primary">太棒了！零失误完美通关 🎉</p>
             <p className="text-xs text-muted-foreground mt-1">你真是太厉害了！</p>
           </div>
         ) : (
@@ -333,14 +328,14 @@ export default function Result() {
             {wrongAnswers.map((a, i) => (
               <li key={i} className="bg-muted rounded-xl p-2.5 border border-border">
                 <div className="text-xs text-foreground/80">
-                  <span className="text-duolingo-red font-bold">第 {i + 1} 题 · </span>
+                  <span className="text-destructive font-bold">第 {i + 1} 题 · </span>
                   {a.question?.prompt}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  你的答案：<span className="text-duolingo-red">{a.userAnswer || '未作答'}</span> · 正确答案：<span className="text-duolingo-green font-medium">{a.question?.answer}</span>
+                  你的答案：<span className="text-destructive">{a.userAnswer || '未作答'}</span> · 正确答案：<span className="text-primary font-medium">{a.question?.answer}</span>
                 </div>
                 {a.question?.explanation && (
-                  <div className="mt-1 text-xs text-duolingo-blue/80 bg-duolingo-blue/5 rounded-lg p-2">
+                  <div className="mt-1 text-xs text-primary/80 bg-primary/5 rounded-lg p-2">
                     💡 {a.question.explanation}
                   </div>
                 )}
@@ -361,7 +356,7 @@ export default function Result() {
 
       {wrongAnswers.length > 0 && (
         <div className="text-center text-xs text-muted-foreground bg-card rounded-xl p-2.5 border border-border">
-          错题已自动加入 <button className="text-duolingo-green underline font-medium" onClick={() => navigate('/mistakes')}>错题本</button>，可以复仇再战！
+          错题已自动加入 <button className="text-primary underline font-medium" onClick={() => navigate('/mistakes')}>错题本</button>，可以复仇再战！
         </div>
       )}
       </div>
@@ -370,16 +365,15 @@ export default function Result() {
 }
 
 function RewardBadge({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string; color: 'purple' | 'gold' | 'red' }) {
-  const colorClasses = {
-    purple: 'from-duolingo-purple/10 to-duolingo-blue/10 border-duolingo-purple/20',
-    gold: 'from-duolingo-gold/10 to-duolingo-green/10 border-duolingo-gold/20',
-    red: 'from-duolingo-red/10 to-duolingo-gold/10 border-duolingo-red/20'
+  const bgClass = {
+    purple: 'bg-muted',
+    gold: 'bg-muted',
+    red: 'bg-muted',
   }
-
-  const badgeVariant = {
+  const variant = {
     purple: 'secondary' as const,
     gold: 'outline' as const,
-    red: 'destructive' as const
+    red: 'destructive' as const,
   }
 
   return (
@@ -387,7 +381,7 @@ function RewardBadge({ icon, label, value, color }: { icon: React.ReactNode; lab
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.4 }}
-      className={`bg-gradient-to-br ${colorClasses[color]} rounded-xl py-2.5 flex flex-col items-center border`}
+      className={`${bgClass[color]} rounded-xl py-2.5 flex flex-col items-center border border-border`}
     >
       <div className="flex items-center gap-1 text-xs text-muted-foreground">
         {icon} {label}
@@ -397,7 +391,7 @@ function RewardBadge({ icon, label, value, color }: { icon: React.ReactNode; lab
         animate={{ scale: 1 }}
         transition={{ delay: 0.6, type: 'spring' }}
       >
-        <Badge variant={badgeVariant[color]} className="mt-1 font-bold text-sm">
+        <Badge variant={variant[color]} className="mt-1 font-bold text-sm">
           {value}
         </Badge>
       </motion.div>

@@ -18,42 +18,12 @@ export default function Stats() {
   const rankProgress = getRankProgress(user.xp, user.systemConfigs || {})
 
   const statCards = [
-    {
-      icon: <BookOpen size={20} />,
-      label: '答题总数',
-      value: stats.totalQuestions,
-      color: 'bg-blue-50 text-blue-500',
-    },
-    {
-      icon: <Target size={20} />,
-      label: '正确率',
-      value: `${accuracy}%`,
-      color: 'bg-emerald-50 text-emerald-500',
-    },
-    {
-      icon: <Zap size={20} />,
-      label: '经验值',
-      value: user.xp,
-      color: 'bg-amber-50 text-amber-500',
-    },
-    {
-      icon: <Flame size={20} />,
-      label: '连续天数',
-      value: `${user.streak}天`,
-      color: 'bg-orange-50 text-orange-500',
-    },
-    {
-      icon: <Calendar size={20} />,
-      label: '学习天数',
-      value: `${stats.totalDays}天`,
-      color: 'bg-purple-50 text-purple-500',
-    },
-    {
-      icon: <Award size={20} />,
-      label: '当前段位',
-      value: rankInfo.name,
-      color: 'bg-rose-50 text-rose-500',
-    },
+    { icon: <BookOpen size={18} />, label: '答题总数', value: stats.totalQuestions },
+    { icon: <Target size={18} />, label: '正确率', value: `${accuracy}%` },
+    { icon: <Zap size={18} />, label: '经验值', value: user.xp },
+    { icon: <Flame size={18} />, label: '连续天数', value: `${user.streak}天` },
+    { icon: <Calendar size={18} />, label: '学习天数', value: `${stats.totalDays}天` },
+    { icon: <Award size={18} />, label: '当前段位', value: rankInfo.name },
   ]
 
   // 知识点掌握度
@@ -93,11 +63,11 @@ export default function Stats() {
             >
               <Card className="p-3 text-center">
                 <CardContent className="p-0">
-                  <div className={`inline-flex items-center justify-center size-9 rounded-xl mb-2 ${card.color}`}>
+                  <div className="inline-flex items-center justify-center size-9 rounded-xl mb-2 bg-muted text-primary">
                     {card.icon}
                   </div>
-                  <div className="text-lg font-black text-foreground">{card.value}</div>
-                  <div className="text-[10px] text-muted-foreground font-medium">{card.label}</div>
+                  <div className="text-lg font-bold text-foreground">{card.value}</div>
+                  <div className="text-xs text-muted-foreground">{card.label}</div>
                 </CardContent>
               </Card>
             </motion.div>

@@ -10,6 +10,7 @@ import type { Question } from '@/types/models'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
 
 // ---------- helpers ----------
@@ -147,87 +148,88 @@ export default function Mistakes() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.03 }}
-        className={clsx(
-          'pixel-card overflow-hidden transition-all',
-          isMastered ? 'border-duolingo-green/30 bg-duolingo-green/3' : 'bg-white',
-        )}
       >
-        {/* 折叠头部 — 点击展开 */}
-        <button
-          onClick={() => toggleExpand(item.q.id)}
-          className="w-full flex items-start gap-2.5 p-3 text-left"
-        >
-          <span className={clsx(
-            'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5',
-            isMastered ? 'bg-duolingo-green/15 text-duolingo-green' : 'bg-gray-100 text-gray-500',
-          )}>
-            {isMastered ? <CheckCircle2 size={14} /> : index + 1}
-          </span>
-          <div className="flex-1 min-w-0">
-            <div className="text-xs text-gray-400 font-medium mb-0.5 flex items-center gap-1.5">
-              <span>{item.kp}</span>
-              {m > 0 && (
-                <span className={clsx(
-                  'text-[10px] px-1.5 py-0.5 rounded-full font-bold',
-                  m >= 3 ? 'bg-duolingo-green/12 text-duolingo-green' : 'bg-duolingo-gold/12 text-duolingo-gold',
-                )}>
-                  ✓{m}/3
-                </span>
-              )}
-            </div>
-            <div className="text-sm font-medium text-gray-800 leading-relaxed">
-              {item.q.prompt}
-            </div>
-          </div>
-          <div className="flex-shrink-0 mt-1 text-gray-300">
-            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </div>
-        </button>
-
-        {/* 展开内容 — 答案 & 操作 */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <div className="px-3 pb-3 space-y-2 border-t border-gray-100 pt-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-gray-50 rounded-xl p-2.5">
-                    <div className="text-[10px] text-gray-400 uppercase tracking-wide font-bold mb-0.5">正确答案</div>
-                    <div className="text-base font-bold text-duolingo-green">{String(item.q.answer)}</div>
-                    {item.q.explanation && (
-                      <div className="text-xs text-gray-500 mt-1 leading-relaxed">{item.q.explanation}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-[10px] text-gray-400">
-                  <span>📚 来自：{item.levelName}</span>
-                  {isMastered ? (
-                    <span className="text-duolingo-green font-bold">🎉 已掌握</span>
-                  ) : m > 0 ? (
-                    <span>掌握进度：<span className="text-duolingo-gold font-bold">{m}/3</span></span>
-                  ) : null}
-                </div>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    clearMistake(item.q.id)
-                  }}
-                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-duolingo-red transition-colors py-1"
-                >
-                  <Trash2 size={12} />
-                  移出错题本
-                </button>
+        <Card className={clsx(
+          "overflow-hidden",
+          isMastered ? "border-primary/30" : ""
+        )}>
+          {/* 折叠头部 — 点击展开 */}
+          <button
+            onClick={() => toggleExpand(item.q.id)}
+            className="w-full flex items-start gap-2.5 p-3 text-left"
+          >
+            <span className={clsx(
+              'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5',
+              isMastered ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
+            )}>
+              {isMastered ? <CheckCircle2 size={14} /> : index + 1}
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
+                <span>{item.kp}</span>
+                {m > 0 && (
+                  <span className={clsx(
+                    'text-[10px] px-1.5 py-0.5 rounded-full font-bold',
+                    m >= 3 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
+                  )}>
+                    ✓{m}/3
+                  </span>
+                )}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div className="text-sm font-medium text-foreground leading-relaxed">
+                {item.q.prompt}
+              </div>
+            </div>
+            <div className="flex-shrink-0 mt-1 text-muted-foreground">
+              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </div>
+          </button>
+
+          {/* 展开内容 — 答案 & 操作 */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <div className="px-3 pb-3 space-y-2 border-t border-border pt-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-muted rounded-xl p-2.5">
+                      <div className="text-[10px] text-muted-foreground font-bold mb-0.5">正确答案</div>
+                      <div className="text-base font-bold text-primary">{String(item.q.answer)}</div>
+                      {item.q.explanation && (
+                        <div className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.q.explanation}</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>📚 来自：{item.levelName}</span>
+                    {isMastered ? (
+                      <span className="text-primary font-bold">🎉 已掌握</span>
+                    ) : m > 0 ? (
+                      <span>掌握进度：<span className="text-primary font-bold">{m}/3</span></span>
+                    ) : null}
+                  </div>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      clearMistake(item.q.id)
+                    }}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors py-1"
+                  >
+                    <Trash2 size={12} />
+                    移出错题本
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Card>
       </motion.div>
     )
   }
@@ -254,34 +256,38 @@ export default function Mistakes() {
       <div className="flex-1 px-4 py-4 overflow-y-auto flex flex-col gap-4">
         {/* 标签切换 */}
         <Tabs defaultValue="all" value={tab} onValueChange={(v) => setTab(v as 'all' | 'byKP')}>
-          <TabsList className="w-full flex gap-1.5 mb-3 h-9 bg-transparent p-0">
+          <TabsList className="w-full flex gap-1.5 mb-3 h-9 bg-muted p-1">
             <TabsTrigger
               value="all"
-              className={clsx(
-                'flex-1 h-9 rounded-xl text-xs font-bold transition-all',
-                tab === 'all'
-                  ? 'bg-duolingo-green text-white shadow-lg shadow-duolingo-green/25 data-active:bg-duolingo-green data-active:text-white'
-                  : 'bg-gray-100 text-gray-500',
-              )}
+              className="flex-1 h-8 rounded-lg text-xs font-medium"
             >
               全部错题
             </TabsTrigger>
             <TabsTrigger
               value="byKP"
-              className={clsx(
-                'flex-1 h-9 rounded-xl text-xs font-bold transition-all',
-                tab === 'byKP'
-                  ? 'bg-duolingo-green text-white shadow-lg shadow-duolingo-green/25 data-active:bg-duolingo-green data-active:text-white'
-                  : 'bg-gray-100 text-gray-500',
-              )}
+              className="flex-1 h-8 rounded-lg text-xs font-medium"
             >
               按知识点
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
-        {/* 空状态 */}
-        {allItems.length === 0 ? (
+        {/* 加载状态 */}
+        {loading ? (
+          <div className="space-y-2">
+            {[0, 1, 2, 3].map((i) => (
+              <Card key={i} className="p-3">
+                <div className="flex items-start gap-2.5">
+                  <Skeleton className="w-6 h-6 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : allItems.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -289,8 +295,8 @@ export default function Mistakes() {
           >
             <div className="text-center">
               <div className="text-5xl mb-3">🎉</div>
-              <div className="text-base font-bold text-gray-700">太棒了，没有错题！</div>
-              <div className="text-sm text-gray-400 mt-1">继续挑战更多关卡吧</div>
+              <div className="text-base font-bold text-foreground">太棒了，没有错题！</div>
+              <div className="text-sm text-muted-foreground mt-1">继续挑战更多关卡吧</div>
             </div>
           </motion.div>
         ) : tab === 'all' ? (
@@ -310,20 +316,19 @@ export default function Mistakes() {
                   <div className="flex items-center justify-between mb-2 px-1">
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: getRingColor(kp, gi) }}
+                        className="w-2.5 h-2.5 rounded-full bg-primary"
                       />
-                      <span className="font-bold text-sm text-gray-700">{kp}</span>
-                      <span className="text-xs text-gray-400">{list.length} 题</span>
+                      <span className="font-bold text-sm text-foreground">{kp}</span>
+                      <span className="text-xs text-muted-foreground">{list.length} 题</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: `${pct}%`, backgroundColor: getRingColor(kp, gi) }}
+                          className="h-full rounded-full transition-all duration-500 bg-primary"
+                          style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className="text-[11px] font-bold text-gray-500">{pct}%</span>
+                      <span className="text-xs font-bold text-muted-foreground">{pct}%</span>
                     </div>
                   </div>
                   {/* 该知识点的错题列表 */}
@@ -331,12 +336,14 @@ export default function Mistakes() {
                     {list.map((item, i) => renderCard(item, i))}
                   </div>
                   {/* 针对性练习 */}
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2.5 w-full"
                     onClick={() => revenge(list.map(i => i.q.id))}
-                    className="mt-2.5 w-full h-9 rounded-xl bg-gray-50 border border-gray-200 text-duolingo-green text-xs font-bold transition-all active:scale-[0.98] hover:border-duolingo-green/30"
                   >
                     只练「{kp}」({list.filter(it => (mistakeMastery[it.q.id] || 0) < 3).length} 题待攻克)
-                  </button>
+                  </Button>
                 </div>
               )
             })}
