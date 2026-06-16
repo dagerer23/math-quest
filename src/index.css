@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 98%;
+  --background: 0 0% 100%;
   --foreground: 0 0% 24%;
   --card: 0 0% 100%;
   --card-foreground: 0 0% 24%;
@@ -13,14 +13,14 @@
   --primary-foreground: 0 0% 100%;
   --secondary: 196 94% 54%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 0 0% 96%;
+  --muted: 210 20% 98%;
   --muted-foreground: 0 0% 47%;
   --accent: 45 100% 50%;
   --accent-foreground: 0 0% 24%;
   --destructive: 0 100% 64%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
   --ring: 96 100% 40%;
   --radius: 0.75rem;
 
@@ -40,7 +40,7 @@ html, body, #root {
   padding: 0;
   height: 100%;
   width: 100%;
-  background: linear-gradient(180deg, #FFFFFF 0%, #F4F4F4 100%);
+  background: #FFFFFF;
   color: #3C3C3C;
   font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
   overscroll-behavior: none;
@@ -50,7 +50,7 @@ html, body, #root {
   max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
-  background: linear-gradient(180deg, #FFFFFF 0%, #F4F4F4 100%);
+  background: #FFFFFF;
   position: relative;
   overflow: hidden;
 }

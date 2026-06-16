@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Crown, Medal, Trophy, Star, Sparkles, Award, Target, ChevronRight, Zap, Gem, Loader2, Users, Globe2, Flower2 } from 'lucide-react'
 import clsx from 'clsx'
 import { RANK_COLORS, getRankFromXp, getRankInfo, getRankProgress, getNextRankInfo } from '@/utils/rank'
+import { getAvatarUrl, getAvatarBorderColor, getInitial, getAvatarBgColor, getAvatarTextColor } from '@/utils/avatar'
 import { getLeaderboard, type LeaderboardUser } from '@/services/content'
 import * as classApi from '@/services/classApi'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
@@ -149,7 +150,7 @@ export default function Leaderboard() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* 顶部渐变条 */}
       <div className="h-1 bg-gradient-to-r from-primary via-duolingo-blue to-primary" />
 
@@ -290,7 +291,12 @@ export default function Leaderboard() {
                         >
                           {rank}
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-muted to-muted/50 border border-border grid place-items-center text-xl shrink-0">{u.avatar}</div>
+                        <div className="w-10 h-10 rounded-full border-2 overflow-hidden flex-shrink-0" style={{ borderColor: getAvatarBorderColor(u.nickname || '同学') }}>
+                          <img src={getAvatarUrl(u.nickname || '同学')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
+                          <div className="hidden w-full h-full items-center justify-center text-sm font-bold" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>
+                            {getInitial(u.nickname || '同学')}
+                          </div>
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-bold text-sm text-foreground truncate flex items-center gap-1.5">
                             {u.nickname}
@@ -323,8 +329,13 @@ export default function Leaderboard() {
                   return (
                     <Card key={u.userId} className={clsx('p-3 transition-all', u.isMe && 'border-primary/30 bg-primary/5')}>
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg grid place-items-center font-bold text-sm bg-muted text-muted-foreground">{rank}</div>
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-muted to-muted/50 border border-border grid place-items-center text-xl shrink-0">{u.avatar}</div>
+                        <div className="w-8 h-8 rounded-lg grid place-items-center font-bold text-sm" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>{rank}</div>
+                        <div className="w-10 h-10 rounded-full border-2 overflow-hidden flex-shrink-0" style={{ borderColor: getAvatarBorderColor(u.nickname || '同学') }}>
+                          <img src={getAvatarUrl(u.nickname || '同学')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
+                          <div className="hidden w-full h-full items-center justify-center text-sm font-bold" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>
+                            {getInitial(u.nickname || '同学')}
+                          </div>
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-bold text-sm text-foreground truncate flex items-center gap-1.5">
                             {u.nickname}
@@ -419,12 +430,14 @@ export default function Leaderboard() {
                             )}
                             <div className={clsx(
                               'w-8 h-8 rounded-lg grid place-items-center font-bold text-sm',
-                              'bg-muted text-muted-foreground',
-                            )}>
+                            )} style={{ background: rankColor + '18', color: rankColor }}>
                               {rank}
                             </div>
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-muted to-muted/50 border border-border grid place-items-center text-xl shrink-0">
-                              {u.avatar}
+                            <div className="w-10 h-10 rounded-full border-2 overflow-hidden flex-shrink-0" style={{ borderColor: getAvatarBorderColor(u.nickname || '同学') }}>
+                              <img src={getAvatarUrl(u.nickname || '同学')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
+                              <div className="hidden w-full h-full items-center justify-center text-sm font-bold" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>
+                                {getInitial(u.nickname || '同学')}
+                              </div>
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1.5 mb-0.5">
@@ -470,8 +483,11 @@ export default function Leaderboard() {
                   >
                     <Card className="p-4 border-primary/30 bg-primary/5">
                       <div className="flex items-center gap-3">
-                        <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border-2 border-primary/20 grid place-items-center text-2xl shrink-0">
-                          {user.profile.avatar || '🧒'}
+                        <div className="relative w-14 h-14 rounded-xl border-2 border-primary/20 overflow-hidden shrink-0" style={{ borderColor: getAvatarBorderColor(myNickname) }}>
+                          <img src={getAvatarUrl(myNickname)} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
+                          <div className="hidden w-full h-full items-center justify-center text-base font-bold" style={{ background: getAvatarBgColor(myNickname), color: getAvatarTextColor(myNickname) }}>
+                            {getInitial(myNickname)}
+                          </div>
                           <div className="absolute -top-2 -left-2 w-7 h-7 rounded-lg bg-primary border-2 border-background grid place-items-center text-xs font-bold text-primary-foreground">
                             #{myIndex + 1}
                           </div>
@@ -539,12 +555,15 @@ function Top3Podium({ list }: { list: RankUser[] }) {
               <div className="relative mb-2">
                 <div
                   className={clsx(
-                    'w-16 h-16 rounded-2xl bg-white grid place-items-center text-3xl border-2 shadow-lg',
+                    'w-16 h-16 rounded-2xl bg-white border-2 shadow-lg overflow-hidden',
                     pos.ringColor,
                   )}
-                  style={{ boxShadow: `0 8px 24px ${pos.accent}30` }}
+                  style={{ boxShadow: `0 8px 24px ${pos.accent}30`, borderColor: getAvatarBorderColor(user.nickname || '同学') }}
                 >
-                  {user.avatar}
+                  <img src={getAvatarUrl(user.nickname || '同学')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
+                  <div className="hidden w-full h-full items-center justify-center text-base font-bold" style={{ background: getAvatarBgColor(user.nickname || '同学'), color: getAvatarTextColor(user.nickname || '同学') }}>
+                    {getInitial(user.nickname || '同学')}
+                  </div>
                 </div>
                 {pos.rank === 1 && (
                   <motion.div

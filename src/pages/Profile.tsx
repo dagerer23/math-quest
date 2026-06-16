@@ -8,6 +8,7 @@ import {
   BookOpen, BarChart3, Swords, X, Crown, Sparkles, Download,
   Users, UserPlus, ArrowRight, Flower2, Copy, Check, ChevronRight,
 } from 'lucide-react'
+import { getAvatarUrl, getAvatarBorderColor, getInitial, getAvatarBgColor, getAvatarTextColor } from '@/utils/avatar'
 import { saveProfile, exportUserData } from '@/services/auth'
 import { getRankInfo, getNextRankInfo, getRankProgress } from '@/utils/rank'
 import { handleApiError } from '@/utils/apiError'
@@ -24,11 +25,7 @@ import { Button } from '@/components/ui/button'
 import * as classApi from '@/services/classApi'
 import type { ClassInfo } from '@/services/classApi'
 
-const AVATAR_OPTIONS = [
-  '😊', '😎', '🤓', '🥳', '😇',
-  '🌟', '🚀', '🎯', '⭐', '🎨',
-  '🐱', '🐶', '🦊', '🐼', '🦁',
-]
+const AVATAR_SEEDS = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry', 'Ivy', 'Jack', 'Kate', 'Leo', 'Mia', 'Noah', 'Olivia']
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -170,7 +167,7 @@ export default function Profile() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col"
+      className="min-h-screen bg-white flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
@@ -196,9 +193,15 @@ export default function Profile() {
                 <div className="relative flex-shrink-0">
                   <button
                     onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                    className="size-14 rounded-2xl grid place-items-center text-2xl bg-muted border border-border hover:border-primary/30 transition-colors"
+                    className="rounded-full border-2 overflow-hidden hover:border-primary/30 transition-colors"
+                    style={{ borderColor: getAvatarBorderColor(user.profile.nickname || '用户') }}
                   >
-                    {user.profile.avatar}
+                    <div className="size-14">
+                      <img src={getAvatarUrl(user.profile.nickname || '用户')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
+                      <div className="hidden w-full h-full items-center justify-center text-lg font-bold" style={{ background: getAvatarBgColor(user.profile.nickname || '用户'), color: getAvatarTextColor(user.profile.nickname || '用户') }}>
+                        {getInitial(user.profile.nickname || '用户')}
+                      </div>
+                    </div>
                   </button>
                   <AnimatePresence>
                     {showAvatarPicker && (
@@ -216,18 +219,18 @@ export default function Profile() {
                           </button>
                         </div>
                         <div className="grid grid-cols-5 gap-1.5">
-                          {AVATAR_OPTIONS.map((avatar) => (
+                          {AVATAR_SEEDS.map((seed) => (
                             <button
-                              key={avatar}
-                              onClick={() => handleSelectAvatar(avatar)}
+                              key={seed}
+                              onClick={() => handleSelectAvatar(seed)}
                               className={clsx(
-                                'aspect-square rounded-xl grid place-items-center text-xl transition-all',
-                                user.profile.avatar === avatar
-                                  ? 'bg-primary/10 ring-2 ring-primary'
-                                  : 'hover:bg-muted',
+                                'aspect-square rounded-xl overflow-hidden transition-all',
+                                user.profile.avatar === seed
+                                  ? 'ring-2 ring-primary'
+                                  : 'hover:opacity-80',
                               )}
                             >
-                              {avatar}
+                              <img src={getAvatarUrl(seed)} alt={seed} className="w-full h-full" />
                             </button>
                           ))}
                         </div>
@@ -316,16 +319,22 @@ export default function Profile() {
             icon={<Coins size={18} />}
             value={user.coins}
             label="金币"
+            iconBg="bg-[#FFF5D6]"
+            iconColor="text-[#FFC800]"
           />
           <StatCard
             icon={<Sparkles size={18} />}
             value={user.diamonds}
             label="钻石"
+            iconBg="bg-[#E0F4FF]"
+            iconColor="text-[#1CB0F6]"
           />
           <StatCard
             icon={<Zap size={18} />}
             value={user.comboMax}
             label="最高连击"
+            iconBg="bg-[#FFE4E4]"
+            iconColor="text-[#FF4B4B]"
           />
         </motion.div>
 
@@ -339,21 +348,29 @@ export default function Profile() {
           <QuickAction
             icon={<Trophy size={20} />}
             label="排行榜"
+            iconBg="bg-[#FFF5D6]"
+            iconColor="text-[#FFC800]"
             onClick={() => navigate('/leaderboard')}
           />
           <QuickAction
             icon={<BookOpen size={20} />}
             label="错题本"
+            iconBg="bg-[#E0F4FF]"
+            iconColor="text-[#1CB0F6]"
             onClick={() => navigate('/mistakes')}
           />
           <QuickAction
             icon={<BarChart3 size={20} />}
             label="学习统计"
+            iconBg="bg-[#F3E8FF]"
+            iconColor="text-[#CE82FF]"
             onClick={() => navigate('/stats')}
           />
           <QuickAction
             icon={<Swords size={20} />}
             label="闯关冒险"
+            iconBg="bg-[#FFE4E4]"
+            iconColor="text-[#FF4B4B]"
             onClick={() => navigate('/')}
           />
         </motion.div>
@@ -723,15 +740,17 @@ export default function Profile() {
 }
 
 // ─── 统计卡片 ───
-function StatCard({ icon, value, label }: {
+function StatCard({ icon, value, label, iconBg, iconColor }: {
   icon: React.ReactNode
   value: number | string
   label: string
+  iconBg?: string
+  iconColor?: string
 }) {
   return (
     <Card className="p-3 text-center">
       <CardContent className="p-0">
-        <div className="inline-flex items-center justify-center size-9 rounded-xl mb-2 bg-muted text-primary">
+        <div className={clsx('inline-flex items-center justify-center size-9 rounded-xl mb-2', iconBg || 'bg-[#FFF5D6]', iconColor || 'text-[#FFC800]')}>
           {icon}
         </div>
         <div className="text-lg font-bold text-foreground tabular-nums">{value}</div>
@@ -742,9 +761,11 @@ function StatCard({ icon, value, label }: {
 }
 
 // ─── 快捷操作按钮 ───
-function QuickAction({ icon, label, onClick }: {
+function QuickAction({ icon, label, iconBg, iconColor, onClick }: {
   icon: React.ReactNode
   label: string
+  iconBg?: string
+  iconColor?: string
   onClick: () => void
 }) {
   return (
@@ -752,7 +773,7 @@ function QuickAction({ icon, label, onClick }: {
       onClick={onClick}
       className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-card shadow-sm border border-border hover:shadow-md transition-all active:scale-95"
     >
-      <div className="size-9 rounded-xl grid place-items-center bg-muted text-primary">
+      <div className={clsx('size-9 rounded-xl grid place-items-center', iconBg || 'bg-[#E0F4FF]', iconColor || 'text-[#1CB0F6]')}>
         {icon}
       </div>
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
@@ -769,7 +790,7 @@ function StatRow({ icon, label, value, sub }: {
 }) {
   return (
     <div className="flex items-center gap-3 py-3 px-0.5">
-      <div className="size-8 rounded-xl bg-muted grid place-items-center flex-shrink-0">
+      <div className="size-8 rounded-xl bg-[#E8F9D8] grid place-items-center flex-shrink-0">
         {icon}
       </div>
       <div className="flex-1 min-w-0">

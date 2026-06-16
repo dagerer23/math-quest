@@ -239,7 +239,7 @@ export default function Mistakes() {
   // ---- 主体 ----
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col"
+      className="min-h-screen bg-white flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}

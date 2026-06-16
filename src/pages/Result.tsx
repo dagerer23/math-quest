@@ -105,7 +105,7 @@ export default function Result() {
 
   if (!record || !level) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
+      <div className="min-h-screen bg-white flex flex-col">
         <div className="h-1 bg-gradient-to-r from-primary via-duolingo-blue to-primary" />
         <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
           <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
@@ -143,7 +143,7 @@ export default function Result() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col"
+      className="min-h-screen bg-white flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}

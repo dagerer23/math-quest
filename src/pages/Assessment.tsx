@@ -113,7 +113,7 @@ export default function Assessment() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-muted flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {stage === 'intro' && (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
           <motion.div

@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { getAvatarUrl, getAvatarBorderColor, getInitial, getAvatarBgColor, getAvatarTextColor } from '@/utils/avatar'
 import { ArrowLeft, Target, Zap, BookOpen, TrendingUp, Award, Calendar, Flame, Flower2 } from 'lucide-react'
 import { getRankInfo, getRankProgress } from '@/utils/rank'
 import { getEncouragements, type EncouragementItem } from '@/services/classApi'
@@ -59,12 +59,12 @@ export default function Stats() {
   const rankProgress = getRankProgress(user.xp, user.systemConfigs || {})
 
   const statCards = [
-    { icon: <BookOpen size={18} />, label: '答题总数', value: stats.totalQuestions },
-    { icon: <Target size={18} />, label: '正确率', value: `${accuracy}%` },
-    { icon: <Zap size={18} />, label: '经验值', value: user.xp },
-    { icon: <Flame size={18} />, label: '连续天数', value: `${user.streak}天` },
-    { icon: <Calendar size={18} />, label: '学习天数', value: `${stats.totalDays}天` },
-    { icon: <Award size={18} />, label: '当前段位', value: rankInfo.name },
+    { icon: <BookOpen size={18} />, label: '答题总数', value: stats.totalQuestions, iconBg: 'bg-[#E8F9D8]' },
+    { icon: <Target size={18} />, label: '正确率', value: `${accuracy}%`, iconBg: 'bg-[#E0F4FF]' },
+    { icon: <Zap size={18} />, label: '经验值', value: user.xp, iconBg: 'bg-[#E8F9D8]' },
+    { icon: <Flame size={18} />, label: '连续天数', value: `${user.streak}天`, iconBg: 'bg-[#FFE4E4]' },
+    { icon: <Calendar size={18} />, label: '学习天数', value: `${stats.totalDays}天`, iconBg: 'bg-[#F3F4F6]' },
+    { icon: <Award size={18} />, label: '当前段位', value: rankInfo.name, iconBg: 'bg-[#FFF5D6]' },
   ]
 
   // 知识点掌握度
@@ -74,7 +74,7 @@ export default function Stats() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col"
+      className="min-h-screen bg-white flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
@@ -112,7 +112,7 @@ export default function Stats() {
             >
               <Card className="p-3 text-center">
                 <CardContent className="p-0">
-                  <div className="inline-flex items-center justify-center size-9 rounded-xl mb-2 bg-muted text-primary">
+                  <div className={`inline-flex items-center justify-center size-9 rounded-xl mb-2 ${card.iconBg} text-primary`}>
                     {card.icon}
                   </div>
                   <div className="text-lg font-bold text-foreground">{card.value}</div>
@@ -154,7 +154,7 @@ export default function Stats() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="flex items-center gap-3">
-              <div className="text-3xl">🏅</div>
+              <Award size={28} className="text-amber-500" />
               <div className="flex-1">
                 <Progress value={Math.min(100, rankProgress.pct * 100)}>
                   <ProgressTrack className="h-3">
@@ -196,7 +196,7 @@ export default function Stats() {
               </div>
             ) : (
               <div className="text-center py-6">
-                <div className="text-3xl mb-2">📊</div>
+                <TrendingUp size={32} className="text-primary" />
                 <p className="text-sm text-muted-foreground">完成更多关卡后，这里会显示知识点掌握情况</p>
               </div>
             )}
@@ -261,17 +261,18 @@ export default function Stats() {
                     key={item.id}
                     className="flex items-center gap-3 p-2 rounded-lg bg-muted/40 border border-border/40"
                   >
-                    <Avatar className="h-9 w-9 rounded-full bg-background border">
-                      <AvatarFallback className="bg-transparent text-xl">
-                        {item.fromUserAvatar || '😊'}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="h-9 w-9 rounded-full border-2 overflow-hidden flex-shrink-0" style={{ borderColor: getAvatarBorderColor(item.fromUserName || '同学') }}>
+                      <img src={getAvatarUrl(item.fromUserName || '同学')} alt="" className="w-full h-full" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden') }} />
+                      <div className="hidden w-full h-full items-center justify-center text-sm font-bold" style={{ background: getAvatarBgColor(item.fromUserName || '同学'), color: getAvatarTextColor(item.fromUserName || '同学') }}>
+                        {getInitial(item.fromUserName || '同学')}
+                      </div>
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-foreground truncate">
                           {item.fromUserName || '同学'}
                         </span>
-                        <span className="text-lg leading-none">{item.emoji || '🌸'}</span>
+                        <Flower2 size={14} className="text-purple-400" />
                       </div>
                       {item.context && (
                         <p className="text-xs text-muted-foreground truncate mt-0.5">{item.context}</p>
@@ -285,7 +286,7 @@ export default function Stats() {
               </div>
             ) : (
               <div className="text-center py-6">
-                <div className="text-3xl mb-2">🌸</div>
+                <div className="text-3xl mb-2 text-purple-400"><Flower2 size={32} /></div>
                 <p className="text-sm text-muted-foreground">还没有收到鼓励，快邀请同学加入班级吧</p>
               </div>
             )}
