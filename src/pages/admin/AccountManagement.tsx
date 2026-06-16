@@ -124,10 +124,10 @@ export default function AccountManagement() {
 
   async function changePwd() {
     if (!showPwd) return
-    const pwd = prompt(`请输入 ${showPwd.username} 的新密码（至少 6 位）：`)
+    const pwd = prompt(`请输入 ${showPwd.username} 的新密码（至少8位，需含字母和数字）：`)
     if (!pwd) return
-    if (pwd.length < 6) {
-      toast('error', '密码至少 6 位')
+    if (pwd.length < 8 || !/[a-zA-Z]/.test(pwd) || !/\d/.test(pwd)) {
+      toast('error', '密码至少8位，需包含字母和数字')
       return
     }
     try {

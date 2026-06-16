@@ -165,6 +165,7 @@ export default function Home() {
                     playSound('unlock', user.settings.sound)
                     vibrate(30, user.settings.vibration)
                   }}
+                  aria-label={`立即恢复${user.maxHearts}颗心`}
                   className="w-full py-2.5 rounded-2xl text-sm font-bold"
                   style={{
                     backgroundColor: 'rgba(255,255,255,1)',

@@ -93,6 +93,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <button
             className="admin-sidebar-collapse-btn"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            aria-label={sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'}
           >
             {sidebarCollapsed ? <ChevronRight size={14} /> : <Menu size={14} />}
           </button>
@@ -107,6 +108,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 to={item.to}
                 className={`admin-nav-item ${isActive ? 'active' : ''}`}
                 title={sidebarCollapsed ? item.label : undefined}
+                aria-label={item.label}
               >
                 <span className="admin-nav-icon">{item.icon}</span>
                 {!sidebarCollapsed && <span>{item.label}</span>}
@@ -127,6 +129,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <button
             onClick={logout}
             title="退出登录"
+            aria-label="退出登录"
             className="admin-btn admin-btn-ghost"
             style={{ color: 'rgba(255,255,255,0.5)', padding: '6px', minWidth: 32 }}
           >

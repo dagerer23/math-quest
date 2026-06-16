@@ -1,3 +1,4 @@
+import React, { Suspense, lazy } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import type { LearningStage, LearningGoal } from '@/types/models'
@@ -5,28 +6,29 @@ import Layout from '@/components/Layout'
 import AdminLayout from '@/components/AdminLayout'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { NetworkStatus } from '@/components/NetworkStatus'
-import Login from '@/pages/Login'
-import VerifyCode from '@/pages/VerifyCode'
-import Onboarding from '@/pages/Onboarding'
-import Assessment from '@/pages/Assessment'
-import AssessmentResult from '@/pages/AssessmentResult'
-import Agreement from '@/pages/Agreement'
-import LayoutPreview from '@/pages/LayoutPreview'
-import Home from '@/pages/Home'
-import Battle from '@/pages/Battle'
-import Result from '@/pages/Result'
-import Mistakes from '@/pages/Mistakes'
-import Leaderboard from '@/pages/Leaderboard'
-import Profile from '@/pages/Profile'
-import DailyGoals from '@/pages/DailyGoals'
-import Stats from '@/pages/Stats'
-import AdminLogin from '@/pages/admin/AdminLogin'
-import Dashboard from '@/pages/admin/Dashboard'
-import QuestionBank from '@/pages/admin/QuestionBank'
-import DataCenter from '@/pages/admin/DataCenter'
-import ImportExport from '@/pages/admin/ImportExport'
-import SystemConfig from '@/pages/admin/SystemConfig'
-import AccountManagement from '@/pages/admin/AccountManagement'
+
+const Login = lazy(() => import('@/pages/Login'))
+const VerifyCode = lazy(() => import('@/pages/VerifyCode'))
+const Onboarding = lazy(() => import('@/pages/Onboarding'))
+const Assessment = lazy(() => import('@/pages/Assessment'))
+const AssessmentResult = lazy(() => import('@/pages/AssessmentResult'))
+const Agreement = lazy(() => import('@/pages/Agreement'))
+const LayoutPreview = lazy(() => import('@/pages/LayoutPreview'))
+const Home = lazy(() => import('@/pages/Home'))
+const Battle = lazy(() => import('@/pages/Battle'))
+const Result = lazy(() => import('@/pages/Result'))
+const Mistakes = lazy(() => import('@/pages/Mistakes'))
+const Leaderboard = lazy(() => import('@/pages/Leaderboard'))
+const Profile = lazy(() => import('@/pages/Profile'))
+const DailyGoals = lazy(() => import('@/pages/DailyGoals'))
+const Stats = lazy(() => import('@/pages/Stats'))
+const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'))
+const Dashboard = lazy(() => import('@/pages/admin/Dashboard'))
+const QuestionBank = lazy(() => import('@/pages/admin/QuestionBank'))
+const DataCenter = lazy(() => import('@/pages/admin/DataCenter'))
+const ImportExport = lazy(() => import('@/pages/admin/ImportExport'))
+const SystemConfig = lazy(() => import('@/pages/admin/SystemConfig'))
+const AccountManagement = lazy(() => import('@/pages/admin/AccountManagement'))
 import { useUserStore } from '@/store/useUserStore'
 import { tokenLogin, TOKEN_KEY, fetchAssessment } from '@/services/auth'
 import { getAchievements, getConfigs } from '@/services/content'
@@ -223,7 +225,13 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <AppRoutes />
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="w-8 h-8 border-3 border-muted-foreground/20 border-t-primary rounded-full animate-spin" />
+        </div>
+      }>
+        <AppRoutes />
+      </Suspense>
       <Toaster position="top-center" richColors />
     </ErrorBoundary>
   )

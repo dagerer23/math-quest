@@ -234,6 +234,32 @@ export async function saveAssessmentResult(userId: string, assessment: Omit<Asse
 }
 
 /**
+ * 导出用户全部数据
+ */
+export async function exportUserData(userId: string): Promise<{
+  success: boolean
+  message: string
+  data?: {
+    profile: any
+    assessment: AssessmentRecord | null
+  }
+}> {
+  const user = await findUserById(userId)
+  if (!user) {
+    return { success: false, message: '用户不存在' }
+  }
+  const assessment = await getLatestAssessment(userId)
+  return {
+    success: true,
+    message: 'ok',
+    data: {
+      profile: user,
+      assessment,
+    },
+  }
+}
+
+/**
  * 获取用户最新测评
  */
 export async function getAssessment(userId: string): Promise<{ success: boolean; message: string; assessment?: AssessmentRecord | null }> {

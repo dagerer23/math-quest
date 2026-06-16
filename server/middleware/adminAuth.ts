@@ -73,3 +73,43 @@ export function requireAdminAuth(req: Request, res: Response, next: NextFunction
   ;(req as any).admin = admin
   next()
 }
+
+/**
+ * 角色权限检查中间件
+ * - super: 所有权限
+ * - admin: 读写权限（不能管理账号）
+ * - viewer: 只读权限
+ */
+export function requireRole(minRole: 'super' | 'admin' | 'viewer') {
+  const roleLevel: Record<string, number> = { viewer: 0, admin: 1, super: 2 }
+  return (req: Request, res: Response, next: NextFunction) => {
+    const admin = (req as any).admin
+    if (!admin) {
+      res.status(401).json({ success: false, message: '未登录' })
+      return
+    }
+    const userLevel = roleLevel[admin.role] ?? 0
+    const requiredLevel = roleLevel[minRole] ?? 0
+    if (userLevel < requiredLevel) {
+      res.status(403).json({ success: false, message: '权限不足' })
+      return
+    }
+    next()
+  }
+}
+
+/**
+ * 写操作权限检查：viewer 角色禁止 POST/PUT/DELETE
+ */
+export function requireWriteAccess(req: Request, res: Response, next: NextFunction) {
+  const admin = (req as any).admin
+  if (!admin) {
+    res.status(401).json({ success: false, message: '未登录' })
+    return
+  }
+  if (admin.role === 'viewer') {
+    res.status(403).json({ success: false, message: '只读账号无权执行此操作' })
+    return
+  }
+  next()
+}

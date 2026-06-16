@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Volume2, VolumeX, Vibrate, VibrateOff, Edit2, Save, RotateCcw,
   Settings, LogOut, Trophy, Zap, Target, Coins,
-  BookOpen, BarChart3, Swords, X, Crown, Sparkles
+  BookOpen, BarChart3, Swords, X, Crown, Sparkles, Download
 } from 'lucide-react'
-import { saveProfile } from '@/services/auth'
+import { saveProfile, exportUserData } from '@/services/auth'
 import { getRankInfo, getNextRankInfo, getRankProgress } from '@/utils/rank'
+import { handleApiError } from '@/utils/apiError'
+import { toast } from 'sonner'
 import clsx from 'clsx'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import { TOKEN_KEY } from '@/services/auth'
@@ -35,6 +37,7 @@ export default function Profile() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const rankInfo = getRankInfo(user.xp, user.systemConfigs)
   const nextRank = getNextRankInfo(user.xp, user.systemConfigs)
@@ -60,6 +63,30 @@ export default function Profile() {
     setSavingProfile(true)
     await saveProfile({ userId: user.userId, nickname: user.profile.nickname, avatar })
     setSavingProfile(false)
+  }
+
+  const handleExport = async () => {
+    if (!user.userId) return
+    setExporting(true)
+    try {
+      const res = await exportUserData(user.userId)
+      if (!res.success || !res.data) {
+        handleApiError(new Error(res.message), '导出失败')
+        return
+      }
+      const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `mathquest-data-${Date.now()}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('数据导出成功')
+    } catch (err) {
+      handleApiError(err, '导出失败')
+    } finally {
+      setExporting(false)
+    }
   }
 
   return (
@@ -373,6 +400,15 @@ export default function Profile() {
                   active={user.settings.vibration}
                   onChange={(v) => user.setSettings({ vibration: v })}
                 />
+                <Separator />
+                <Button
+                  variant="outline"
+                  className="w-full h-9 rounded-xl justify-center gap-1.5 text-sm font-medium"
+                  onClick={handleExport}
+                  disabled={exporting}
+                >
+                  <Download size={14} /> {exporting ? '导出中...' : '导出我的数据'}
+                </Button>
               </div>
             </CardContent>
           </Card>

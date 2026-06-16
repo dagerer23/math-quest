@@ -11,6 +11,7 @@ import {
   saveAssessmentResult,
   getAssessment,
   quickLoginByPhone,
+  exportUserData,
 } from '../services/auth'
 
 const router = Router()
@@ -146,6 +147,23 @@ router.get('/assessment', async (req: Request, res: Response) => {
     return
   }
   const result = await getAssessment(userId)
+  res.json(result)
+})
+
+// 导出用户数据
+router.get('/export', async (req: Request, res: Response) => {
+  const userId = req.query.userId as string
+
+  if (!userId) {
+    res.status(400).json({ success: false, message: '缺少用户ID' })
+    return
+  }
+
+  const result = await exportUserData(userId)
+  if (!result.success) {
+    res.status(404).json(result)
+    return
+  }
   res.json(result)
 })
 

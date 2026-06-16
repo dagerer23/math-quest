@@ -15,7 +15,8 @@ import { seedFromFallbackIfEmpty } from './services/content'
 import { initDefaultConfigs } from './services/config'
 import { initDefaultAdmin } from './services/adminAccount'
 import { apiLimiter, authLimiter } from './middleware/rateLimit'
-import { requireAdminAuth } from './middleware/adminAuth'
+import { requireAdminAuth, requireWriteAccess } from './middleware/adminAuth'
+import { auditLogger, getAuditLog } from './middleware/auditLog'
 import { cacheSet } from './services/cache'
 import { fetchGradeContent } from './services/content'
 
@@ -31,7 +32,9 @@ process.on('unhandledRejection', (err) => {
 
 // 中间件
 app.use(cors({
-  origin: IS_PRODUCTION ? process.env.CORS_ORIGIN?.split(',') || ['http://localhost:5173'] : true,
+  origin: IS_PRODUCTION
+    ? process.env.CORS_ORIGIN?.split(',') || ['http://localhost:5173']
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174'],
   credentials: true,
 }))
 app.use(express.json({ limit: '10mb' }))
@@ -50,9 +53,20 @@ app.use('/api/auth', authLimiter, authRoutes)
 app.use('/api/content', contentRoutes)
 // 管理后台路由：login 不需要认证，其他需要
 app.use('/api/admin/stats', requireAdminAuth, adminStatsRoutes)
-app.use('/api/admin/import', requireAdminAuth, adminImportRoutes)
-app.use('/api/admin/config', requireAdminAuth, adminConfigRoutes)
+app.use('/api/admin/import', requireAdminAuth, auditLogger, requireWriteAccess, adminImportRoutes)
+app.use('/api/admin/config', requireAdminAuth, auditLogger, requireWriteAccess, adminConfigRoutes)
 app.use('/api/admin/accounts', adminAccountsRoutes) // login 在此路由内，单独处理
+
+// 审计日志查看（仅 super 角色）
+app.get('/api/admin/audit-log', requireAdminAuth, (req, res) => {
+  const admin = (req as any).admin
+  if (admin.role !== 'super') {
+    res.status(403).json({ success: false, message: '仅超级管理员可查看审计日志' })
+    return
+  }
+  const limit = Number(req.query.limit) || 100
+  res.json({ success: true, data: getAuditLog(limit) })
+})
 
 // 健康检查
 app.get('/api/health', (_req, res) => {

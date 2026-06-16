@@ -11,6 +11,15 @@ import {
   listLoginLog,
 } from '../services/adminAccount'
 import { requireAdminAuth } from '../middleware/adminAuth'
+import { auditLogger } from '../middleware/auditLog'
+
+/** 密码强度验证：至少8位，包含字母和数字 */
+function validatePasswordStrength(password: string): string | null {
+  if (password.length < 8) return '密码长度不能少于 8 位'
+  if (!/[a-zA-Z]/.test(password)) return '密码必须包含字母'
+  if (!/\d/.test(password)) return '密码必须包含数字'
+  return null
+}
 
 const router = Router()
 
@@ -38,8 +47,9 @@ router.post('/', requireAdminAuth, async (req, res) => {
     res.status(400).json({ success: false, message: '用户名、密码、角色必填' })
     return
   }
-  if (password.length < 6) {
-    res.status(400).json({ success: false, message: '密码长度不能少于 6 位' })
+  const strengthError = validatePasswordStrength(password)
+  if (strengthError) {
+    res.status(400).json({ success: false, message: strengthError })
     return
   }
   const result = await createAdmin({ username, password, nickname, role })
@@ -47,7 +57,15 @@ router.post('/', requireAdminAuth, async (req, res) => {
 })
 
 router.put('/:id', requireAdminAuth, async (req, res) => {
-  const result = await updateAdmin(req.params.id, req.body || {})
+  const updates = req.body || {}
+  if (updates.password) {
+    const strengthError = validatePasswordStrength(updates.password)
+    if (strengthError) {
+      res.status(400).json({ success: false, message: strengthError })
+      return
+    }
+  }
+  const result = await updateAdmin(req.params.id, updates)
   res.json(result)
 })
 

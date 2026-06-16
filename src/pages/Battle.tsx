@@ -236,6 +236,7 @@ export default function Battle() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowExitConfirm(true)}
+            aria-label="退出答题"
             className="w-10 h-10 rounded-xl bg-white/80 shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             style={{ border: `1px solid ${theme.accentSoft}` }}
           >
@@ -448,6 +449,7 @@ export default function Battle() {
                     whileTap={!feedback ? { scale: 0.97 } : {}}
                     onClick={() => !feedback && setSelectedOption(opt)}
                     disabled={!!feedback}
+                    aria-label={`选项 ${opt}`}
                     className={clsx(
                       'h-14 rounded-xl text-lg font-bold transition-all duration-200',
                       'flex items-center justify-center relative',

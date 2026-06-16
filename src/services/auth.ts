@@ -206,6 +206,43 @@ export async function fetchAssessment(userId: string): Promise<{
 }
 
 /**
+ * 导出用户数据
+ */
+export async function exportUserData(userId: string): Promise<{
+  success: boolean
+  message: string
+  data?: {
+    profile: BackendUser
+    assessment?: {
+      id: string
+      completedAt: number
+      score: number
+      recommendedDifficulty: number
+      answers: Array<{ questionId: string; userAnswer: string; isCorrect: boolean }>
+    } | null
+  }
+}> {
+  try {
+    return await get<{
+      success: boolean
+      message: string
+      data?: {
+        profile: BackendUser
+        assessment?: {
+          id: string
+          completedAt: number
+          score: number
+          recommendedDifficulty: number
+          answers: Array<{ questionId: string; userAnswer: string; isCorrect: boolean }>
+        } | null
+      }
+    }>(`${API_BASE}/export?userId=${encodeURIComponent(userId)}`)
+  } catch {
+    return { success: false, message: '网络错误' }
+  }
+}
+
+/**
  * 退出登录
  */
 export function logout(): void {

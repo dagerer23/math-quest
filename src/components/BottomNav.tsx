@@ -21,6 +21,7 @@ export default function BottomNav() {
               <NavLink
                 to={it.to}
                 end={it.to === '/'}
+                aria-label={it.label}
                 className={({ isActive }) =>
                   clsx(
                     'flex flex-col items-center gap-1 py-1.5 px-2 transition-all',
