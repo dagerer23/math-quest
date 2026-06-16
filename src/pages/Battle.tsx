@@ -112,9 +112,9 @@ export default function Battle() {
   // ═══════════════════════════════════════════════════════════════════
   if (!level) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-muted to-background">
         <div className="text-6xl mb-4">🔍</div>
-        <p className="text-gray-600 font-medium">关卡不存在</p>
+        <p className="text-muted-foreground font-medium">关卡不存在</p>
         <PixelButton className="mt-6" onClick={() => navigate('/')}>返回首页</PixelButton>
       </div>
     )
@@ -128,8 +128,8 @@ export default function Battle() {
           animate={{ scale: 1, opacity: 1 }}
           className="text-7xl mb-4"
         >🔒</motion.div>
-        <p className="text-gray-700 font-bold mb-2">该关卡尚未解锁</p>
-        <p className="text-gray-400 text-sm mb-6">请先完成前面的关卡</p>
+        <p className="text-foreground font-bold mb-2">该关卡尚未解锁</p>
+        <p className="text-muted-foreground text-sm mb-6">请先完成前面的关卡</p>
         <PixelButton onClick={() => navigate('/')}>返回首页</PixelButton>
       </div>
     )
@@ -137,14 +137,14 @@ export default function Battle() {
 
   if (sessionStatus === 'finished') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-duolingo-green/5 to-duolingo-blue/5">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-primary/5 to-background">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-12 h-12 border-4 border-duolingo-green border-t-transparent rounded-full"
+          className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
         />
         <motion.p
-          className="text-gray-500 text-sm mt-5 font-medium"
+          className="text-muted-foreground text-sm mt-5 font-medium"
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >正在结算...</motion.p>
@@ -154,12 +154,12 @@ export default function Battle() {
 
   if (sessionStatus !== 'playing' || !currentQ) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-gray-400">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-muted-foreground">
         <div className="text-4xl">🎮</div>
         <p className="font-medium">未找到答题会话</p>
         <button
           onClick={() => navigate('/', { replace: true })}
-          className="px-6 py-2.5 rounded-2xl text-sm font-bold text-white bg-[#58CC02] shadow-[0_3px_0_#46a302] active:translate-y-[1px] active:shadow-[0_2px_0_#46a302] transition-all"
+          className="px-6 py-2.5 rounded-2xl text-sm font-bold text-primary-foreground bg-primary shadow-md active:translate-y-[1px] transition-all"
         >
           返回首页
         </button>
@@ -234,7 +234,7 @@ export default function Battle() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowExitConfirm(true)}
-            className="w-10 h-10 rounded-xl bg-white/80 shadow-sm flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors"
+            className="w-10 h-10 rounded-xl bg-white/80 shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             style={{ border: `1px solid ${theme.accentSoft}` }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -323,7 +323,7 @@ export default function Battle() {
           >
             {currentQ.knowledgePoint}
           </motion.span>
-          <span className="text-xs font-medium text-gray-400">
+          <span className="text-xs font-medium text-muted-foreground">
             难度 {'★'.repeat(currentQ.difficulty)}
           </span>
         </div>
@@ -410,7 +410,7 @@ export default function Battle() {
               ) : (
                 <div>
                   <div className="font-bold text-sm mb-1">正确答案</div>
-                  <div className="text-xl font-black">{String(currentQ.answer)}</div>
+                  <div className="text-xl font-bold">{String(currentQ.answer)}</div>
                   {currentQ.explanation && (
                     <div className="text-xs mt-2 opacity-70">{currentQ.explanation}</div>
                   )}
@@ -480,7 +480,7 @@ export default function Battle() {
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-[#58CC02] flex items-center justify-center text-white text-sm font-black shadow-md"
+                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold shadow-md"
                       >
                         ✓
                       </motion.span>
@@ -491,7 +491,7 @@ export default function Battle() {
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-[#FF4B4B] flex items-center justify-center text-white text-sm font-black shadow-md"
+                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-destructive flex items-center justify-center text-destructive-foreground text-sm font-bold shadow-md"
                       >
                         ✗
                       </motion.span>
@@ -502,7 +502,7 @@ export default function Battle() {
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.3 }}
-                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-[#58CC02] flex items-center justify-center text-white text-sm font-black shadow-md"
+                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold shadow-md"
                       >
                         ✓
                       </motion.span>
@@ -552,7 +552,7 @@ export default function Battle() {
                   key={inputValue}
                   initial={inputValue ? { scale: 1.1 } : {}}
                   animate={{ scale: 1 }}
-                  className="font-black text-4xl"
+                  className="font-bold text-4xl"
                   style={{ color: inputValue ? theme.accent : '#999', minHeight: '44px' }}
                 >
                   {inputValue || '—'}
@@ -615,7 +615,7 @@ export default function Battle() {
                 animate={{ rotate: [0, -12, 12, -6, 6, 0], scale: [1, 1.1, 1] }}
                 transition={{ duration: 1.2, delay: 0.2 }}
               >💔</motion.div>
-              <h2 className="text-2xl font-black mb-2 text-white">心数耗尽！</h2>
+              <h2 className="text-2xl font-bold mb-2 text-white">心数耗尽！</h2>
               <p className="text-sm text-white/70 mb-4">别灰心，休息一下再来挑战！</p>
               <p className="text-xs text-white/50">已收集的错题已进入错题本 📓</p>
               <motion.div

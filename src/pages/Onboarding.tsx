@@ -157,7 +157,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-white to-muted flex flex-col">
       {/* 顶部进度条 */}
       <div className="p-4 flex items-center justify-between">
         <div className="w-10" />
@@ -168,10 +168,10 @@ export default function Onboarding() {
               className={clsx(
                 'h-1.5 rounded-full transition-all duration-300',
                 i < stepIndex
-                  ? 'bg-duolingo-green'
+                  ? 'bg-primary'
                   : i === stepIndex
-                    ? 'bg-duolingo-green w-8'
-                    : 'bg-gray-200',
+                    ? 'bg-primary w-8'
+                    : 'bg-border',
               )}
               style={{ flex: i === stepIndex ? 0 : 1 }}
             />
@@ -183,10 +183,10 @@ export default function Onboarding() {
       <div className="flex-1 px-6 py-6 overflow-y-auto">
         <div className="max-w-md mx-auto">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               {currentStep?.title}
             </h1>
-            <p className="text-gray-500">{stepDescriptions[currentStep?.id as StepId]}</p>
+            <p className="text-muted-foreground">{stepDescriptions[currentStep?.id as StepId]}</p>
           </div>
 
           {/* 步骤0：选择学习阶段 */}
@@ -199,13 +199,13 @@ export default function Onboarding() {
                   className={clsx(
                     'p-4 rounded-2xl border-2 transition-all text-left',
                     form.stage === stage.id
-                      ? 'border-duolingo-green bg-duolingo-green/5'
-                      : 'border-gray-200 hover:border-gray-300 bg-white',
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-gray-300 bg-white',
                   )}
                 >
                   <div className="text-3xl mb-2">{stage.emoji}</div>
-                  <div className="font-bold text-gray-800">{stage.name}</div>
-                  <div className="text-xs text-gray-500">{stage.desc}</div>
+                  <div className="font-bold text-foreground">{stage.name}</div>
+                  <div className="text-xs text-muted-foreground">{stage.desc}</div>
                 </button>
               ))}
             </div>
@@ -221,16 +221,16 @@ export default function Onboarding() {
                   className={clsx(
                     'w-full p-4 rounded-2xl border-2 transition-all text-left flex items-center gap-4',
                     form.goal === goal.id
-                      ? 'border-duolingo-green bg-duolingo-green/5'
-                      : 'border-gray-200 hover:border-gray-300 bg-white',
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-gray-300 bg-white',
                   )}
                 >
                   <div className="text-3xl">{goal.emoji}</div>
                   <div className="flex-1">
-                    <div className="font-bold text-gray-800">{goal.name}</div>
-                    <div className="text-xs text-gray-500">{goal.desc}</div>
+                    <div className="font-bold text-foreground">{goal.name}</div>
+                    <div className="text-xs text-muted-foreground">{goal.desc}</div>
                   </div>
-                  {form.goal === goal.id && <Check size={20} className="text-duolingo-green" />}
+                  {form.goal === goal.id && <Check size={20} className="text-primary" />}
                 </button>
               ))}
             </div>
@@ -239,7 +239,7 @@ export default function Onboarding() {
           {/* 步骤2：选择年级（小学/初高中才有） */}
           {currentStep?.id === 'grade' && (
             <>
-              <div className="text-sm text-gray-500 mb-4">
+              <div className="text-sm text-muted-foreground mb-4">
                 当前阶段：{STAGES.find(s => s.id === form.stage)?.name}
               </div>
               <div
@@ -258,8 +258,8 @@ export default function Onboarding() {
                     className={clsx(
                       'h-20 rounded-2xl border-2 transition-all flex items-center justify-center font-bold text-lg',
                       form.grade === grade
-                        ? 'border-duolingo-green bg-duolingo-green/5 text-duolingo-green'
-                        : 'border-gray-200 hover:border-gray-300 bg-white text-gray-600',
+                        ? 'border-primary bg-primary/5 text-primary'
+                        : 'border-border hover:border-gray-300 bg-white text-muted-foreground',
                     )}
                   >
                     {grade}年级
@@ -273,7 +273,7 @@ export default function Onboarding() {
           {currentStep?.id === 'profile' && (
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-3">选择头像</label>
+                <label className="block text-sm font-bold text-foreground mb-3">选择头像</label>
                 <div className="flex flex-wrap gap-3">
                   {AVATAR_OPTIONS.map((avatar) => (
                     <button
@@ -282,8 +282,8 @@ export default function Onboarding() {
                       className={clsx(
                         'w-14 h-14 rounded-2xl border-2 transition-all text-2xl flex items-center justify-center',
                         form.avatar === avatar
-                          ? 'border-duolingo-green bg-duolingo-green/5'
-                          : 'border-gray-200 hover:border-gray-300 bg-white',
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-gray-300 bg-white',
                       )}
                     >
                       {avatar}
@@ -292,17 +292,17 @@ export default function Onboarding() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">昵称</label>
+                <label className="block text-sm font-bold text-foreground mb-2">昵称</label>
                 <input
                   type="text"
                   value={form.nickname}
                   onChange={(e) => setForm(f => ({ ...f, nickname: e.target.value }))}
                   placeholder="输入2-10个字的昵称"
                   maxLength={10}
-                  className="w-full h-14 px-4 rounded-2xl border-2 border-gray-200 focus:border-duolingo-green focus:outline-none transition-all text-gray-800 font-medium"
+                  className="w-full h-14 px-4 rounded-2xl border-2 border-border focus:border-primary focus:outline-none transition-all text-foreground font-medium"
                 />
                 {form.nickname.trim().length > 0 && form.nickname.trim().length < 2 && (
-                  <p className="text-duolingo-red text-xs mt-2">昵称至少需要2个字</p>
+                  <p className="text-destructive text-xs mt-2">昵称至少需要2个字</p>
                 )}
               </div>
             </div>
@@ -310,7 +310,7 @@ export default function Onboarding() {
         </div>
       </div>
 
-      <div className="p-6 border-t border-gray-100 bg-white">
+      <div className="p-6 border-t border-border bg-white">
         <div className="max-w-md mx-auto">
           <PixelButton
             variant="green"

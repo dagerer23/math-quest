@@ -34,12 +34,12 @@ function BrandLogo() {
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="relative">
-        <div className="absolute inset-[-8px] rounded-full bg-[#58CC02]/[0.08]" />
+        <div className="absolute inset-[-8px] rounded-full bg-primary/10" />
         <div className="relative w-16 h-16">
           <svg viewBox="0 0 64 64" className="w-full h-full" fill="none">
             <defs>
               <linearGradient id="g1" x1="0" y1="0" x2="64" y2="64">
-                <stop offset="0%" stopColor="#58CC02" />
+                <stop offset="0%" stopColor="hsl(var(--primary))" />
                 <stop offset="100%" stopColor="#1CB0F6" />
               </linearGradient>
             </defs>
@@ -60,8 +60,8 @@ function BrandLogo() {
         </motion.div>
       </div>
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">算力先锋</h1>
-        <p className="text-[11px] text-gray-400/80 mt-0.5 tracking-widest uppercase">Math Quest</p>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">算力先锋</h1>
+        <p className="text-[11px] text-muted-foreground/80 mt-0.5 tracking-widest uppercase">Math Quest</p>
       </div>
     </div>
   )
@@ -88,23 +88,23 @@ function OneClickLoginCard({
       className={[
         'w-full py-4 rounded-2xl flex items-center gap-4 px-5 border-2 transition-all active:scale-[0.99]',
         disabled || loading
-          ? 'bg-gray-50 border-gray-100 text-gray-400'
-          : 'bg-[#58CC02]/5 border-[#58CC02]/30 text-[#58CC02] hover:bg-[#58CC02]/10',
+          ? 'bg-muted border-border text-muted-foreground'
+          : 'bg-primary/5 border-primary/30 text-primary hover:bg-primary/10',
       ].join(' ')}
     >
       <div className="w-11 h-11 rounded-full bg-white grid place-items-center shadow-sm">
-        <div className="w-8 h-8 rounded-full bg-[#58CC02] text-white grid place-items-center text-sm font-bold">
+        <div className="w-8 h-8 rounded-full bg-primary text-white grid place-items-center text-sm font-bold">
           {phone.slice(0, 1)}
         </div>
       </div>
       <div className="flex-1 text-left">
-        <div className="text-sm font-bold text-gray-900">{maskPhone(phone)}</div>
-        <div className="text-[11px] text-gray-500 mt-0.5">一键登录 · 免验证码</div>
+        <div className="text-sm font-bold text-foreground">{maskPhone(phone)}</div>
+        <div className="text-[11px] text-muted-foreground mt-0.5">一键登录 · 免验证码</div>
       </div>
       {loading ? (
-        <div className="w-4 h-4 border-2 border-[#58CC02] border-t-transparent rounded-full animate-spin" />
+        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       ) : (
-        <div className="w-9 h-9 rounded-full bg-[#58CC02] text-white grid place-items-center text-sm font-bold shadow-sm">
+        <div className="w-9 h-9 rounded-full bg-primary text-white grid place-items-center text-sm font-bold shadow-sm">
           →
         </div>
       )}
@@ -259,12 +259,12 @@ export default function Login() {
   return (
     <AnimatePresence>
       <motion.div
-        className="min-h-screen bg-[#FAFAFA] flex flex-col"
+        className="min-h-screen bg-muted flex flex-col"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.25 }}
       >
-        <div className="h-1 bg-gradient-to-r from-[#58CC02] via-[#1CB0F6] to-[#58CC02]" />
+        <div className="h-1 bg-gradient-to-r from-primary via-[#1CB0F6] to-primary" />
 
         <div className="flex-1 flex flex-col items-center justify-center px-8 py-10">
           <motion.div
@@ -413,13 +413,13 @@ export default function Login() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            <p className="text-[10px] text-gray-300">
+            <p className="text-[10px] text-muted-foreground">
               登录即同意
-              <button onClick={() => navigate('/agreement')} className="text-gray-400 hover:text-gray-600 transition-colors mx-0.5">
+              <button onClick={() => navigate('/agreement')} className="text-muted-foreground hover:text-foreground transition-colors mx-0.5">
                 用户协议
               </button>
               和
-              <button onClick={() => navigate('/agreement?tab=privacy')} className="text-gray-400 hover:text-gray-600 transition-colors mx-0.5">
+              <button onClick={() => navigate('/agreement?tab=privacy')} className="text-muted-foreground hover:text-foreground transition-colors mx-0.5">
                 隐私政策
               </button>
               <br />

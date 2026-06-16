@@ -116,34 +116,34 @@ function MarkdownRenderer({ content }: { content: string }) {
     <div className="space-y-3">
       {lines.map((line, i) => {
         if (line.startsWith('## ')) {
-          return <h2 key={i} className="text-lg font-bold text-gray-900 mt-6 first:mt-0">{line.slice(3)}</h2>
+          return <h2 key={i} className="text-lg font-bold text-foreground mt-6 first:mt-0">{line.slice(3)}</h2>
         }
         if (line.startsWith('### ')) {
-          return <h3 key={i} className="text-base font-bold text-gray-800 mt-4">{line.slice(4)}</h3>
+          return <h3 key={i} className="text-base font-bold text-foreground mt-4">{line.slice(4)}</h3>
         }
         if (line.startsWith('**') && line.endsWith('**')) {
-          return <p key={i} className="text-sm text-gray-600 font-bold">{line.slice(2, -2)}</p>
+          return <p key={i} className="text-sm text-muted-foreground font-bold">{line.slice(2, -2)}</p>
         }
         if (line.match(/^\d+\.\s\*\*/)) {
           const match = line.match(/^(\d+\.\s)\*\*(.+?)\*\*(.*)$/)
           if (match) {
             return (
-              <p key={i} className="text-sm text-gray-600 leading-relaxed pl-2">
+              <p key={i} className="text-sm text-muted-foreground leading-relaxed pl-2">
                 {match[1]}<strong>{match[2]}</strong>{match[3]}
               </p>
             )
           }
         }
         if (line.match(/^\d+\.\s/)) {
-          return <p key={i} className="text-sm text-gray-600 leading-relaxed pl-2">{line}</p>
+          return <p key={i} className="text-sm text-muted-foreground leading-relaxed pl-2">{line}</p>
         }
         if (line.startsWith('   - ') || line.startsWith('- ')) {
-          return <p key={i} className="text-sm text-gray-600 leading-relaxed pl-6">• {line.replace(/^[\s-]+\s/, '')}</p>
+          return <p key={i} className="text-sm text-muted-foreground leading-relaxed pl-6">• {line.replace(/^[\s-]+\s/, '')}</p>
         }
         if (line.trim() === '') {
           return <div key={i} className="h-1" />
         }
-        return <p key={i} className="text-sm text-gray-600 leading-relaxed">{line}</p>
+        return <p key={i} className="text-sm text-muted-foreground leading-relaxed">{line}</p>
       })}
     </div>
   )
@@ -157,19 +157,19 @@ export default function Agreement() {
 
   return (
     <motion.div
-      className="min-h-screen bg-[#FAFAFA] flex flex-col"
+      className="min-h-screen bg-muted flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="h-1 bg-gradient-to-r from-[#58CC02] via-[#1CB0F6] to-[#58CC02]" />
+      <div className="h-1 bg-gradient-to-r from-primary via-[#1CB0F6] to-primary" />
 
       <div className="flex-1 flex flex-col">
         {/* 返回按钮 */}
         <div className="px-4 py-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-gray-400 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft size={18} />
             <span className="text-sm">返回</span>
@@ -184,8 +184,8 @@ export default function Agreement() {
               onClick={() => setActiveTab(tab.key)}
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                 activeTab === tab.key
-                  ? 'bg-[#58CC02] text-white shadow-[0_3px_0_#46a302]'
-                  : 'bg-gray-100 text-gray-500'
+                  ? 'bg-primary text-white shadow-[0_3px_0_#46a302]'
+                  : 'bg-muted text-muted-foreground'
               }`}
             >
               {tab.label}
@@ -195,7 +195,7 @@ export default function Agreement() {
 
         {/* 内容 */}
         <div className="flex-1 px-6 pb-8 overflow-y-auto">
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="bg-card rounded-2xl p-6 shadow-sm">
             <MarkdownRenderer
               content={activeTab === 'agreement' ? AGREEMENT_CONTENT : PRIVACY_CONTENT}
             />

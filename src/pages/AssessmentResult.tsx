@@ -20,8 +20,8 @@ export default function AssessmentResult() {
       <div className="space-y-3 pt-3 pb-6 px-4 min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md">
           <div className="text-6xl mb-4">😅</div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">测评数据不存在</h2>
-          <p className="text-gray-500 mb-6">请重新进行水平测评</p>
+          <h2 className="text-xl font-bold text-foreground mb-2">测评数据不存在</h2>
+          <p className="text-muted-foreground mb-6">请重新进行水平测评</p>
           <PixelButton variant="green" size="lg" onClick={() => navigate('/assessment')}>
             开始测评
           </PixelButton>
@@ -115,7 +115,7 @@ export default function AssessmentResult() {
           </div>
         </motion.div>
         
-        <h1 className="text-xl font-bold text-gray-800 mb-2">测评完成！</h1>
+        <h1 className="text-xl font-bold text-foreground mb-2">测评完成！</h1>
         
         <motion.div
           initial={{ scale: 0 }}
@@ -124,7 +124,7 @@ export default function AssessmentResult() {
           className="relative inline-block"
         >
           <div 
-            className="text-5xl font-black my-4"
+            className="text-5xl font-bold my-4"
             style={{ 
               color: accuracy === 100 ? '#58CC02' : accuracy >= excellentThreshold ? '#1CB0F6' : accuracy >= goodThreshold ? '#FFC800' : '#FF4B4B'
             }}
@@ -133,7 +133,7 @@ export default function AssessmentResult() {
           </div>
         </motion.div>
         
-        <p className="text-gray-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           你答对了 {correctCount} / {totalCount} 题
         </p>
       </motion.div>
@@ -148,8 +148,8 @@ export default function AssessmentResult() {
         <div className="flex items-center gap-2.5 mb-2.5">
           <div className="text-xl">📊</div>
           <div>
-            <div className="font-bold text-gray-800 text-sm">推荐难度</div>
-            <div className="text-xs text-gray-500">为你推荐最适合的题目难度</div>
+            <div className="font-bold text-foreground text-sm">推荐难度</div>
+            <div className="text-xs text-muted-foreground">为你推荐最适合的题目难度</div>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-1.5 mt-3">
@@ -161,8 +161,8 @@ export default function AssessmentResult() {
               transition={{ delay: 0.5 + index * 0.1 }}
               className={`py-2.5 rounded-xl text-center font-bold text-xs transition-all ${
                 level === recommendedDifficulty
-                  ? 'bg-duolingo-green text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-400'
+                  ? 'bg-primary text-primary-foreground shadow-lg'
+                  : 'bg-muted text-muted-foreground'
               }`}
             >
               {level === 1 ? '简单' : level === 2 ? '中等' : '困难'}
@@ -180,12 +180,12 @@ export default function AssessmentResult() {
       >
         <div className="flex items-center gap-2 mb-2.5">
           <Trophy size={18} className="text-duolingo-gold" />
-          <div className="font-bold text-gray-800 text-sm">奖励</div>
+          <div className="font-bold text-foreground text-sm">奖励</div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm">
             <span className="font-bold text-duolingo-purple">{assessmentRewardXp} XP</span>
-            <span className="text-gray-400">+</span>
+            <span className="text-muted-foreground">+</span>
             <span className="font-bold text-duolingo-gold">{assessmentRewardCoins} 金币</span>
           </div>
         </div>
@@ -199,18 +199,18 @@ export default function AssessmentResult() {
           transition={{ delay: 0.7 }}
           className="pixel-card p-4"
         >
-          <div className="font-bold text-sm text-gray-800 mb-2.5 flex items-center gap-2">
-            <XCircle size={14} className="text-duolingo-red" />
+          <div className="font-bold text-sm text-foreground mb-2.5 flex items-center gap-2">
+            <XCircle size={14} className="text-destructive" />
             错题回顾
           </div>
           <div className="space-y-2">
             {wrongAnswers.map((a, i) => (
-              <div key={a.questionId} className="bg-gray-50 rounded-xl p-2.5 border border-gray-100">
-                <div className="text-xs text-gray-500 mb-1">第 {i + 1} 题</div>
-                <div className="text-xs text-gray-500">
-                  你的答案: <span className="text-duolingo-red">{a.userAnswer || '未作答'}</span>
+              <div key={a.questionId} className="bg-muted rounded-xl p-2.5 border border-border">
+                <div className="text-xs text-muted-foreground mb-1">第 {i + 1} 题</div>
+                <div className="text-xs text-muted-foreground">
+                  你的答案: <span className="text-destructive">{a.userAnswer || '未作答'}</span>
                   {' · '}
-                  正确答案: <span className="text-duolingo-green font-medium">{a.correctAnswer}</span>
+                  正确答案: <span className="text-primary font-medium">{a.correctAnswer}</span>
                 </div>
               </div>
             ))}

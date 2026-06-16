@@ -112,7 +112,7 @@ export default function Assessment() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-white to-muted flex flex-col">
       {stage === 'intro' && (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
           <motion.div
@@ -121,14 +121,14 @@ export default function Assessment() {
             className="text-center max-w-md"
           >
             <div className="text-6xl mb-6">📝</div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-3">水平测评</h1>
-            <p className="text-gray-500 mb-8">
+            <h1 className="text-2xl font-bold text-foreground mb-3">水平测评</h1>
+            <p className="text-muted-foreground mb-8">
               为了给你推荐最适合的题目，让我们先做一个简短的测评。
               一共10道题，大约需要5分钟。
             </p>
-            <div className="bg-duolingo-green/10 rounded-2xl p-4 mb-8">
-              <div className="font-bold text-duolingo-green mb-2">测评内容</div>
-              <ul className="text-sm text-gray-600 space-y-1 text-left">
+            <div className="bg-primary/10 rounded-2xl p-4 mb-8">
+              <div className="font-bold text-primary mb-2">测评内容</div>
+              <ul className="text-sm text-muted-foreground space-y-1 text-left">
                 <li>📊 共10道题</li>
                 <li>⏱️ 不计时，无需压力</li>
                 <li>🎯 完成后推荐合适难度</li>
@@ -144,8 +144,8 @@ export default function Assessment() {
       {stage === 'quiz' && !hasQuestions && (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
           <div className="text-6xl mb-4">😅</div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">暂无题目</h2>
-          <p className="text-gray-500 mb-6 text-center">
+          <h2 className="text-xl font-bold text-foreground mb-2">暂无题目</h2>
+          <p className="text-muted-foreground mb-6 text-center">
             当前年级暂未收录题目，请返回首页重新设置年级。
           </p>
           <PixelButton variant="green" size="lg" onClick={handleGoHome}>
@@ -156,18 +156,18 @@ export default function Assessment() {
 
       {stage === 'quiz' && hasQuestions && currentQuestion && (
         <div className="flex-1 flex flex-col">
-          <div className="p-4 bg-white border-b border-gray-100">
+          <div className="p-4 bg-white border-b border-border">
             <div className="max-w-md mx-auto">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-bold text-gray-600">第 {currentIndex + 1} 题 / 共 {questions.length} 题</span>
-                <span className="flex items-center gap-1 text-sm text-gray-600">
-                  <Check size={16} className="text-duolingo-green" />
+                <span className="text-sm font-bold text-muted-foreground">第 {currentIndex + 1} 题 / 共 {questions.length} 题</span>
+                <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Check size={16} className="text-primary" />
                   {correctCount}
                 </span>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-duolingo-green transition-all duration-300"
+                  className="h-full bg-primary transition-all duration-300"
                   style={{ width: `${((currentIndex + (feedback ? 1 : 0)) / questions.length) * 100}%` }}
                 />
               </div>
@@ -187,7 +187,7 @@ export default function Assessment() {
                   {currentQuestion.illustration && (
                     <div className="text-4xl text-center mb-4">{currentQuestion.illustration}</div>
                   )}
-                  <div className="text-xl font-bold text-gray-800 text-center leading-relaxed">
+                  <div className="text-xl font-bold text-foreground text-center leading-relaxed">
                     {currentQuestion.prompt}
                   </div>
                 </motion.div>
@@ -200,7 +200,7 @@ export default function Assessment() {
                     animate={{ opacity: 1, y: 0 }}
                     className={clsx(
                       'mb-6 p-4 rounded-2xl text-center font-bold',
-                      feedback === 'correct' ? 'bg-duolingo-green/10 text-duolingo-green' : 'bg-duolingo-red/10 text-duolingo-red',
+                      feedback === 'correct' ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive',
                     )}
                   >
                     {feedback === 'correct' ? (
@@ -233,13 +233,13 @@ export default function Assessment() {
                           'h-16 rounded-2xl font-bold text-lg transition-all',
                           showResult ? (
                             isCorrectAnswer
-                              ? 'bg-duolingo-green text-white'
+                              ? 'bg-primary text-primary-foreground'
                               : isSelected
-                                ? 'bg-duolingo-red text-white'
-                                : 'bg-gray-100 text-gray-400'
+                                ? 'bg-destructive text-destructive-foreground'
+                                : 'bg-muted text-muted-foreground'
                           ) : isSelected
-                            ? 'bg-duolingo-green text-white'
-                            : 'bg-white text-gray-700 border border-gray-200 hover:border-duolingo-green/50',
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-white text-foreground border border-border hover:border-primary/50',
                         )}
                       >
                         {option}
@@ -261,9 +261,9 @@ export default function Assessment() {
                       'w-full h-16 px-4 rounded-2xl font-bold text-xl text-center transition-all',
                       feedback ? (
                         feedback === 'correct'
-                          ? 'bg-duolingo-green text-white'
-                          : 'bg-duolingo-red text-white'
-                      ) : 'bg-white text-gray-700 border-2 border-gray-200 focus:border-duolingo-green focus:outline-none',
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-destructive text-destructive-foreground'
+                      ) : 'bg-white text-foreground border-2 border-border focus:border-primary focus:outline-none',
                     )}
                   />
                 </div>
@@ -271,7 +271,7 @@ export default function Assessment() {
             </div>
           </div>
 
-          <div className="p-6 bg-white border-t border-gray-100">
+          <div className="p-6 bg-white border-t border-border">
             <div className="max-w-md mx-auto">
               {!feedback ? (
                 <PixelButton

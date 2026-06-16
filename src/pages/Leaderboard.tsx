@@ -363,7 +363,7 @@ function Top3Podium({ list }: { list: RankUser[] }) {
                 )}
                 {pos.rank !== 1 && (
                   <div
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full grid place-items-center text-white text-[10px] font-black shadow-md border-2 border-white"
+                    className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full grid place-items-center text-white text-[10px] font-bold shadow-md border-2 border-white"
                     style={{ background: pos.accent }}
                   >
                     {pos.rank}
@@ -372,7 +372,7 @@ function Top3Podium({ list }: { list: RankUser[] }) {
               </div>
 
               {/* 昵称 */}
-              <div className="text-xs font-black text-gray-900 truncate max-w-[80px] mb-0.5">
+              <div className="text-xs font-bold text-foreground truncate max-w-[80px] mb-0.5">
                 {user.nickname}
               </div>
               <div className="text-[10px] font-bold mb-2" style={{ color: pos.textColor }}>
@@ -381,7 +381,7 @@ function Top3Podium({ list }: { list: RankUser[] }) {
 
               {/* XP */}
               <div
-                className="mb-2 px-2.5 py-1 rounded-full text-[11px] font-black tracking-tight"
+                className="mb-2 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight"
                 style={{ background: pos.accentSoft, color: pos.textColor }}
               >
                 {user.totalXp.toLocaleString()} XP
@@ -413,7 +413,7 @@ function Top3Podium({ list }: { list: RankUser[] }) {
                   strokeWidth={2}
                   {...(pos.rank === 1 ? { fill: pos.accent + '30' } : {})}
                 />
-                <div className="text-[10px] font-black mt-1" style={{ color: pos.textColor, opacity: 0.7 }}>
+                <div className="text-[10px] font-bold mt-1" style={{ color: pos.textColor, opacity: 0.7 }}>
                   {userRank}
                 </div>
               </div>

@@ -79,7 +79,7 @@ export default function Stats() {
           <CardHeader className="p-0 mb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-bold text-foreground">正确率</CardTitle>
-              <span className="text-sm font-black text-primary">{accuracy}%</span>
+              <span className="text-sm font-bold text-primary">{accuracy}%</span>
             </div>
           </CardHeader>
           <CardContent className="p-0">
@@ -164,7 +164,7 @@ export default function Stats() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="flex items-center justify-between">
-              <span className="text-2xl font-black text-foreground">{user.achievements.length}</span>
+              <span className="text-2xl font-bold text-foreground">{user.achievements.length}</span>
               <span className="text-xs text-muted-foreground">已解锁</span>
             </div>
             {user.achievements.length > 0 && (

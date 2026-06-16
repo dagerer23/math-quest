@@ -90,7 +90,7 @@ export default function Profile() {
                 <div className="relative flex-shrink-0">
                   <button
                     onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                    className="size-14 rounded-2xl grid place-items-center text-2xl bg-amber-50 border border-amber-100 hover:border-amber-200 transition-colors"
+                    className="size-14 rounded-2xl grid place-items-center text-2xl bg-muted border border-border hover:border-primary/30 transition-colors"
                   >
                     {user.profile.avatar}
                   </button>
@@ -210,19 +210,16 @@ export default function Profile() {
             icon={<Coins size={18} />}
             value={user.coins}
             label="金币"
-            color="bg-amber-50 text-amber-500"
           />
           <StatCard
             icon={<Sparkles size={18} />}
             value={user.diamonds}
             label="钻石"
-            color="bg-cyan-50 text-cyan-500"
           />
           <StatCard
             icon={<Zap size={18} />}
             value={user.comboMax}
             label="最高连击"
-            color="bg-rose-50 text-rose-500"
           />
         </motion.div>
 
@@ -236,25 +233,21 @@ export default function Profile() {
           <QuickAction
             icon={<Trophy size={20} />}
             label="排行榜"
-            color="bg-amber-50 text-amber-500"
             onClick={() => navigate('/leaderboard')}
           />
           <QuickAction
             icon={<BookOpen size={20} />}
             label="错题本"
-            color="bg-rose-50 text-rose-500"
             onClick={() => navigate('/mistakes')}
           />
           <QuickAction
             icon={<BarChart3 size={20} />}
             label="学习统计"
-            color="bg-sky-50 text-sky-500"
             onClick={() => navigate('/stats')}
           />
           <QuickAction
             icon={<Swords size={20} />}
             label="闯关冒险"
-            color="bg-emerald-50 text-emerald-500"
             onClick={() => navigate('/')}
           />
         </motion.div>
@@ -269,7 +262,7 @@ export default function Profile() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm flex items-center gap-1.5">
-                  <Trophy size={15} className="text-amber-500" />
+                  <Trophy size={15} className="text-primary" />
                   成就
                 </CardTitle>
                 <Badge variant="secondary" className="text-[10px] tabular-nums">
@@ -290,7 +283,7 @@ export default function Profile() {
                       className={clsx(
                         'aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all',
                         unlocked
-                          ? 'bg-amber-50 border border-amber-100'
+                          ? 'bg-primary/10 border border-primary/20'
                           : 'bg-muted border border-border',
                       )}
                       title={unlocked ? `${a.name} · ${a.description}` : `${a.name}（未解锁）`}
@@ -328,14 +321,14 @@ export default function Profile() {
             <CardContent>
               <div className="flex flex-col">
                 <StatRow
-                  icon={<Target size={16} className="text-emerald-500" />}
+                  icon={<Target size={16} className="text-primary" />}
                   label="已通关卡"
                   value={String(Object.keys(user.completedLevels).length)}
                   sub={`共 ${Object.keys(user.completedLevels).length} 个关卡`}
                 />
                 <Separator />
                 <StatRow
-                  icon={<Zap size={16} className="text-amber-500" />}
+                  icon={<Zap size={16} className="text-primary" />}
                   label="最高连击"
                   value={String(user.comboMax)}
                   sub={`连击 ${user.comboMax} 次`}
@@ -446,30 +439,28 @@ export default function Profile() {
 }
 
 // ─── 统计卡片 ───
-function StatCard({ icon, value, label, color }: {
+function StatCard({ icon, value, label }: {
   icon: React.ReactNode
   value: number | string
   label: string
-  color: string
 }) {
   return (
     <Card className="p-3 text-center">
       <CardContent className="p-0">
-        <div className={clsx('inline-flex items-center justify-center size-9 rounded-xl mb-2', color)}>
+        <div className="inline-flex items-center justify-center size-9 rounded-xl mb-2 bg-muted text-primary">
           {icon}
         </div>
-        <div className="text-lg font-black text-foreground tabular-nums">{value}</div>
-        <div className="text-[10px] text-muted-foreground font-medium">{label}</div>
+        <div className="text-lg font-bold text-foreground tabular-nums">{value}</div>
+        <div className="text-xs text-muted-foreground">{label}</div>
       </CardContent>
     </Card>
   )
 }
 
 // ─── 快捷操作按钮 ───
-function QuickAction({ icon, label, color, onClick }: {
+function QuickAction({ icon, label, onClick }: {
   icon: React.ReactNode
   label: string
-  color: string
   onClick: () => void
 }) {
   return (
@@ -477,10 +468,10 @@ function QuickAction({ icon, label, color, onClick }: {
       onClick={onClick}
       className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-card shadow-sm border border-border hover:shadow-md transition-all active:scale-95"
     >
-      <div className={clsx('size-9 rounded-xl grid place-items-center', color)}>
+      <div className="size-9 rounded-xl grid place-items-center bg-muted text-primary">
         {icon}
       </div>
-      <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
     </button>
   )
 }

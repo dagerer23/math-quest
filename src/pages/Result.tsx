@@ -259,7 +259,7 @@ export default function Result() {
           className="relative"
         >
           <div className={clsx(
-            "text-5xl font-black",
+            "text-5xl font-bold",
             accuracy === 100 ? "text-primary" : accuracy >= 60 ? "text-foreground" : "text-destructive"
           )}>
             {accuracy}%

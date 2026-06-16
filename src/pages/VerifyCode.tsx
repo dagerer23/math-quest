@@ -28,15 +28,15 @@ function CodeInput({ value, onChange, onComplete }: {
           className={clsx(
             'w-11 h-14 rounded-xl border-2 flex items-center justify-center text-xl font-bold transition-colors',
             char
-              ? 'border-[#58CC02] bg-[#58CC02]/5 text-gray-900'
-              : 'border-gray-200 bg-gray-50 text-transparent',
-            i === value.length && 'ring-2 ring-[#58CC02]/30'
+              ? 'border-primary bg-primary/5 text-foreground'
+              : 'border-border bg-muted text-transparent',
+            i === value.length && 'ring-2 ring-primary/30'
           )}
           animate={char ? { scale: [0.95, 1] } : {}}
         >
           {char || (
             <motion.div
-              className="w-0.5 h-6 bg-gray-300 rounded-full"
+              className="w-0.5 h-6 bg-muted-foreground rounded-full"
               animate={{ opacity: [1, 0.3, 1] }}
               transition={{ duration: 1, repeat: Infinity }}
             />
@@ -68,9 +68,9 @@ function CountdownRing({ seconds, total }: { seconds: number; total: number }) {
 
   return (
     <svg width="40" height="40" viewBox="0 0 40 40" className="-rotate-90">
-      <circle cx="20" cy="20" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="3" />
+      <circle cx="20" cy="20" r={radius} fill="none" stroke="hsl(var(--border))" strokeWidth="3" />
       <motion.circle
-        cx="20" cy="20" r={radius} fill="none" stroke="#58CC02" strokeWidth="3"
+        cx="20" cy="20" r={radius} fill="none" stroke="hsl(var(--primary))" strokeWidth="3"
         strokeLinecap="round"
         strokeDasharray={circumference}
         initial={{ strokeDashoffset: 0 }}
@@ -185,19 +185,19 @@ export default function VerifyCode() {
 
   return (
     <motion.div
-      className="min-h-screen bg-[#FAFAFA] flex flex-col"
+      className="min-h-screen bg-muted flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
       {/* 顶条 */}
-      <div className="h-1 bg-gradient-to-r from-[#58CC02] via-[#1CB0F6] to-[#58CC02]" />
+      <div className="h-1 bg-gradient-to-r from-primary via-[#1CB0F6] to-primary" />
 
       <div className="flex-1 flex flex-col px-8 py-12">
         {/* 返回 */}
         <button
           onClick={() => navigate('/login', { replace: true })}
-          className="flex items-center gap-1.5 text-gray-400 hover:text-gray-900 transition-colors -ml-1 mb-auto"
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors -ml-1 mb-auto"
         >
           <ArrowLeft size={18} />
           <span className="text-sm">返回</span>
@@ -206,8 +206,8 @@ export default function VerifyCode() {
         <div className="w-full max-w-[320px] mx-auto">
           {/* 标题 */}
           <div className="mb-10">
-            <h2 className="text-xl font-semibold text-gray-900">输入验证码</h2>
-            <p className="text-xs text-gray-400 mt-2">
+            <h2 className="text-xl font-semibold text-foreground">输入验证码</h2>
+            <p className="text-xs text-muted-foreground mt-2">
               验证码已发送至 {maskPhone(phone)}
             </p>
           </div>
@@ -225,7 +225,7 @@ export default function VerifyCode() {
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="text-center text-xs text-[#58CC02] mt-5"
+                className="text-center text-xs text-primary mt-5"
               >
                 验证码已重新发送（测试: 123456）
               </motion.p>
@@ -241,12 +241,12 @@ export default function VerifyCode() {
             {countdown > 0 ? (
               <div className="flex items-center justify-center gap-2">
                 <CountdownRing seconds={countdown} total={60} />
-                <span className="text-xs text-gray-400">{countdown}s 后可重新发送</span>
+                <span className="text-xs text-muted-foreground">{countdown}s 后可重新发送</span>
               </div>
             ) : (
               <button
                 onClick={handleResend}
-                className="text-xs text-[#58CC02] font-medium hover:underline"
+                className="text-xs text-primary font-medium hover:underline"
               >
                 没收到？重新发送
               </button>
@@ -260,15 +260,15 @@ export default function VerifyCode() {
               animate={{ opacity: 1 }}
               className="flex items-center justify-center gap-2 mt-6"
             >
-              <div className="w-4 h-4 border-2 border-[#58CC02] border-t-transparent rounded-full animate-spin" />
-              <span className="text-xs text-gray-400">验证中...</span>
+              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <span className="text-xs text-muted-foreground">验证中...</span>
             </motion.div>
           )}
         </div>
 
         {/* 底部 */}
         <div className="mt-auto pt-8 text-center">
-          <p className="text-[10px] text-gray-300">
+          <p className="text-[10px] text-muted-foreground">
             登录即同意 用户协议 和 隐私政策
           </p>
         </div>

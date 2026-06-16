@@ -53,16 +53,16 @@ export default function DailyGoals() {
     if (templates.length === 0) return
 
     const iconMap: Record<string, React.ReactNode> = {
-      '⚡': <Zap size={24} className="text-duolingo-purple" />,
-      '🎯': <Target size={24} className="text-duolingo-blue" />,
-      '🔥': <Flame size={24} className="text-duolingo-red" />,
+      '⚡': <Zap size={24} className="text-primary" />,
+      '🎯': <Target size={24} className="text-primary" />,
+      '🔥': <Flame size={24} className="text-destructive" />,
     }
 
     const newGoals: Goal[] = templates.map((t) => ({
       id: t.id,
       title: t.title,
       description: t.description,
-      icon: iconMap[t.icon] || <Target size={24} className="text-duolingo-blue" />,
+      icon: iconMap[t.icon] || <Target size={24} className="text-primary" />,
       type: t.type,
       target: t.target,
       reward: { xp: t.rewardXp, coins: t.rewardCoins },
@@ -161,7 +161,7 @@ export default function DailyGoals() {
         <div className="text-center py-8">
           <div className="text-3xl mb-2">😕</div>
           <p className="text-sm text-muted-foreground mb-3">{error}</p>
-          <button
+          <Button
             onClick={() => {
               setLoading(true)
               setError('')
@@ -175,10 +175,11 @@ export default function DailyGoals() {
                   setError('加载失败，请稍后重试')
                 })
             }}
-            className="px-4 py-2 rounded-xl bg-duolingo-green text-white text-sm font-bold"
+            variant="default"
+            size="sm"
           >
             重试
-          </button>
+          </Button>
         </div>
       )}
 
@@ -196,7 +197,7 @@ export default function DailyGoals() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className={`p-4 ${completed ? 'bg-gradient-to-br from-green-50 to-blue-50' : ''}`}>
+              <Card className={`p-4 ${completed ? 'bg-primary/5' : ''}`}>
                 <div className="flex items-start gap-3">
                   <div className="size-11 rounded-xl bg-muted grid place-items-center flex-shrink-0">
                     {goal.icon}
@@ -221,7 +222,7 @@ export default function DailyGoals() {
                         <span className="text-muted-foreground">
                           进度 {progress}/{goal.target}
                         </span>
-                        <span className="text-duolingo-gold font-medium flex items-center gap-1">
+                        <span className="text-primary font-medium flex items-center gap-1">
                           <Trophy size={12} />
                           +{goal.reward.xp} XP · +{goal.reward.coins} 金币
                         </span>
@@ -229,7 +230,7 @@ export default function DailyGoals() {
 
                       <Progress value={Math.min((progress / goal.target) * 100, 100)}>
                         <ProgressTrack className="h-2">
-                          <ProgressIndicator className={`transition-all duration-500 ${completed ? 'bg-primary' : 'bg-duolingo-blue'}`} />
+                          <ProgressIndicator className={`transition-all duration-500 ${completed ? 'bg-primary' : 'bg-muted-foreground/50'}`} />
                         </ProgressTrack>
                       </Progress>
                     </div>
@@ -265,8 +266,8 @@ export default function DailyGoals() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
       >
-        <Card className="p-3 bg-duolingo-purple/5 border border-duolingo-purple/20">
-          <p className="text-xs text-foreground/70">
+        <Card className="p-3 bg-muted border-border">
+          <p className="text-xs text-muted-foreground">
             💡 每日目标会在每天凌晨 0:00 重置，记得及时完成并领取奖励哦！
           </p>
         </Card>

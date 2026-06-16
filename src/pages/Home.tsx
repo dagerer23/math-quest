@@ -344,7 +344,7 @@ function LevelNode({
             </span>
             {navigatingLevelId === level.id && (
               <div className="absolute inset-0 rounded-full bg-white/60 grid place-items-center z-10">
-                <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
               </div>
             )}
           </motion.div>
@@ -539,7 +539,7 @@ export default function Home() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-5xl mb-3">💔</div>
-              <h3 className="text-lg font-black mb-1.5" style={{ color: theme.textPrimary }}>
+              <h3 className="text-lg font-bold mb-1.5" style={{ color: theme.textPrimary }}>
                 心数用完了
               </h3>
               <p className="text-xs mb-5" style={{ color: theme.textSecondary, lineHeight: 1.6 }}>
