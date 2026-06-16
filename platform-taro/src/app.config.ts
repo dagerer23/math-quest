@@ -1,18 +1,20 @@
 export default defineAppConfig({
   pages: [
-    'pages/index',
+    'pages/login/index',
     'pages/home/index',
     'pages/daily-goals/index',
     'pages/mistakes/index',
     'pages/leaderboard/index',
-    'pages/profile/index'
+    'pages/profile/index',
+    'pages/assessment/index',
+    'pages/result/index'
   ],
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#FFFFFF',
-    navigationBarTitleText: '数学思维',
+    navigationBarTitleText: '数学探险',
     navigationBarTextStyle: 'black',
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#F8FAF5'
   },
   tabBar: {
     color: '#777777',

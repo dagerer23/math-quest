@@ -1,87 +1,86 @@
 import { View, Text } from '@tarojs/components'
-import { useLoad } from '@tarojs/taro'
+import Taro from '@tarojs/taro'
+import { useUserStore } from '@/store/useUserStore'
+import { LEVELS } from '@/data/questionBank'
+import { Button } from '@/components/ui/Controls'
+import { Card, Title, Subtitle, Spacer, Row, Col } from '@/components/ui/Basic'
 
-export default function Mistakes() {
-  useLoad(() => {
-    console.log('Mistakes page loaded.')
-  })
+export default function MistakesPage() {
+  const user = useUserStore()
+  const mistakeIds = user.mistakeIds || []
+
+  // 从题库中查找错题
+  const findQuestion = (id: string) => {
+    for (const gKey of Object.keys(LEVELS)) {
+      const g = (LEVELS as any)[gKey]
+      if (!g?.questions) continue
+      for (const qList of Object.values<any>(g.questions)) {
+        const found = (qList as any[]).find((q) => q.id === id)
+        if (found) return found
+      }
+    }
+    return null
+  }
+
+  const mistakes = mistakeIds
+    .map((id) => findQuestion(id))
+    .filter(Boolean)
 
   return (
-    <View className='shell' style={{ padding: '16px' }}>
-      <View style={{
-        background: 'linear-gradient(135deg, #FF4B4B 0%, #CE82FF 100%)',
-        borderRadius: '16px',
-        padding: '24px',
-        marginBottom: '16px'
-      }}>
-        <Text style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>
-          错题本
-        </Text>
-        <Text style={{
-          display: 'block',
-          color: 'rgba(255,255,255,0.9)',
-          fontSize: '13px',
-          marginTop: '6px'
-        }}>
-          温故知新，攻克薄弱知识点
-        </Text>
+    <View style={{ minHeight: '100vh', background: '#F8FAF5', padding: 16 }}>
+      <View style={{ padding: 16, paddingTop: 32 }}>
+        <Title size={22}>错题本</Title>
+        <Subtitle size={14}>共 {mistakes.length} 道需要复习</Subtitle>
       </View>
 
-      <View style={{
-        background: '#FFE4E4',
-        borderRadius: '12px',
-        padding: '20px',
-        border: '1px solid #FF4B4B'
-      }}>
-        <Text style={{ color: '#FF4B4B', fontSize: '16px', fontWeight: '600' }}>
-          暂无错题记录
-        </Text>
-        <Text style={{ color: '#777', fontSize: '13px', marginTop: '8px' }}>
-          继续保持！您今日没有新的错题记录。
-        </Text>
-      </View>
-
-      <View style={{
-        background: '#F9FAFB',
-        borderRadius: '12px',
-        padding: '20px',
-        marginTop: '16px',
-        border: '1px solid #E5E7EB'
-      }}>
-        <Text style={{ color: '#3C3C3C', fontSize: '16px', fontWeight: '600' }}>
-          错题分类
-        </Text>
-        <View style={{ marginTop: '12px' }}>
-          {[
-            { type: '几何', count: 5, color: '#1CB0F6', bg: '#E0F4FF' },
-            { type: '代数', count: 3, color: '#58CC02', bg: '#E8F9D8' },
-            { type: '应用题', count: 8, color: '#FFC800', bg: '#FFF5D6' },
-          ].map((item, index) => (
-            <View key={index} style={{
-              background: item.bg,
-              borderRadius: '10px',
-              padding: '14px 16px',
-              marginTop: index > 0 ? '10px' : 0,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <Text style={{ color: item.color, fontSize: '14px', fontWeight: '500' }}>
-                {item.type}
-              </Text>
-              <View style={{
-                background: item.color,
-                borderRadius: '12px',
-                padding: '4px 10px'
-              }}>
-                <Text style={{ color: '#fff', fontSize: '12px', fontWeight: '600' }}>
-                  {item.count} 题
+      {mistakes.length === 0 ? (
+        <Card padding={40} style={{ margin: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+          <Text style={{ fontSize: 64 }}>🎉</Text>
+          <Spacer size={16} />
+          <Title size={18}>太棒了！暂无错题</Title>
+          <Spacer size={8} />
+          <Subtitle size={13}>继续保持，每次答对都能巩固知识</Subtitle>
+        </Card>
+      ) : (
+        mistakes.map((q: any, idx: number) => (
+          <Card key={q.id} padding={16} style={{ margin: 8, marginTop: 8 }}>
+            <Row justify="space-between">
+              <Col gap={6} flex={1}>
+                <Text style={{ fontSize: 14, color: '#6b7280' }}>
+                  第 {idx + 1} 题 · {q.knowledgePoint || '综合'}
                 </Text>
-              </View>
-            </View>
-          ))}
-        </View>
-      </View>
+                <Text style={{ fontSize: 16, fontWeight: 600, color: '#1a1a1a', lineHeight: 1.5 }}>
+                  {q.prompt}
+                </Text>
+                <Text style={{ fontSize: 13, color: '#58CC02', marginTop: 4 }}>
+                  ✅ 正确答案：{q.answer}
+                </Text>
+                {q.explanation && (
+                  <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+                    💡 {q.explanation}
+                  </Text>
+                )}
+              </Col>
+              <Col style={{ alignItems: 'center' }} gap={4}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    // 单个复习
+                    ;(Taro as any).currentLevel = { id: 'mistake-review', grade: 1, title: '错题复习', sortOrder: 0 }
+                    ;(Taro as any).currentQuestions = [q]
+                    Taro.navigateTo({ url: '/pages/assessment/index' })
+                  }}
+                >
+                  再练一次
+                </Button>
+              </Col>
+            </Row>
+          </Card>
+        ))
+      )}
+
+      <Spacer size={40} />
     </View>
   )
 }
