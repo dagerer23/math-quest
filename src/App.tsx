@@ -31,6 +31,7 @@ import { useUserStore } from '@/store/useUserStore'
 import { tokenLogin, TOKEN_KEY, fetchAssessment } from '@/services/auth'
 import { getAchievements, getConfigs } from '@/services/content'
 import { Toaster } from '@/components/ui/sonner'
+import { silentApiError } from '@/utils/apiError'
 
 function AppRoutes() {
   const isLoggedIn = useUserStore((state) => state.isLoggedIn)
@@ -159,7 +160,7 @@ export default function App() {
               })
             }
           } catch {
-            // 静默失败
+            silentApiError(undefined, 'fetchAssessment')
           }
         } else {
           // 资料不全：重置身份，后续路由会走到 onboarding
@@ -184,8 +185,8 @@ export default function App() {
       .then((list) => {
         setAchievementsMeta(list)
       })
-      .catch(() => {
-        // 静默失败
+      .catch((err) => {
+        silentApiError(err, 'getAchievements')
       })
   }, [setAchievementsMeta])
 
@@ -195,8 +196,8 @@ export default function App() {
       .then((configs) => {
         setSystemConfigs(configs)
       })
-      .catch(() => {
-        // 静默失败
+      .catch((err) => {
+        silentApiError(err, 'getConfigs')
       })
   }, [setSystemConfigs])
 

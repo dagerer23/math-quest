@@ -20,8 +20,14 @@ import type { AssessmentRecord } from './storage'
 
 const CODE_EXPIRY_MS = 5 * 60 * 1000 // 5分钟
 const MAX_ATTEMPTS = 3
-const TEST_CODE = '123456' // 测试模式固定验证码
+const TEST_CODE = '123456' // 测试模式固定验证码（仅开发环境）
 const SEND_COOLDOWN_MS = 60 * 1000 // 60秒内不可重复发送
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+
+/** 生成6位随机验证码 */
+function generateRandomCode(): string {
+  return String(Math.floor(100000 + Math.random() * 900000))
+}
 
 /**
  * 手机号格式验证
@@ -49,7 +55,7 @@ export async function sendVerificationCode(phone: string): Promise<{
     return { success: false, message: '验证码已发送，请稍后再试' }
   }
 
-  const code = TEST_CODE
+  const code = IS_PRODUCTION ? generateRandomCode() : TEST_CODE
   const expiresAt = Date.now() + CODE_EXPIRY_MS
 
   await saveVerificationRecord({
@@ -98,7 +104,7 @@ export async function verifyAndLogin(phone: string, code: string): Promise<{
     attempts: record.attempts + 1,
   })
 
-  if (code !== TEST_CODE) {
+  if (code !== record.code) {
     if (record.attempts + 1 >= MAX_ATTEMPTS) {
       await deleteVerificationRecord(phone)
       return { success: false, message: '验证码错误，请重新获取' }

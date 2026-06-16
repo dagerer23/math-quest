@@ -9,11 +9,31 @@ const API_BASE = '/api/content'
 
 let _hasServer: boolean | null = null
 
+/** 带重试的 fetch 请求（5xx 和网络错误自动重试） */
+async function fetchWithRetry(url: string, options?: RequestInit, retries = 2): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(url, options)
+      if (!res.ok && res.status >= 500 && attempt < retries) {
+        await new Promise(r => setTimeout(r, 500 * (attempt + 1)))
+        continue
+      }
+      return res
+    } catch (err) {
+      if (err instanceof TypeError && attempt < retries) {
+        await new Promise(r => setTimeout(r, 500 * (attempt + 1)))
+        continue
+      }
+      throw err
+    }
+  }
+}
+
 /** 快速探测后端是否可达 */
 async function probeServer(): Promise<boolean> {
   if (_hasServer !== null) return _hasServer
   try {
-    const res = await fetch(`${API_BASE}/grade/1`)
+    const res = await fetchWithRetry(`${API_BASE}/grade/1`)
     if (res.ok) {
       _hasServer = true
       return true
@@ -37,15 +57,92 @@ async function safeJson<T>(res: Response): Promise<T | null> {
   }
 }
 
+// ============= 导出类型 =============
+export interface LeaderboardUser {
+  rank: number
+  userId: string
+  nickname: string
+  avatar: string
+  targetGrade: number
+  totalXp: number
+  totalSessions: number
+  correctRate: number
+}
+
+export interface AchievementData {
+  id: string
+  name: string
+  description: string
+  icon: string
+  sortOrder: number
+}
+
+export interface DailyGoalTemplate {
+  id: string
+  title: string
+  description: string
+  icon: string
+  type: 'xp' | 'questions' | 'streak'
+  target: number
+  rewardXp: number
+  rewardCoins: number
+  sortOrder: number
+}
+
+// ============= API 响应类型 =============
+interface ApiLevelsResponse {
+  success: boolean
+  levels: Array<{
+    id: string; grade: number; chapter: string; sortOrder?: number
+    isBoss?: boolean; unitId?: string; knowledgePoints?: string[]
+    questionCount?: number
+  }>
+}
+
+interface ApiLevelDetailResponse {
+  success: boolean
+  level: Level
+}
+
+interface ApiLeaderboardResponse {
+  success: boolean
+  users: LeaderboardUser[]
+}
+
+interface ApiAchievementsResponse {
+  success: boolean
+  achievements: AchievementData[]
+}
+
+interface ApiDailyGoalsResponse {
+  success: boolean
+  templates: DailyGoalTemplate[]
+}
+
+interface ApiConfigsResponse {
+  success: boolean
+  configs: Record<string, string>
+}
+
+interface ApiQuestionsResponse {
+  success: boolean
+  questions: Question[]
+}
+
+interface ApiMasteryResponse {
+  success: boolean
+  mastery: number
+}
+
 /** 拉取指定年级的关卡（含精简信息，不含题目正文） */
 export async function getLevelsByGrade(grade: number): Promise<Level[]> {
   const hasServer = await probeServer()
   if (hasServer) {
     try {
-      const res = await fetch(`${API_BASE}/grade/${grade}`)
-      const data = await safeJson<any>(res)
+      const res = await fetchWithRetry(`${API_BASE}/grade/${grade}`)
+      const data = await safeJson<ApiLevelsResponse>(res)
       if (data?.success && Array.isArray(data.levels)) {
-        return data.levels.map((l: any) => ({
+        return data.levels.map((l) => ({
           id: l.id,
           grade: l.grade,
           chapter: l.chapter,
@@ -67,10 +164,10 @@ export async function getLevelDetail(levelId: string): Promise<Level | null> {
   const hasServer = await probeServer()
   if (hasServer) {
     try {
-      const res = await fetch(`${API_BASE}/level/${levelId}`)
-      const data = await safeJson<any>(res)
+      const res = await fetchWithRetry(`${API_BASE}/level/${levelId}`)
+      const data = await safeJson<ApiLevelDetailResponse>(res)
       if (data?.success && data.level) {
-        return data.level as Level
+        return data.level
       }
     } catch { /* fallthrough */ }
   }
@@ -82,64 +179,33 @@ export function clearContentCache() {
   _hasServer = null
 }
 
-export interface LeaderboardUser {
-  rank: number
-  userId: string
-  nickname: string
-  avatar: string
-  targetGrade: number
-  totalXp: number
-  totalSessions: number
-  correctRate: number
-}
-
 /** 拉取排行榜（C 端） */
 export async function getLeaderboard(limit = 50, grade?: number): Promise<LeaderboardUser[]> {
   try {
     const params = new URLSearchParams({ limit: String(limit) })
     if (grade !== undefined) params.set('grade', String(grade))
-    const res = await fetch(`${API_BASE}/leaderboard?${params}`)
-    const data = await safeJson<any>(res)
+    const res = await fetchWithRetry(`${API_BASE}/leaderboard?${params}`)
+    const data = await safeJson<ApiLeaderboardResponse>(res)
     if (data?.success && Array.isArray(data.users)) return data.users
   } catch { /* fallthrough */ }
   return []
 }
 
-export interface AchievementData {
-  id: string
-  name: string
-  description: string
-  icon: string
-  sortOrder: number
-}
-
 /** 拉取成就列表 */
 export async function getAchievements(): Promise<AchievementData[]> {
   try {
-    const res = await fetch(`${API_BASE}/achievements`)
-    const data = await safeJson<any>(res)
+    const res = await fetchWithRetry(`${API_BASE}/achievements`)
+    const data = await safeJson<ApiAchievementsResponse>(res)
     if (data?.success && Array.isArray(data.achievements)) return data.achievements
   } catch { /* fallthrough */ }
   return []
 }
 
-export interface DailyGoalTemplate {
-  id: string
-  title: string
-  description: string
-  icon: string
-  type: 'xp' | 'questions' | 'streak'
-  target: number
-  rewardXp: number
-  rewardCoins: number
-  sortOrder: number
-}
-
 /** 拉取每日目标模板列表 */
 export async function getDailyGoalTemplates(): Promise<DailyGoalTemplate[]> {
   try {
-    const res = await fetch(`${API_BASE}/daily-goals`)
-    const data = await safeJson<any>(res)
+    const res = await fetchWithRetry(`${API_BASE}/daily-goals`)
+    const data = await safeJson<ApiDailyGoalsResponse>(res)
     if (data?.success && Array.isArray(data.templates)) return data.templates
   } catch { /* fallthrough */ }
   return []
@@ -148,8 +214,8 @@ export async function getDailyGoalTemplates(): Promise<DailyGoalTemplate[]> {
 /** 拉取系统配置 */
 export async function getConfigs(): Promise<Record<string, string>> {
   try {
-    const res = await fetch(`${API_BASE}/configs`)
-    const data = await safeJson<any>(res)
+    const res = await fetchWithRetry(`${API_BASE}/configs`)
+    const data = await safeJson<ApiConfigsResponse>(res)
     if (data?.success && data.configs) return data.configs
   } catch { /* fallthrough */ }
   return {}
@@ -158,8 +224,8 @@ export async function getConfigs(): Promise<Record<string, string>> {
 /** 拉取测评题目 */
 export async function getAssessmentQuestions(grade: number, count = 10): Promise<Question[]> {
   try {
-    const res = await fetch(`${API_BASE}/assessment-questions?grade=${grade}&count=${count}`)
-    const data = await safeJson<any>(res)
+    const res = await fetchWithRetry(`${API_BASE}/assessment-questions?grade=${grade}&count=${count}`)
+    const data = await safeJson<ApiQuestionsResponse>(res)
     if (data?.success && Array.isArray(data.questions)) return data.questions
   } catch { /* fallthrough */ }
   return generateLocalAssessmentQuestions(grade)
@@ -169,12 +235,12 @@ export async function getAssessmentQuestions(grade: number, count = 10): Promise
 export async function getQuestionsByIds(ids: string[]): Promise<Question[]> {
   if (!Array.isArray(ids) || ids.length === 0) return []
   try {
-    const res = await fetch(`${API_BASE}/questions-by-ids`, {
+    const res = await fetchWithRetry(`${API_BASE}/questions-by-ids`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids }),
     })
-    const data = await safeJson<any>(res)
+    const data = await safeJson<ApiQuestionsResponse>(res)
     if (data?.success && Array.isArray(data.questions)) return data.questions as Question[]
   } catch { /* fallthrough */ }
   const idSet = new Set(ids.filter(id => typeof id === 'string' && id.length > 0))
@@ -202,13 +268,13 @@ export async function generateQuestions(
   const hasServer = await probeServer()
   if (hasServer) {
     try {
-      const res = await fetch(`${API_BASE}/generate-questions`, {
+      const res = await fetchWithRetry(`${API_BASE}/generate-questions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ levelId, userMastery, recentQuestionIds }),
       })
-      const data = await safeJson<any>(res)
-      if (data?.success && Array.isArray(data.questions)) return data.questions as Question[]
+      const data = await safeJson<ApiQuestionsResponse>(res)
+    if (data?.success && Array.isArray(data.questions)) return data.questions
     } catch { /* fallthrough to local */ }
   }
   // 本地降级：从 LEVELS 中取出该关卡所有题目，打乱后取 8-10 道
@@ -230,12 +296,12 @@ export async function updateMastery(
   const hasServer = await probeServer()
   if (hasServer) {
     try {
-      const res = await fetch(`${API_BASE}/update-mastery`, {
+      const res = await fetchWithRetry(`${API_BASE}/update-mastery`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ knowledgePoint, isCorrect, difficultyScore, currentMastery, consecutiveCorrect }),
       })
-      const data = await safeJson<any>(res)
+      const data = await safeJson<ApiMasteryResponse>(res)
       if (data?.success && typeof data.mastery === 'number') return data.mastery
     } catch { /* fallthrough to local */ }
   }

@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
+import { handleApiError } from '@/utils/apiError'
 
 // ---------- helpers ----------
 
@@ -69,9 +70,9 @@ export default function Mistakes() {
       qs.forEach((q) => { map[q.id] = q })
       setQuestionsMap(map)
       setLoading(false)
-    }).catch(() => {
+    }).catch((err) => {
       setLoading(false)
-      toast.error('加载错题失败，请稍后重试')
+      handleApiError(err, '加载错题失败，请稍后重试')
     })
   }, [mistakeIds])
 

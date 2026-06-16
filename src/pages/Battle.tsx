@@ -68,6 +68,8 @@ export default function Battle() {
   // 注册最后一题完成的回调
   useEffect(() => {
     const handleLastQuestionComplete = (record: any) => {
+      // 心数已耗尽时，由 hearts-depleted 处理器负责导航，此处跳过
+      if (heartsDepletedRef.current) return
       const res = user.registerSession(record)
       if (res.newUnlocks.length > 0) {
         setTimeout(() => {

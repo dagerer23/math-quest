@@ -100,24 +100,40 @@ export interface Question {
   difficulty: number
 }
 
-async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(url: string, options: RequestInit = {}, retries = 2): Promise<T> {
   const token = getAdminToken()
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${API_BASE}${url}`, {
-    headers,
-    ...options,
-  })
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`HTTP ${res.status}: ${text || res.statusText}`)
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(`${API_BASE}${url}`, {
+        headers,
+        ...options,
+      })
+      if (!res.ok) {
+        // 429/4xx 不重试，5xx 或网络错误才重试
+        if (res.status >= 500 && attempt < retries) {
+          await new Promise(r => setTimeout(r, 500 * (attempt + 1)))
+          continue
+        }
+        const text = await res.text().catch(() => '')
+        throw new Error(`HTTP ${res.status}: ${text || res.statusText}`)
+      }
+      const data = await res.json()
+      if (data && data.success === false) {
+        throw new Error(data.message || '请求失败')
+      }
+      return data
+    } catch (err) {
+      // 网络错误（fetch 本身抛出）且还有重试次数
+      if (err instanceof TypeError && attempt < retries) {
+        await new Promise(r => setTimeout(r, 500 * (attempt + 1)))
+        continue
+      }
+      throw err
+    }
   }
-  const data = await res.json()
-  if (data && data.success === false) {
-    throw new Error(data.message || '请求失败')
-  }
-  return data
 }
 
 // ============= 统计 =============
