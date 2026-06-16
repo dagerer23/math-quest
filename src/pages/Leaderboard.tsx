@@ -6,6 +6,7 @@ import clsx from 'clsx'
 import { RANK_COLORS, getRankFromXp, getRankInfo, getRankProgress, getNextRankInfo } from '@/utils/rank'
 import { getLeaderboard, type LeaderboardUser } from '@/services/content'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Card } from '@/components/ui/card'
 
 // ═══════════════════════════════════════════════════════════════════
 // 排行榜类型（兼容 API 返回字段）
@@ -81,107 +82,83 @@ export default function Leaderboard() {
   const myIndex = list.findIndex(u => u.nickname === myNickname)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-white">
-      {/* ═══ 顶部渐变装饰区 ═══ */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-emerald-400 to-lime-400" />
-        <div className="absolute -top-10 -right-8 w-48 h-48 rounded-full bg-yellow-300/30 blur-3xl" />
-        <div className="absolute top-16 -left-6 w-32 h-32 rounded-full bg-white/20 blur-2xl" />
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
+      {/* 顶部渐变条 */}
+      <div className="h-1 bg-gradient-to-r from-primary via-duolingo-blue to-primary" />
 
-        <div className="relative px-5 pt-6 pb-10">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="inline-block px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold text-white tracking-wider">SEASON 01</span>
-              </div>
-              <h1 className="text-white text-3xl font-black tracking-tight flex items-center gap-2">
-                <Trophy size={28} className="text-yellow-200" strokeWidth={2.5} />
-                巅峰榜单
-              </h1>
-            </div>
-            <motion.div
-              initial={{ scale: 0.8, rotate: -10 }}
-              animate={{ scale: 1, rotate: 0 }}
-              className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 grid place-items-center"
-            >
-              <Sparkles size={26} className="text-yellow-200" />
-            </motion.div>
-          </div>
-
-          {/* 我的段位速览卡 */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="relative rounded-3xl p-4 bg-white shadow-xl shadow-emerald-500/20 border border-white overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-100 via-transparent to-transparent rounded-full blur-2xl" />
-            <div className="relative flex items-center gap-4">
-              <div
-                className="w-16 h-16 rounded-2xl grid place-items-center border-2 border-white shadow-lg"
-                style={{
-                  background: `linear-gradient(135deg, ${RANK_COLORS[myRank]}15, ${RANK_COLORS[myRank]}30)`,
-                }}
-              >
-                {(() => {
-                  const Icon = RANK_DETAILS[myRank].icon
-                  return <Icon size={30} style={{ color: RANK_COLORS[myRank] }} strokeWidth={2.5} />
-                })()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span
-                    className="text-xs font-black tracking-tight"
-                    style={{ color: RANK_COLORS[myRank] }}
-                  >
-                    {myRank}段位
-                  </span>
-                  <span className="text-[10px] text-gray-400 font-bold">LV.{Math.floor(myXp / 500) + 1}</span>
-                </div>
-                <div className="text-2xl font-black text-gray-900 tracking-tight leading-none mb-2">
-                  {myXp.toLocaleString()} <span className="text-sm font-bold text-gray-400">XP</span>
-                </div>
-                <RankProgressBar xp={myXp} />
-              </div>
-            </div>
-          </motion.div>
-        </div>
+      {/* 头部 */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
+        <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <Trophy size={20} className="text-primary" />
+          巅峰榜单
+        </h1>
       </div>
+
+      <div className="flex-1 px-4 py-4 overflow-y-auto flex flex-col gap-4">
 
       {/* ═══ 分段 Tab 切换器 ═══ */}
-      <div className="px-4 -mt-5 relative z-10">
-        <Tabs defaultValue="friends" value={tab} onValueChange={(v) => setTab(v as 'friends' | 'rank')}>
-          <TabsList className="w-full rounded-2xl bg-white border border-gray-100 p-1.5 grid grid-cols-2 gap-1 shadow-lg shadow-gray-200/60 h-auto">
-            <TabsTrigger
-              value="friends"
-              className={clsx(
-                'h-12 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-1.5',
-                tab === 'friends'
-                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 data-active:bg-gradient-to-br data-active:from-emerald-500 data-active:to-emerald-600 data-active:text-white'
-                  : 'text-gray-500 hover:text-gray-700',
-              )}
-            >
-              <Trophy size={16} strokeWidth={2.5} />
-              排行榜
-            </TabsTrigger>
-            <TabsTrigger
-              value="rank"
-              className={clsx(
-                'h-12 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-1.5',
-                tab === 'rank'
-                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 data-active:bg-gradient-to-br data-active:from-emerald-500 data-active:to-emerald-600 data-active:text-white'
-                  : 'text-gray-500 hover:text-gray-700',
-              )}
-            >
-              <Award size={16} strokeWidth={2.5} />
-              段位说明
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      <Tabs defaultValue="friends" value={tab} onValueChange={(v) => setTab(v as 'friends' | 'rank')}>
+        <TabsList className="w-full rounded-xl bg-muted p-1 grid grid-cols-2 gap-1">
+          <TabsTrigger
+            value="friends"
+            className={clsx(
+              'h-10 rounded-lg text-sm font-medium transition-all',
+              tab === 'friends'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            <Trophy size={16} className="mr-1.5" />
+            排行榜
+          </TabsTrigger>
+          <TabsTrigger
+            value="rank"
+            className={clsx(
+              'h-10 rounded-lg text-sm font-medium transition-all',
+              tab === 'rank'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            <Award size={16} className="mr-1.5" />
+            段位说明
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* 我的段位信息卡 */}
+      <Card className="p-4">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-12 h-12 rounded-xl grid place-items-center border-2 border-border"
+            style={{
+              background: `linear-gradient(135deg, ${RANK_COLORS[myRank]}15, ${RANK_COLORS[myRank]}30)`,
+            }}
+          >
+            {(() => {
+              const Icon = RANK_DETAILS[myRank].icon
+              return <Icon size={24} style={{ color: RANK_COLORS[myRank] }} strokeWidth={2.5} />
+            })()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-sm font-bold" style={{ color: RANK_COLORS[myRank] }}>
+                {myRank}段位
+              </span>
+              <span className="text-xs text-muted-foreground">LV.{Math.floor(myXp / 500) + 1}</span>
+            </div>
+            <div className="text-xl font-bold text-foreground">
+              {myXp.toLocaleString()} <span className="text-sm font-medium text-muted-foreground">XP</span>
+            </div>
+          </div>
+        </div>
+        <div className="mt-3">
+          <RankProgressBar xp={myXp} />
+        </div>
+      </Card>
 
       {/* ═══ 内容区 ═══ */}
-      <div className="px-4 pt-5 pb-24">
-        {tab !== 'rank' ? (
+      {tab !== 'rank' ? (
           <div className="space-y-5">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
@@ -202,7 +179,7 @@ export default function Leaderboard() {
                 <Top3Podium list={list} />
 
                 {/* ── 4 名以后的榜单 ── */}
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {list.slice(3).map((u, idx) => {
                     const rank = idx + 4
                     const userRank = getRankFromXp(u.totalXp)
@@ -214,55 +191,54 @@ export default function Leaderboard() {
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: idx * 0.04 }}
-                        className={clsx(
-                          'relative overflow-hidden rounded-2xl border transition-all',
-                          isMe
-                            ? 'bg-gradient-to-r from-emerald-50 via-white to-white border-emerald-200 shadow-lg shadow-emerald-500/10'
-                            : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-sm',
-                        )}
                       >
-                        {isMe && (
-                          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-emerald-400 to-emerald-600" />
-                        )}
-                        <div className={clsx('flex items-center gap-3 p-3.5', isMe && 'pl-5')}>
-                          <div className={clsx(
-                            'w-9 h-9 rounded-xl grid place-items-center font-black text-sm',
-                            'bg-gray-50 border border-gray-100 text-gray-500',
-                          )}>
-                            {rank}
-                          </div>
-                          <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-100 grid place-items-center text-2xl shrink-0">
-                            {u.avatar}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 mb-0.5">
-                              <span className="font-black text-sm text-gray-900 truncate">
-                                {u.nickname}
-                              </span>
-                              {isMe && (
-                                <span className="inline-block text-[9px] font-black text-white bg-emerald-500 rounded-full px-1.5 py-0.5 tracking-tight">
-                                  我
+                        <Card className={clsx(
+                          'p-3 transition-all',
+                          isMe ? 'border-primary/30 bg-primary/5' : '',
+                        )}>
+                          <div className={clsx('flex items-center gap-3', isMe && 'pl-4')}>
+                            {isMe && (
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg" />
+                            )}
+                            <div className={clsx(
+                              'w-8 h-8 rounded-lg grid place-items-center font-bold text-sm',
+                              'bg-muted text-muted-foreground',
+                            )}>
+                              {rank}
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-muted to-muted/50 border border-border grid place-items-center text-xl shrink-0">
+                              {u.avatar}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5 mb-0.5">
+                                <span className="font-bold text-sm text-foreground truncate">
+                                  {u.nickname}
                                 </span>
-                              )}
+                                {isMe && (
+                                  <span className="inline-block text-[10px] font-bold text-primary bg-primary/10 rounded-full px-1.5 py-0.5">
+                                    我
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <span className="inline-flex items-center gap-0.5">
+                                  <Target size={10} />
+                                  {u.targetGrade || 1} 年级
+                                </span>
+                                <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                                <span style={{ color: rankColor }} className="font-bold">
+                                  {userRank}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1.5 text-[11px] text-gray-500 font-medium">
-                              <span className="inline-flex items-center gap-0.5">
-                                <Target size={10} strokeWidth={2.5} />
-                                {u.targetGrade || 1} 年级
-                              </span>
-                              <span className="w-1 h-1 rounded-full bg-gray-300" />
-                              <span style={{ color: rankColor }} className="font-bold">
-                                {userRank}
-                              </span>
+                            <div className="text-right shrink-0">
+                              <div className="font-bold text-sm text-foreground">
+                                {u.totalXp.toLocaleString()}
+                              </div>
+                              <div className="text-xs text-muted-foreground">XP</div>
                             </div>
                           </div>
-                          <div className="text-right shrink-0">
-                            <div className="font-black text-sm text-gray-900 leading-none">
-                              {u.totalXp.toLocaleString()}
-                            </div>
-                            <div className="text-[10px] font-bold text-gray-400 mt-1 tracking-wider">XP</div>
-                          </div>
-                        </div>
+                        </Card>
                       </motion.div>
                     )
                   })}
@@ -274,30 +250,27 @@ export default function Leaderboard() {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.3 }}
-                    className="mt-4 relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-600 to-emerald-500 shadow-xl shadow-emerald-500/30"
                   >
-                    <div className="absolute -top-8 -right-8 w-40 h-40 bg-yellow-300/20 rounded-full blur-3xl" />
-                    <div className="absolute -bottom-10 -left-6 w-32 h-32 bg-lime-300/20 rounded-full blur-2xl" />
-                    <div className="relative p-5 flex items-center gap-4">
-                      <div className="relative w-16 h-16 rounded-2xl bg-white/20 backdrop-blur border border-white/30 grid place-items-center text-3xl shrink-0">
-                        {user.profile.avatar || '🧒'}
-                        <div className="absolute -top-2 -left-2 w-10 h-10 rounded-xl bg-yellow-400 border-2 border-white grid place-items-center text-white text-sm font-black shadow-lg">
-                          #{myIndex + 1}
+                    <Card className="p-4 border-primary/30 bg-primary/5">
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border-2 border-primary/20 grid place-items-center text-2xl shrink-0">
+                          {user.profile.avatar || '🧒'}
+                          <div className="absolute -top-2 -left-2 w-7 h-7 rounded-lg bg-primary border-2 border-background grid place-items-center text-xs font-bold text-primary-foreground">
+                            #{myIndex + 1}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-xs text-muted-foreground mb-0.5">我的排名</div>
+                          <div className="font-bold text-foreground mb-1">{myNickname}</div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Zap size={10} className="text-primary" />
+                            <span>{myXp.toLocaleString()} XP</span>
+                            <span className="text-muted-foreground/50">·</span>
+                            <span>{myRank}段位</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex-1 text-white">
-                        <div className="text-xs font-bold opacity-80 mb-0.5">我的排名</div>
-                        <div className="text-xl font-black tracking-tight mb-1">{myNickname}</div>
-                        <div className="flex items-center gap-2 text-[11px] opacity-90 font-medium">
-                          <span className="flex items-center gap-0.5"><Zap size={10} fill="currentColor" />{myXp.toLocaleString()} XP</span>
-                          <span className="w-1 h-1 rounded-full bg-white/40" />
-                          <span>{myRank}段位</span>
-                        </div>
-                      </div>
-                      <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur grid place-items-center">
-                        <ChevronRight size={18} className="text-white" strokeWidth={3} />
-                      </div>
-                    </div>
+                    </Card>
                   </motion.div>
                 )}
               </>
@@ -445,21 +418,20 @@ function RankProgressBar({ xp }: { xp: number }) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between text-[10px] mb-1 font-bold">
-        <span className="text-gray-400">距离下一段位</span>
+      <div className="flex items-center justify-between text-xs mb-2">
+        <span className="text-muted-foreground">距离下一段位</span>
         <span style={{ color }}>
           {next ? `${progress.current} / ${progress.target} XP` : '已达最高段位'}
         </span>
       </div>
-      <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="relative h-2 bg-muted rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(100, progress.pct * 100)}%` }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
           className="absolute inset-y-0 left-0 rounded-full"
           style={{
-            background: `linear-gradient(90deg, ${color}, ${color}dd)`,
-            boxShadow: `0 0 8px ${color}60`,
+            background: color,
           }}
         />
       </div>
@@ -476,15 +448,15 @@ function RankTab({ currentXp }: { currentXp: number }) {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-2xl bg-white border border-gray-100 p-4 mb-2">
+      <Card className="p-4">
         <div className="flex items-center gap-2 mb-1">
-          <Award size={16} className="text-emerald-500" strokeWidth={2.5} />
-          <span className="font-black text-sm text-gray-900">段位体系</span>
+          <Award size={16} className="text-primary" strokeWidth={2.5} />
+          <span className="font-bold text-sm text-foreground">段位体系</span>
         </div>
-        <div className="text-xs text-gray-500 leading-relaxed">
+        <div className="text-xs text-muted-foreground leading-relaxed">
           通过练习获得 XP，每提升一段位解锁新的荣誉与徽章。当前段位越高，挑战越精彩！
         </div>
-      </div>
+      </Card>
 
       {ranks.map((r, idx) => {
         const detail = RANK_DETAILS[r]
@@ -497,67 +469,63 @@ function RankTab({ currentXp }: { currentXp: number }) {
             initial={{ x: idx * 15, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: idx * 0.06 }}
-            className={clsx(
-              'relative rounded-2xl border overflow-hidden',
-              isCurrent
-                ? 'border-emerald-300 shadow-lg shadow-emerald-500/10'
-                : 'border-gray-100 bg-white',
-            )}
-            style={isCurrent ? undefined : {}}
           >
-            {isCurrent && (
-              <div className="absolute -top-1 right-3 z-10">
-                <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black text-white bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-sm tracking-wider">
-                  当前段位
-                </span>
-              </div>
-            )}
-            <div className={clsx('p-4', `bg-gradient-to-r ${detail.bg}`)}>
-              <div className="flex items-center gap-3.5">
-                <div
-                  className={clsx(
-                    'relative w-12 h-12 rounded-2xl grid place-items-center border bg-white shadow-sm shrink-0',
-                  )}
-                  style={{
-                    borderColor: detail.color + '30',
-                    boxShadow: isCurrent ? `0 6px 16px ${detail.color}40` : undefined,
-                  }}
-                >
-                  <Icon size={detail.iconSize} style={{ color: detail.color }} strokeWidth={2.5} {...(r === '王者' || r === '黄金' ? { fill: detail.color + '15' } : {})} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span
-                      className="text-base font-black tracking-tight"
-                      style={{ color: detail.color }}
-                    >
-                      {r}段位
-                    </span>
-                    {r === '王者' && (
-                      <Sparkles size={12} style={{ color: detail.color }} fill="currentColor" />
-                    )}
-                  </div>
-                  <div className="text-[11px] text-gray-500 font-bold">
-                    {detail.max === Infinity
-                      ? `${detail.min.toLocaleString()}+ XP`
-                      : `${detail.min.toLocaleString()} - ${detail.max.toLocaleString()} XP`}
-                  </div>
-                </div>
-                <div
-                  className="text-right font-black text-lg leading-none"
-                  style={{ color: detail.color, opacity: 0.85 }}
-                >
-                  {String(idx + 1).padStart(2, '0')}
-                </div>
-              </div>
-
-              {/* 本段位进度（仅对当前段位显示） */}
+            <Card className={clsx(
+              'overflow-hidden',
+              isCurrent ? 'border-primary/50' : '',
+            )}>
               {isCurrent && (
-                <div className="mt-3 pt-3 border-t border-white/80">
-                  <RankProgressBar xp={currentXp} />
+                <div className="px-4 py-2 bg-primary/5 border-b border-primary/20">
+                  <span className="text-xs font-bold text-primary">当前段位</span>
                 </div>
               )}
-            </div>
+              <div className={clsx('p-4', `bg-gradient-to-r ${detail.bg}`)}>
+                <div className="flex items-center gap-3">
+                  <div
+                    className={clsx(
+                      'relative w-12 h-12 rounded-xl grid place-items-center border bg-background shadow-sm shrink-0',
+                    )}
+                    style={{
+                      borderColor: detail.color + '30',
+                      boxShadow: isCurrent ? `0 4px 12px ${detail.color}30` : undefined,
+                    }}
+                  >
+                    <Icon size={detail.iconSize} style={{ color: detail.color }} strokeWidth={2.5} {...(r === '王者' || r === '黄金' ? { fill: detail.color + '15' } : {})} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span
+                        className="text-base font-bold"
+                        style={{ color: detail.color }}
+                      >
+                        {r}段位
+                      </span>
+                      {r === '王者' && (
+                        <Sparkles size={12} style={{ color: detail.color }} fill="currentColor" />
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {detail.max === Infinity
+                        ? `${detail.min.toLocaleString()}+ XP`
+                        : `${detail.min.toLocaleString()} - ${detail.max.toLocaleString()} XP`}
+                    </div>
+                  </div>
+                  <div
+                    className="text-right font-bold text-lg leading-none"
+                    style={{ color: detail.color, opacity: 0.85 }}
+                  >
+                    {String(idx + 1).padStart(2, '0')}
+                  </div>
+                </div>
+
+                {/* 本段位进度（仅对当前段位显示） */}
+                {isCurrent && (
+                  <div className="mt-3 pt-3 border-t border-border/50">
+                    <RankProgressBar xp={currentXp} />
+                  </div>
+                )}
+              </div>
+            </Card>
           </motion.div>
         )
       })}

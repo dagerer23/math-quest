@@ -3,10 +3,10 @@ import { motion } from 'framer-motion'
 import { useSessionStore } from '@/store/useSessionStore'
 import { useUserStore } from '@/store/useUserStore'
 import StarRow from '@/components/StarRow'
-import PixelButton from '@/components/PixelButton'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Coins, Sparkles, XCircle, CheckCircle2, ArrowRight, Repeat, Trophy, Star, Zap } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Coins, Sparkles, CheckCircle2, Repeat, Trophy, Star, Zap, ArrowLeft } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { playSound } from '@/utils/sound'
 import { generateQuestions } from '@/services/content'
@@ -104,9 +104,20 @@ export default function Result() {
 
   if (!record || !level) {
     return (
-      <div className="text-center py-20">
-        <p className="text-muted-foreground">没有可显示的结算数据</p>
-        <PixelButton className="mt-4" onClick={() => navigate('/')}>返回首页</PixelButton>
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
+        <div className="h-1 bg-gradient-to-r from-primary via-duolingo-blue to-primary" />
+        <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
+          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-lg font-bold text-foreground">结算</h1>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-muted-foreground">没有可显示的结算数据</p>
+            <Button className="mt-4" onClick={() => navigate('/')}>返回首页</Button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -130,7 +141,26 @@ export default function Result() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-duolingo-green/5 to-duolingo-blue/5 flex flex-col gap-3 pt-3 pb-6 px-4 relative">
+    <motion.div
+      className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="h-1 bg-gradient-to-r from-primary via-duolingo-blue to-primary" />
+
+      {/* 头部 */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <h1 className="text-lg font-bold text-foreground">结算</h1>
+      </div>
+
+      <div className="flex-1 px-4 py-4 flex flex-col gap-4 overflow-y-auto">
       {/* 彩纸效果 */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
@@ -321,12 +351,12 @@ export default function Result() {
       </Card>
 
       <div className="grid grid-cols-2 gap-3">
-        <PixelButton variant="white" size="lg" onClick={() => navigate('/')}>
+        <Button variant="outline" size="lg" onClick={() => navigate('/')}>
           返回首页
-        </PixelButton>
-        <PixelButton variant="green" size="lg" onClick={restart} icon={<Repeat size={16} />}>
-          再来一局
-        </PixelButton>
+        </Button>
+        <Button size="lg" onClick={restart} className="gap-2">
+          <Repeat size={16} /> 再来一局
+        </Button>
       </div>
 
       {wrongAnswers.length > 0 && (
@@ -334,7 +364,8 @@ export default function Result() {
           错题已自动加入 <button className="text-duolingo-green underline font-medium" onClick={() => navigate('/mistakes')}>错题本</button>，可以复仇再战！
         </div>
       )}
-    </div>
+      </div>
+    </motion.div>
   )
 }
 
@@ -373,6 +404,3 @@ function RewardBadge({ icon, label, value, color }: { icon: React.ReactNode; lab
     </motion.div>
   )
 }
-
-void XCircle
-void ArrowRight

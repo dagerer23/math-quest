@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
 import { getQuestionsByIds } from '@/services/content'
-import { Trash2, Swords, ChevronDown, ChevronUp, Target, TrendingUp, CheckCircle2 } from 'lucide-react'
+import { Trash2, Swords, ChevronDown, ChevronUp, Target, TrendingUp, CheckCircle2, ArrowLeft, RefreshCw } from 'lucide-react'
 import clsx from 'clsx'
 import { useSessionStore } from '@/store/useSessionStore'
 import type { Question } from '@/types/models'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { toast } from 'sonner'
 
 // ---------- helpers ----------
 
@@ -65,8 +68,11 @@ export default function Mistakes() {
       qs.forEach((q) => { map[q.id] = q })
       setQuestionsMap(map)
       setLoading(false)
-    }).catch(() => setLoading(false))
-  }, [mistakeIds.join(',')])
+    }).catch(() => {
+      setLoading(false)
+      toast.error('加载错题失败，请稍后重试')
+    })
+  }, [mistakeIds])
 
   // ---- 收集所有错题 ----
   const allItems: { q: Question; kp: string; levelId: string; levelName: string }[] = useMemo(() => {
@@ -228,57 +234,24 @@ export default function Mistakes() {
 
   // ---- 主体 ----
   return (
-    <div className="min-h-screen pb-6 bg-gradient-to-b from-gray-50 to-white">
-      {/* ===== 顶部概览卡 ===== */}
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="px-4 pt-3 pb-2">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="font-extrabold text-lg text-gray-800 flex items-center gap-1.5">
-              📓 错题本
-            </h1>
-            <span className="text-xs font-bold text-gray-400">{allItems.length} 题待攻克</span>
-          </div>
+    <motion.div
+      className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="h-1 bg-gradient-to-r from-primary via-duolingo-blue to-primary" />
 
-          {/* 知识点圆环 — 横向滚动 */}
-          {kpMastery.length > 0 && (
-            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-              {kpMastery.map((k, i) => (
-                <div key={k.kp} className="flex items-center gap-1.5 flex-shrink-0 bg-gray-50 rounded-2xl px-2.5 py-1.5">
-                  <CountdownRing mastered={k.mastered} total={k.total} color={getRingColor(k.kp, i)} />
-                  <div className="text-[11px] leading-tight">
-                    <div className="font-bold text-gray-700 max-w-[60px] truncate">{k.kp}</div>
-                    <div className="text-gray-400">{k.mastered}/{k.total}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* 统计行 + 复仇按钮 */}
-          <div className="flex items-center gap-2 pt-1">
-            <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
-              <Target size={13} className="text-duolingo-green" />
-              <span className="font-bold text-duolingo-green">{totalMastered}</span> 已掌握
-              <span className="text-gray-300">|</span>
-              <TrendingUp size={13} className="text-duolingo-gold" />
-              <span className="font-bold text-duolingo-gold">{totalWeak}</span> 待加强
-            </div>
-            {allItems.length > 0 && (
-              <motion.button
-                whileTap={{ scale: 0.94 }}
-                onClick={() => revenge(allItems.map(i => i.q.id))}
-                className="ml-auto flex items-center gap-1.5 px-4 py-1.5 bg-duolingo-red text-white rounded-2xl text-xs font-bold shadow-md shadow-duolingo-red/20 active:shadow-sm transition-all"
-              >
-                <Swords size={13} />
-                复仇再战
-              </motion.button>
-            )}
-          </div>
-        </div>
+      {/* 头部 */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
+        <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
+          <ArrowLeft size={20} />
+        </button>
+        <h1 className="text-lg font-bold text-foreground">错题本</h1>
+        <span className="ml-auto text-xs text-muted-foreground">{allItems.length} 题</span>
       </div>
 
-      {/* ===== 内容区 ===== */}
-      <div className="px-4 pt-3">
+      <div className="flex-1 px-4 py-4 overflow-y-auto flex flex-col gap-4">
         {/* 标签切换 */}
         <Tabs defaultValue="all" value={tab} onValueChange={(v) => setTab(v as 'all' | 'byKP')}>
           <TabsList className="w-full flex gap-1.5 mb-3 h-9 bg-transparent p-0">
@@ -370,6 +343,6 @@ export default function Mistakes() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }

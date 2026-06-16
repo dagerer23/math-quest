@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Layout from '@/components/Layout'
 import AdminLayout from '@/components/AdminLayout'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { NetworkStatus } from '@/components/NetworkStatus'
 import Login from '@/pages/Login'
 import VerifyCode from '@/pages/VerifyCode'
 import Onboarding from '@/pages/Onboarding'
@@ -60,6 +61,7 @@ function AppRoutes() {
 
   return (
     <div className="relative">
+      <NetworkStatus />
       {!isLoggedIn ? (
         <Routes>
           <Route path="/login" element={<Login />} />

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
-import PixelButton from '@/components/PixelButton'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress'
+import { Button } from '@/components/ui/button'
 import { CheckCircle, Target, Trophy, Calendar, Zap, Flame, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getDailyGoalTemplates, type DailyGoalTemplate } from '@/services/content'
@@ -238,14 +238,13 @@ export default function DailyGoals() {
 
                 {completed && !alreadyClaimed && (
                   <div className="mt-3">
-                    <PixelButton 
-                      variant="green" 
-                      size="md" 
+                    <Button
+                      variant="default"
                       className="w-full"
                       onClick={() => claimReward(goal)}
                     >
                       领取奖励
-                    </PixelButton>
+                    </Button>
                   </div>
                 )}
 
