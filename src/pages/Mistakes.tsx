@@ -129,6 +129,7 @@ export default function Mistakes() {
       chapter: '错题复仇',
       grade: 2,
       isBoss: false,
+      sortOrder: 0,
       questions: sample,
       knowledgePoints: [...new Set(sample.map(q => q.knowledgePoint))],
       unitId: 'unit-mistakes',

@@ -2,7 +2,7 @@
  * 账号管理 - 管理员与登录日志
  */
 import { useEffect, useState } from 'react'
-import { adminAccountsApi } from '@/services/adminApi'
+import { adminAccountsApi, type LoginLog, type AdminAccount } from '@/services/adminApi'
 import { useToast } from '@/components/AdminLayout'
 import { X } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -20,15 +20,7 @@ import {
   ClipboardList,
 } from 'lucide-react'
 
-interface Admin {
-  id: string; username: string; nickname: string
-  role: string; status: number
-  createdAt: number; lastLoginAt?: number | null
-}
-interface LoginLog {
-  id: number; adminId: string; username: string
-  ip: string; loginAt: number
-}
+type Admin = AdminAccount
 
 function Modal({ title, onClose, width, children }: { title: string; onClose: () => void; width?: number; children: ReactNode }) {
   return (
@@ -69,6 +61,7 @@ export default function AccountManagement() {
   const [editing, setEditing] = useState<Admin | null>(null)
   const [showPwd, setShowPwd] = useState<Admin | null>(null)
   const [form, setForm] = useState({ username: '', password: '', nickname: '', role: 'admin' })
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => { load() }, [])
 
@@ -89,11 +82,13 @@ export default function AccountManagement() {
 
   function openEdit(a: Admin) {
     setEditing(a)
-    setForm({ username: a.username, password: '', nickname: a.nickname, role: a.role })
+    setForm({ username: a.username, password: '', nickname: a.nickname ?? '', role: a.role })
     setShowForm(true)
   }
 
   async function submit() {
+    if (submitting) return
+    setSubmitting(true)
     try {
       if (editing) {
         const updates: any = { nickname: form.nickname, role: form.role }
@@ -111,6 +106,7 @@ export default function AccountManagement() {
       setShowForm(false)
       load()
     } catch (e: any) { toast('error', e.message) }
+    finally { setSubmitting(false) }
   }
 
   async function remove(a: Admin) {
@@ -251,7 +247,7 @@ export default function AccountManagement() {
             <tbody>
               {logs.map(l => (
                 <tr key={l.id}>
-                  <td style={{ fontSize: 12, color: '#666' }}>{new Date(l.loginAt).toLocaleString('zh-CN')}</td>
+                  <td style={{ fontSize: 12, color: '#666' }}>{new Date(l.createdAt).toLocaleString('zh-CN')}</td>
                   <td>{l.username}</td>
                   <td style={{ fontFamily: 'monospace', color: '#666' }}>{l.ip || '-'}</td>
                 </tr>
@@ -302,7 +298,9 @@ export default function AccountManagement() {
             </select>
           </div>
           <ModalFooter onClose={() => setShowForm(false)}>
-            <button className="admin-btn admin-btn-primary" onClick={submit}>保存</button>
+            <button className="admin-btn admin-btn-primary" onClick={submit} disabled={submitting}>
+              {submitting ? '保存中...' : '保存'}
+            </button>
           </ModalFooter>
         </Modal>
       )}

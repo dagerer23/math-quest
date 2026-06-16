@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
 import PixelButton from '@/components/PixelButton'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Check, XCircle } from 'lucide-react'
 import clsx from 'clsx'
 import { saveAssessment as saveAssessmentToBackend } from '@/services/auth'
@@ -138,6 +139,16 @@ export default function Assessment() {
               开始测评
             </PixelButton>
           </motion.div>
+        </div>
+      )}
+
+      {stage === 'quiz' && loading && (
+        <div className="space-y-4 px-4">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-24 w-full rounded-2xl" />
+          <Skeleton className="h-12 w-full rounded-xl" />
+          <Skeleton className="h-12 w-full rounded-xl" />
         </div>
       )}
 

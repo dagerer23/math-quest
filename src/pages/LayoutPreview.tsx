@@ -330,7 +330,7 @@ function LayoutOne({ levels, loading }: { levels: any[]; loading: boolean }) {
 }
 
 // 方案二：标签页式布局
-function LayoutTwo({ levels }: { levels: any[] }) {
+function LayoutTwo({ levels, loading }: { levels: any[]; loading: boolean }) {
   const user = useUserStore()
   const [activeTab, setActiveTab] = useState<'learn' | 'practice' | 'achievements'>('learn')
   const visibleLevels = levels
@@ -459,7 +459,7 @@ function LayoutTwo({ levels }: { levels: any[] }) {
 }
 
 // 方案三：强化版单页布局
-function LayoutThree({ levels }: { levels: any[] }) {
+function LayoutThree({ levels, loading }: { levels: any[]; loading?: boolean }) {
   const user = useUserStore()
   const visibleLevels = levels
   const today = new Date().toDateString()

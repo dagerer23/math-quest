@@ -131,7 +131,7 @@ function PhoneInput({
         <Separator orientation="vertical" className="h-4" />
       </div>
       <Input
-        ref={inputRef}
+        ref={inputRef as unknown as React.LegacyRef<HTMLInputElement>}
         type="tel"
         value={value}
         onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 11))}

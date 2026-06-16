@@ -59,7 +59,7 @@ const initialProfile: UserProfile = {
   nickname: '',
   learningStage: 'primary',
   learningGoal: 'consolidation',
-  targetGrade: undefined,
+  targetGrade: undefined as unknown as number,
 }
 
 const initialLearningStats: LearningStat = {
@@ -450,7 +450,7 @@ export const useUserStore = create<UserState & UserActions>()(
             nickname: '',
             learningStage: 'primary',
             learningGoal: 'consolidation',
-            targetGrade: undefined,
+            targetGrade: undefined as unknown as number,
             phone: get().profile.phone,
           },
           grade: undefined as unknown as number,

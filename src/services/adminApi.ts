@@ -66,6 +66,7 @@ export interface AdminAccount {
   username: string
   nickname?: string
   role: string
+  status: number
   createdAt: string
   lastLoginAt?: string
 }
@@ -151,7 +152,7 @@ export const adminConfigApi = {
 
 // ============= 管理员账号 =============
 export const adminAccountsApi = {
-  login: (username: string, password: string) => request<{ success: boolean; token: string; message: string }>('/admin/accounts/login', {
+  login: (username: string, password: string) => request<{ success: boolean; admin?: AdminAccount; token?: string; message?: string }>('/admin/accounts/login', {
     method: 'POST',
     body: JSON.stringify({ username, password }),
   }),

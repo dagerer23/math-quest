@@ -17,6 +17,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react'
 import { adminStatsApi } from '@/services/adminApi'
+import { useToast } from '@/components/AdminLayout'
 
 interface Summary {
   totalUsers: number
@@ -31,6 +32,7 @@ interface TrendPoint { date: string; count: number }
 interface GradePoint { grade: number; count: number }
 
 export default function Dashboard() {
+  const toast = useToast()
   const [summary, setSummary] = useState<Summary | null>(null)
   const [trend, setTrend] = useState<TrendPoint[]>([])
   const [grades, setGrades] = useState<GradePoint[]>([])
@@ -46,7 +48,7 @@ export default function Dashboard() {
       setTrend(t)
       setGrades(g)
     }).catch(() => {
-      toast.error('加载仪表盘数据失败')
+      toast('error', '加载仪表盘数据失败')
     }).finally(() => setLoading(false))
   }, [])
 

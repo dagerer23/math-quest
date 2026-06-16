@@ -4,12 +4,21 @@ import { motion } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { ArrowLeft, Target, Zap, BookOpen, TrendingUp, Award, Calendar, Flame } from 'lucide-react'
 import { getRankInfo, getRankProgress } from '@/utils/rank'
+import { useState, useEffect } from 'react'
 
 export default function Stats() {
   const navigate = useNavigate()
   const user = useUserStore()
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500)
+    return () => clearTimeout(timer)
+  }, [])
+
   const stats = user.learningStats || {}
   const accuracy = (stats.totalQuestions || 0) > 0
     ? Math.round(((stats.correctQuestions || 0) / stats.totalQuestions) * 100)
@@ -52,7 +61,15 @@ export default function Stats() {
       </div>
 
       <div className="flex-1 px-4 py-4 overflow-y-auto">
-        {/* 概览卡片 */}
+        {isLoading ? (
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-48 w-full rounded-xl" />
+            <Skeleton className="h-24 w-full rounded-xl" />
+          </div>
+        ) : (
+          <>
+            {/* 概览卡片 */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {statCards.map((card, i) => (
             <motion.div
@@ -187,6 +204,8 @@ export default function Stats() {
             )}
           </CardContent>
         </Card>
+          </>
+        )}
       </div>
     </motion.div>
   )

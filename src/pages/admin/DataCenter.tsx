@@ -14,6 +14,7 @@ import {
   BookOpen,
 } from 'lucide-react'
 import { adminStatsApi } from '@/services/adminApi'
+import { useToast } from '@/components/AdminLayout'
 
 interface KpStat { knowledgePoint: string; totalAttempts: number; mastery: number; mistakeRate: number }
 interface TopMistake {
@@ -24,8 +25,8 @@ interface UserRank {
   rank: number; userId: string; nickname: string; avatar: string
   targetGrade: number; totalXp: number; totalSessions: number; correctRate: number
 }
-
 export default function DataCenter() {
+  const toast = useToast()
   const [kpStats, setKpStats] = useState<KpStat[]>([])
   const [topMistakes, setTopMistakes] = useState<TopMistake[]>([])
   const [userRanking, setUserRanking] = useState<UserRank[]>([])
@@ -37,11 +38,11 @@ export default function DataCenter() {
       adminStatsApi.topMistakes(15),
       adminStatsApi.userRanking(20),
     ]).then(([kp, tm, ur]) => {
-      setKpStats(kp)
-      setTopMistakes(tm)
-      setUserRanking(ur)
+      setKpStats(kp as unknown as KpStat[])
+      setTopMistakes(tm as unknown as TopMistake[])
+      setUserRanking(ur as unknown as UserRank[])
     }).catch(() => {
-      toast.error('加载数据失败')
+      toast('error', '加载数据失败')
     }).finally(() => setLoading(false))
   }, [])
 

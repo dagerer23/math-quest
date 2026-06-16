@@ -22,7 +22,7 @@ export default function AdminLogin() {
     try {
       const res = await adminAccountsApi.login(username, password)
       if (res.success) {
-        setAdmin(res.admin)
+        setAdmin(res.admin as unknown as import('@/store/adminAuth').AdminUser ?? null)
         if (res.token) setAdminToken(res.token)
         const params = new URLSearchParams(location.search)
         const redirect = params.get('redirect') || '/admin/dashboard'

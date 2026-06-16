@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import type { LearningStage, LearningGoal } from '@/types/models'
 import Layout from '@/components/Layout'
 import AdminLayout from '@/components/AdminLayout'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -138,8 +139,8 @@ export default function App() {
           setProfile({
             nickname: user.nickname,
             avatar: user.avatar,
-            learningStage: user.learningStage,
-            learningGoal: user.learningGoal,
+            learningStage: user.learningStage as LearningStage,
+            learningGoal: user.learningGoal as LearningGoal,
             targetGrade: user.targetGrade,
           })
           if (user.targetGrade) setGrade(user.targetGrade)

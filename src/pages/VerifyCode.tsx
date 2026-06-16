@@ -102,6 +102,7 @@ export default function VerifyCode() {
   const [code, setCode] = useState('')
   const [countdown, setCountdown] = useState(() => getRemaining())
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
 
@@ -123,12 +124,17 @@ export default function VerifyCode() {
 
   // 发送验证码（不调接口，直接倒计时）
   const handleResend = useCallback(() => {
+    if (resending) return
+    setResending(true)
     const now = Date.now()
     localStorage.setItem('codeSentAt', now.toString())
     setCountdown(60)
     setSent(true)
-    setTimeout(() => setSent(false), 2000)
-  }, [])
+    setTimeout(() => {
+      setSent(false)
+      setResending(false)
+    }, 2000)
+  }, [resending])
 
   // 验证
   const handleVerify = useCallback(async (inputCode?: string) => {
@@ -246,9 +252,10 @@ export default function VerifyCode() {
             ) : (
               <button
                 onClick={handleResend}
-                className="text-xs text-primary font-medium hover:underline"
+                disabled={resending}
+                className="text-xs text-primary font-medium hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                没收到？重新发送
+                {resending ? '发送中...' : '没收到？重新发送'}
               </button>
             )}
           </div>

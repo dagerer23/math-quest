@@ -1,4 +1,5 @@
 import { Component, ReactNode } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -26,7 +27,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({ errorInfo })
     // 生产环境可上报错误日志
-    console.error('[ErrorBoundary] 捕获错误:', error, errorInfo)
+    toast.error('[ErrorBoundary] 捕获错误:')
   }
 
   handleReset = () => {

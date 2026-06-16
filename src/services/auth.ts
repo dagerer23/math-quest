@@ -209,7 +209,6 @@ export async function fetchAssessment(userId: string): Promise<{
  * 退出登录
  */
 export function logout(): void {
-  console.log('用户已退出登录')
 }
 
 /**

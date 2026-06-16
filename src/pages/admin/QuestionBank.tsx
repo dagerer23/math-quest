@@ -290,7 +290,7 @@ function QuestionPanel({
     setLoading(true)
     try {
       const qs = await adminContentApi.getQuestions(level.id)
-      setQuestions(qs)
+      setQuestions(qs as unknown as QuestionItem[])
     } catch (e: any) {
       toast('error', e.message)
     } finally {
@@ -641,7 +641,7 @@ export default function QuestionBank() {
       const data = await adminContentApi.listLevels(
         fGrade === '' ? undefined : fGrade
       )
-      setLevels(data)
+      setLevels(data as unknown as LevelMeta[])
     } catch (e: any) {
       toast('error', e.message)
     } finally {

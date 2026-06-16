@@ -16,10 +16,11 @@ import {
   Loader2,
 } from 'lucide-react'
 
+
 interface ImportLog {
-  id: number; filename: string; type: string
+  id: string; filename: string; type: string
   total: number; success: number; failed: number
-  status: string; message?: string; createdAt: number
+  status: string; createdAt: string
 }
 
 const iconClass = 'w-4 h-4 inline-block align-text-bottom'
@@ -37,10 +38,10 @@ export default function ImportExport() {
 
   async function loadHistory() {
     try {
-      const data = await adminImportApi.history()
+      const data = await adminImportApi.history() as unknown as ImportLog[]
       setHistory(data)
     } catch {
-      toast.error('加载历史记录失败')
+      toast('error', '加载历史记录失败')
     }
   }
 
@@ -53,7 +54,7 @@ export default function ImportExport() {
     try {
       const res = await adminImportApi.importJson(importContent)
       if (res.success) {
-        toast('success', `导入完成：成功 ${res.successCount} 失败 ${res.failedCount}`)
+        toast('success', `导入完成：${res.message}`)
         setImportContent('')
         loadHistory()
       } else {

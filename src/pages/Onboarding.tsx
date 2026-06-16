@@ -70,6 +70,7 @@ export default function Onboarding() {
   })
   // stepIndex 基于动态 steps 数组
   const [stepIndex, setStepIndex] = useState(0)
+  const [submitting, setSubmitting] = useState(false)
 
   const steps = getSteps(form.stage)
   const currentStep = steps[stepIndex]
@@ -104,6 +105,7 @@ export default function Onboarding() {
 
   const handleNext = () => {
     if (isLastStep) {
+      setSubmitting(true)
       user.setProfile({
         learningStage: form.stage,
         learningGoal: form.goal,
@@ -125,14 +127,14 @@ export default function Onboarding() {
           learningStage: form.stage,
           learningGoal: form.goal,
           targetGrade: form.stage === 'adult' ? 0 : form.grade,
-        }).catch(() => {
-          // 静默失败，不影响用户流程
+        }).finally(() => {
+          setSubmitting(false)
+          navigate('/assessment', { replace: true })
         })
-      }
-
-      setTimeout(() => {
+      } else {
+        setSubmitting(false)
         navigate('/assessment', { replace: true })
-      }, 200)
+      }
     } else {
       // 进入年级步骤前重置年级选项
       if (steps[stepIndex + 1]?.id === 'grade') {
@@ -317,10 +319,10 @@ export default function Onboarding() {
             size="lg"
             className="w-full"
             onClick={handleNext}
-            disabled={!canProceed()}
+            disabled={!canProceed() || submitting}
             icon={<ChevronRight size={20} />}
           >
-            {isLastStep ? '开始测评' : '下一步'}
+            {submitting ? '保存中...' : isLastStep ? '开始测评' : '下一步'}
           </PixelButton>
         </div>
       </div>
