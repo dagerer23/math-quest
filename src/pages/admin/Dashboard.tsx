@@ -45,8 +45,8 @@ export default function Dashboard() {
       setSummary(s)
       setTrend(t)
       setGrades(g)
-    }).catch(err => {
-      console.error('加载仪表盘数据失败:', err)
+    }).catch(() => {
+      toast.error('加载仪表盘数据失败')
     }).finally(() => setLoading(false))
   }, [])
 

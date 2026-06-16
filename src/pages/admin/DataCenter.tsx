@@ -40,8 +40,9 @@ export default function DataCenter() {
       setKpStats(kp)
       setTopMistakes(tm)
       setUserRanking(ur)
-    }).catch(err => console.error(err))
-      .finally(() => setLoading(false))
+    }).catch(() => {
+      toast.error('加载数据失败')
+    }).finally(() => setLoading(false))
   }, [])
 
   if (loading) {

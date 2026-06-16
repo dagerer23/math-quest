@@ -20,23 +20,19 @@ export default function AdminLogin() {
     setErr('')
     setLoading(true)
     try {
-      console.log('[AdminLogin] 正在登录...', { username })
       const res = await adminAccountsApi.login(username, password)
-      console.log('[AdminLogin] 登录响应:', res)
       if (res.success) {
-        console.log('[AdminLogin] 登录成功，保存状态并跳转')
         setAdmin(res.admin)
         if (res.token) setAdminToken(res.token)
         const params = new URLSearchParams(location.search)
         const redirect = params.get('redirect') || '/admin/dashboard'
         navigate(redirect, { replace: true })
       } else {
-        console.log('[AdminLogin] 登录失败:', res.message)
         setErr(res.message || '登录失败')
       }
-    } catch (e: any) {
-      console.error('[AdminLogin] 登录异常:', e)
-      setErr(e?.message || '登录失败，请检查服务是否启动')
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : '登录失败，请检查服务是否启动'
+      setErr(message)
     } finally {
       setLoading(false)
     }

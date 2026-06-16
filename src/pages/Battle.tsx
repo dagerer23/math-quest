@@ -49,6 +49,7 @@ export default function Battle() {
   const [heartsJustLost, setHeartsJustLost] = useState(0)
   const [heartShake, setHeartShake] = useState(false)
   const [noHearts, setNoHearts] = useState(false)
+  const heartsDepletedRef = useRef(false)
   const submitLock = useRef(false)
 
   const level = useSessionStore((s) => s.level)
@@ -81,8 +82,8 @@ export default function Battle() {
 
   // 心数为 0 时提前结束
   useEffect(() => {
-    if (sessionStatus !== 'playing' && noHearts) return
-    if (user.hearts <= 0 && sessionStatus === 'playing') {
+    if (user.hearts <= 0 && sessionStatus === 'playing' && !heartsDepletedRef.current) {
+      heartsDepletedRef.current = true
       setNoHearts(true)
       setTimeout(() => {
         const finalRecord = finish()
@@ -94,7 +95,7 @@ export default function Battle() {
         }
       }, 1500)
     }
-  }, [user.hearts, sessionStatus, noHearts, finish, user, navigate])
+  }, [user.hearts, sessionStatus, finish, user, navigate])
 
   // 每题重置状态
   useEffect(() => {

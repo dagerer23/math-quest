@@ -125,8 +125,8 @@ export default function Onboarding() {
           learningStage: form.stage,
           learningGoal: form.goal,
           targetGrade: form.stage === 'adult' ? 0 : form.grade,
-        }).catch((err) => {
-          console.error('[Onboarding] 保存用户信息到后端失败:', err)
+        }).catch(() => {
+          // 静默失败，不影响用户流程
         })
       }
 

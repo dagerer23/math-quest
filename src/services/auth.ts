@@ -3,6 +3,7 @@
  * 测试模式验证码: 123456
  */
 import type { User } from '@/types/models'
+import { post, get } from '@/utils/request'
 
 const API_BASE = '/api/auth'
 
@@ -34,17 +35,12 @@ export async function sendVerificationCode(phone: string): Promise<{
   message: string
 }> {
   try {
-    const res = await fetch(`${API_BASE}/send-code`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
-    })
-    if (!res.ok) return { success: false, message: `请求失败 (${res.status})` }
-    const text = await res.text()
-    if (!text) return { success: false, message: '服务器无响应' }
-    return JSON.parse(text)
+    const data = await post<{ success: boolean; message: string }>(
+      `${API_BASE}/send-code`,
+      { phone }
+    )
+    return data
   } catch (err) {
-    console.error('发送验证码错误:', err)
     return { success: false, message: '网络错误，请检查网络连接' }
   }
 }
@@ -60,21 +56,14 @@ export async function loginWithPhone(phone: string, code: string): Promise<{
   token?: string
 }> {
   try {
-    const res = await fetch(`${API_BASE}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, code }),
-    })
-    if (!res.ok) return { success: false, message: `请求失败 (${res.status})` }
-    const text = await res.text()
-    if (!text) return { success: false, message: '服务器无响应' }
-    const data = JSON.parse(text)
-    if (data.success && data.user) {
-      return { success: true, message: data.message, user: data.user, token: data.token }
-    }
-    return { success: data.success, message: data.message }
-  } catch (err) {
-    console.error('[loginWithPhone] 错误:', err)
+    const data = await post<{
+      success: boolean
+      message: string
+      user?: BackendUser
+      token?: string
+    }>(`${API_BASE}/login`, { phone, code })
+    return data
+  } catch {
     return { success: false, message: '网络错误，请检查网络连接' }
   }
 }
@@ -90,21 +79,14 @@ export async function quickLogin(phone: string): Promise<{
   token?: string
 }> {
   try {
-    const res = await fetch(`${API_BASE}/quick-login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
-    })
-    if (!res.ok) return { success: false, message: `请求失败 (${res.status})` }
-    const text = await res.text()
-    if (!text) return { success: false, message: '服务器无响应' }
-    const data = JSON.parse(text)
-    if (data.success && data.user) {
-      return { success: true, message: data.message, user: data.user, token: data.token }
-    }
-    return { success: false, message: data.message || '快捷登录失败' }
-  } catch (err) {
-    console.error('[quickLogin] 错误:', err)
+    const data = await post<{
+      success: boolean
+      message: string
+      user?: BackendUser
+      token?: string
+    }>(`${API_BASE}/quick-login`, { phone })
+    return data
+  } catch {
     return { success: false, message: '网络错误' }
   }
 }
@@ -119,26 +101,17 @@ export async function tokenLogin(token: string): Promise<{
   rateLimited?: boolean
 }> {
   try {
-    const res = await fetch(`${API_BASE}/token-login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
-    })
-    // 429 限流：临时错误，不应清除登录状态
-    if (res.status === 429) {
-      return { success: false, message: '请求过于频繁，请稍后再试', rateLimited: true }
-    }
-    if (!res.ok) return { success: false, message: `请求失败 (${res.status})` }
-    const text = await res.text()
-    if (!text) return { success: false, message: '服务器无响应' }
-    const data = JSON.parse(text)
-    if (data.success && data.user) {
-      return { success: true, message: data.message, user: data.user }
-    }
-    return { success: false, message: data.message || '登录已过期' }
+    const data = await post<{
+      success: boolean
+      message: string
+      user?: BackendUser
+    }>(`${API_BASE}/token-login`, { token })
+    return data
   } catch (err) {
-    console.error('[tokenLogin] 错误:', err)
-    return { success: false, message: '网络错误' }
+    const message = err instanceof Error && err.message.includes('HTTP 429')
+      ? '请求过于频繁，请稍后再试'
+      : '网络错误'
+    return { success: false, message, rateLimited: message.includes('频繁') }
   }
 }
 
@@ -154,17 +127,11 @@ export async function saveProfile(params: {
   targetGrade?: number
 }): Promise<{ success: boolean; message: string; user?: BackendUser }> {
   try {
-    const res = await fetch(`${API_BASE}/profile`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    })
-    if (!res.ok) return { success: false, message: `请求失败 (${res.status})` }
-    const text = await res.text()
-    if (!text) return { success: false, message: '服务器无响应' }
-    return JSON.parse(text)
-  } catch (err) {
-    console.error('[saveProfile] 错误:', err)
+    return await post<{ success: boolean; message: string; user?: BackendUser }>(
+      `${API_BASE}/profile`,
+      params
+    )
+  } catch {
     return { success: false, message: '网络错误' }
   }
 }
@@ -181,17 +148,11 @@ export async function saveAssessment(params: {
   answers: Array<{ questionId: string; userAnswer: string; isCorrect: boolean }>
 }): Promise<{ success: boolean; message: string }> {
   try {
-    const res = await fetch(`${API_BASE}/assessment`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    })
-    if (!res.ok) return { success: false, message: `请求失败 (${res.status})` }
-    const text = await res.text()
-    if (!text) return { success: false, message: '服务器无响应' }
-    return JSON.parse(text)
-  } catch (err) {
-    console.error('[saveAssessment] 错误:', err)
+    return await post<{ success: boolean; message: string }>(
+      `${API_BASE}/assessment`,
+      params
+    )
+  } catch {
     return { success: false, message: '网络错误' }
   }
 }
@@ -205,15 +166,10 @@ export async function fetchUser(userId: string): Promise<{
   user?: BackendUser
 }> {
   try {
-    const res = await fetch(`${API_BASE}/me?userId=${encodeURIComponent(userId)}`, {
-      method: 'GET',
-    })
-    if (!res.ok) return { success: false, message: `请求失败 (${res.status})` }
-    const text = await res.text()
-    if (!text) return { success: false, message: '服务器无响应' }
-    return JSON.parse(text)
-  } catch (err) {
-    console.error('[fetchUser] 错误:', err)
+    return await get<{ success: boolean; message: string; user?: BackendUser }>(
+      `${API_BASE}/me?userId=${encodeURIComponent(userId)}`
+    )
+  } catch {
     return { success: false, message: '网络错误' }
   }
 }
@@ -233,15 +189,18 @@ export async function fetchAssessment(userId: string): Promise<{
   }
 }> {
   try {
-    const res = await fetch(`${API_BASE}/assessment?userId=${encodeURIComponent(userId)}`, {
-      method: 'GET',
-    })
-    if (!res.ok) return { success: false, message: `请求失败 (${res.status})` }
-    const text = await res.text()
-    if (!text) return { success: false, message: '服务器无响应' }
-    return JSON.parse(text)
-  } catch (err) {
-    console.error('[fetchAssessment] 错误:', err)
+    return await get<{
+      success: boolean
+      message: string
+      assessment?: {
+        id: string
+        completedAt: number
+        score: number
+        recommendedDifficulty: number
+        answers: Array<{ questionId: string; userAnswer: string; isCorrect: boolean }>
+      }
+    }>(`${API_BASE}/assessment?userId=${encodeURIComponent(userId)}`)
+  } catch {
     return { success: false, message: '网络错误' }
   }
 }

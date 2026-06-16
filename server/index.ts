@@ -21,6 +21,8 @@ import { fetchGradeContent } from './services/content'
 
 const app = express()
 const PORT = process.env.PORT || 3002
+const NODE_ENV = process.env.NODE_ENV || 'development'
+const IS_PRODUCTION = NODE_ENV === 'production'
 
 // 防止未处理的 Promise 拒绝导致进程崩溃
 process.on('unhandledRejection', (err) => {
@@ -29,7 +31,7 @@ process.on('unhandledRejection', (err) => {
 
 // 中间件
 app.use(cors({
-  origin: true,
+  origin: IS_PRODUCTION ? process.env.CORS_ORIGIN?.split(',') || ['http://localhost:5173'] : true,
   credentials: true,
 }))
 app.use(express.json({ limit: '10mb' }))
@@ -83,11 +85,14 @@ initDB().then(async () => {
   app.listen(PORT, () => {
     console.log(`\n  🚀 MathQuest API 服务已启动`)
     console.log(`  📡 地址: http://localhost:${PORT}`)
-    console.log(`  📋 测试验证码: 123456`)
-    console.log(`  🔐 后台账号: admin / admin123`)
+    if (!IS_PRODUCTION) {
+      console.log(`  📋 测试验证码: 123456`)
+      console.log(`  🔐 后台账号: admin / admin123`)
+    }
     console.log(`  💾 存储模式: ${isMemoryMode() ? '内存 (降级)' : 'MySQL'}`)
     console.log(`  🌐 CORS: 已启用`)
     console.log(`  🛡️  限流: 已启用`)
+    console.log(`  🔧 环境: ${NODE_ENV}`)
     console.log()
   })
 

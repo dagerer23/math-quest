@@ -39,7 +39,9 @@ export default function ImportExport() {
     try {
       const data = await adminImportApi.history()
       setHistory(data)
-    } catch (e) { console.error(e) }
+    } catch {
+      toast.error('加载历史记录失败')
+    }
   }
 
   async function doImport() {

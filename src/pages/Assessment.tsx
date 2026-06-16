@@ -97,8 +97,8 @@ export default function Assessment() {
         saveAssessmentToBackend({
           userId,
           ...assessmentData,
-        }).catch((err) => {
-          console.error('[Assessment] 保存测评到后端失败:', err)
+        }).catch(() => {
+          // 静默失败，不影响用户流程
         })
       }
 

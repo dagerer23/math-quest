@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import Layout from '@/components/Layout'
 import AdminLayout from '@/components/AdminLayout'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import Login from '@/pages/Login'
 import VerifyCode from '@/pages/VerifyCode'
 import Onboarding from '@/pages/Onboarding'
@@ -153,28 +154,21 @@ export default function App() {
                 recommendedDifficulty: res.assessment.recommendedDifficulty,
                 answers: res.assessment.answers,
               })
-              console.log('[App] 恢复用户评测数据:', res.assessment.score + '%')
             }
-          } catch (err) {
-            console.error('[App] 恢复评测数据失败:', err)
+          } catch {
+            // 静默失败
           }
-
-          console.log('[App] Token 自动登录成功 (老用户):', user.phone)
         } else {
           // 资料不全：重置身份，后续路由会走到 onboarding
           const store = useUserStore.getState()
           store.resetUserIdentity()
-          console.log('[App] Token 自动登录成功 (资料不全，需 onboarding):', user.phone)
         }
       } else {
         // 限流(429)时不清除登录状态，保留本地数据
-        if (result.rateLimited) {
-          console.log('[App] Token 自动登录被限流，保留本地登录状态')
-        } else {
+        if (!result.rateLimited) {
           localStorage.removeItem(TOKEN_KEY)
           setLoggedIn(false)
           setUserId(undefined as any)
-          console.log('[App] Token 失效，需重新登录')
         }
       }
     }, 50)
@@ -186,10 +180,9 @@ export default function App() {
     getAchievements()
       .then((list) => {
         setAchievementsMeta(list)
-        console.log('[App] 成就元数据加载成功:', list.length, '项')
       })
-      .catch((err) => {
-        console.error('[App] 成就元数据加载失败:', err)
+      .catch(() => {
+        // 静默失败
       })
   }, [setAchievementsMeta])
 
@@ -198,10 +191,9 @@ export default function App() {
     getConfigs()
       .then((configs) => {
         setSystemConfigs(configs)
-        console.log('[App] 系统配置加载成功:', Object.keys(configs).length, '项')
       })
-      .catch((err) => {
-        console.error('[App] 系统配置加载失败:', err)
+      .catch(() => {
+        // 静默失败
       })
   }, [setSystemConfigs])
 
@@ -220,16 +212,15 @@ export default function App() {
         dailyXp: 0,
         dailyQuestions: 0,
       })
-      console.log('[App] 检测到跨天，已重置每日目标和计数')
     }
   }, [])
 
   if (!hydrated) return null
 
   return (
-    <>
+    <ErrorBoundary>
       <AppRoutes />
       <Toaster position="top-center" richColors />
-    </>
+    </ErrorBoundary>
   )
 }
