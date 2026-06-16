@@ -1,0 +1,52 @@
+:root {
+  --background: #FFFFFF;
+  --foreground: #3C3C3C;
+  --card: #FFFFFF;
+  --card-foreground: #3C3C3C;
+  --popover: #FFFFFF;
+  --popover-foreground: #3C3C3C;
+  --primary: #58CC02;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1CB0F6;
+  --secondary-foreground: #FFFFFF;
+  --muted: #F9FAFB;
+  --muted-foreground: #9CA3AF;
+  --accent: #FFC800;
+  --accent-foreground: #3C3C3C;
+  --destructive: #FF4B4B;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --input: #E5E7EB;
+  --ring: #58CC02;
+  --radius: 0.75rem;
+
+  --duolingo-green: #58CC02;
+  --duolingo-blue: #1CB0F6;
+  --duolingo-red: #FF4B4B;
+  --duolingo-gold: #FFC800;
+  --duolingo-purple: #CE82FF;
+  --duolingo-gray-dark: #3C3C3C;
+  --duolingo-gray: #777777;
+  --duolingo-gray-light: #F4F4F4;
+  --duolingo-white: #FFFFFF;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background: #FFFFFF;
+  color: #3C3C3C;
+  font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  overscroll-behavior: none;
+}
+
+.shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+}
