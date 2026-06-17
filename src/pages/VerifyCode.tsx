@@ -203,7 +203,7 @@ export default function VerifyCode() {
         {/* 返回 */}
         <button
           onClick={() => navigate('/login', { replace: true })}
-          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors -ml-1 mb-auto"
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors -ml-1 mb-auto focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
           <ArrowLeft size={18} />
           <span className="text-sm">返回</span>

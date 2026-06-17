@@ -108,7 +108,7 @@ export default function Result() {
       <div className="min-h-screen bg-white flex flex-col">
         <div className="h-1 bg-gradient-to-r from-primary via-duolingo-blue to-primary" />
         <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
+          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring rounded">
             <ArrowLeft size={20} />
           </button>
           <h1 className="text-lg font-bold text-foreground">结算</h1>
@@ -154,7 +154,7 @@ export default function Result() {
       <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
         <button
           onClick={() => navigate(-1)}
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
           <ArrowLeft size={20} />
         </button>

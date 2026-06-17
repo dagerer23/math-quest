@@ -85,7 +85,7 @@ export default function Stats() {
       <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
           <ArrowLeft size={20} />
         </button>
