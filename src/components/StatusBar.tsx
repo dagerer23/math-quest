@@ -79,7 +79,7 @@ export default function StatusBar() {
             style={{ background: 'linear-gradient(135deg, #FFF0F0, #FFE8E8)' }}
           >
             <Heart size={12} fill="#FF4B4B" stroke="#FF4B4B" />
-            <span className="text-[11px] font-extrabold text-red-500 tabular-nums">{user.hearts}</span>
+            <span className="text-[11px] font-extrabold text-red-500 tabular-nums max-w-[28px] truncate">{user.hearts}</span>
           </button>
           <button
             onClick={() => setPopup('coins')}
@@ -88,7 +88,7 @@ export default function StatusBar() {
             style={{ background: 'linear-gradient(135deg, #FFF8EB, #FFEDC8)' }}
           >
             <Coins size={12} fill="#E5A13B" stroke="#C8891F" />
-            <span className="text-[11px] font-extrabold text-amber-600 tabular-nums">{user.coins}</span>
+            <span className="text-[11px] font-extrabold text-amber-600 tabular-nums max-w-[36px] truncate">{user.coins}</span>
           </button>
           <button
             onClick={() => setPopup('diamonds')}
@@ -97,7 +97,7 @@ export default function StatusBar() {
             style={{ background: 'linear-gradient(135deg, #EEF3FF, #DDE8FF)' }}
           >
             <Gem size={12} fill="#5B8DEF" stroke="#4A7AD4" />
-            <span className="text-[11px] font-extrabold text-blue-500 tabular-nums">{user.diamonds}</span>
+            <span className="text-[11px] font-extrabold text-blue-500 tabular-nums max-w-[28px] truncate">{user.diamonds}</span>
           </button>
 
           {/* 签到按钮 */}

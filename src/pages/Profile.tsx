@@ -266,8 +266,8 @@ export default function Profile() {
                       </Button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1.5">
-                      <h2 className="font-bold text-base text-foreground truncate">{user.profile.nickname}</h2>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <h2 className="font-bold text-base text-foreground truncate max-w-[160px]">{user.profile.nickname}</h2>
                       <button onClick={() => setEditing(true)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring" aria-label="编辑昵称">
                         <Edit2 size={14} />
                       </button>

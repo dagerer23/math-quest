@@ -164,7 +164,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </main>
       </div>
 
-      {toast && <div className={`admin-toast ${toast.type}`}>{toast.message}</div>}
+      {toast && <div className={`admin-toast ${toast.type}`} style={{ position: 'fixed', top: 16, right: 16, zIndex: 9999 }}>{toast.message}</div>}
     </div>
   )
 }

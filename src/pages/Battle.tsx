@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
 import { useSessionStore } from '@/store/useSessionStore'
 import { useUserStore } from '@/store/useUserStore'
+import { getLevelDetail, generateQuestions } from '@/services/content'
 import Keypad from '@/components/Keypad'
 import ParticleBurst from '@/components/ParticleBurst'
 import ComboNumber from '@/components/ComboNumber'
@@ -53,8 +54,33 @@ export default function Battle() {
   const submitLock = useRef(false)
 
   const level = useSessionStore((s) => s.level)
+  const startSession = useSessionStore((s) => s.start)
   const currentQ = sessionQuestions[sessionIndex]
   const theme = GRADE_THEMES[level?.grade || 2] || GRADE_THEMES[2]
+  const [loadingLevel, setLoadingLevel] = useState(!level && !!levelId)
+
+  // 直接访问 /battle/:levelId 时，session store 未初始化，需从后端加载关卡
+  useEffect(() => {
+    if (level || !levelId) return
+    let cancelled = false
+    setLoadingLevel(true)
+    ;(async () => {
+      try {
+        const lv = await getLevelDetail(levelId)
+        if (cancelled || !lv) { setLoadingLevel(false); return }
+        const userMastery = user.learningStats.knowledgeProgress || {}
+        const recentIds = user.mistakeIds
+        const questions = await generateQuestions(levelId, userMastery, recentIds)
+        if (cancelled) return
+        if (!questions || questions.length === 0) { setLoadingLevel(false); return }
+        startSession(lv, questions)
+        setLoadingLevel(false)
+      } catch {
+        setLoadingLevel(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [level, levelId])
 
   // 从配置读取连击阈值
   const comboShowThreshold = Number(user.systemConfigs['combo.show_threshold']) || 3
@@ -112,6 +138,14 @@ export default function Battle() {
   // ═══════════════════════════════════════════════════════════════════
   // 状态检查
   // ═══════════════════════════════════════════════════════════════════
+  if (loadingLevel) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-muted to-background">
+        <div className="w-8 h-8 border-3 border-muted-foreground/20 border-t-primary rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   if (!level) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-muted to-background">

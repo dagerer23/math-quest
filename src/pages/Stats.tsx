@@ -86,6 +86,7 @@ export default function Stats() {
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring rounded"
+          aria-label="返回"
         >
           <ArrowLeft size={20} />
         </button>

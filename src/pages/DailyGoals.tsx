@@ -4,10 +4,11 @@ import { useUserStore } from '@/store/useUserStore'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress, ProgressTrack } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, Target, Trophy, Calendar, Zap, Flame, ArrowLeft, AlertCircle, Lightbulb } from 'lucide-react'
+import { CheckCircle, Target, Trophy, Calendar, Zap, Flame, ArrowLeft, AlertCircle, Lightbulb, Gift } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getDailyGoalTemplates, type DailyGoalTemplate } from '@/services/content'
 import { toast } from 'sonner'
+import { todayKey } from '@/utils/time'
 
 // 每日目标类型
 interface Goal {
@@ -172,6 +173,25 @@ export default function DailyGoals() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* 签到 */}
+      <Button
+        size="sm"
+        onClick={() => {
+          const result = user.checkIn()
+          if (result.message.includes('成功')) {
+            toast.success(result.message)
+          } else {
+            toast.error(result.message)
+          }
+        }}
+        disabled={user.lastCheckInDate === todayKey()}
+        variant={user.lastCheckInDate === todayKey() ? 'ghost' : 'default'}
+        className="w-full gap-1.5"
+      >
+        <Gift size={16} />
+        {user.lastCheckInDate === todayKey() ? '今日已签到' : '每日签到领奖励'}
+      </Button>
 
       {/* 加载错误提示 */}
       {error && !loading && (
