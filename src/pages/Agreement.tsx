@@ -169,7 +169,7 @@ export default function Agreement() {
         <div className="px-4 py-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring rounded"
           >
             <ArrowLeft size={18} />
             <span className="text-sm">返回</span>
