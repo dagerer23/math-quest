@@ -7,7 +7,11 @@ export default defineAppConfig({
     'pages/leaderboard/index',
     'pages/profile/index',
     'pages/assessment/index',
-    'pages/result/index'
+    'pages/battle/index',
+    'pages/result/index',
+    'pages/onboarding/index',
+    'pages/agreement/index',
+    'pages/stats/index'
   ],
   window: {
     backgroundTextStyle: 'light',
