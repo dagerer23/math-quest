@@ -401,17 +401,23 @@ export default function Profile() {
                     <motion.div
                       key={a.id}
                       initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.25 + idx * 0.02 }}
+                      animate={unlocked
+                        ? { opacity: 1, scale: [1, 1.02, 1] }
+                        : { opacity: 1, scale: 1 }
+                      }
+                      transition={unlocked
+                        ? { delay: 0.25 + idx * 0.02, duration: 2, repeat: Infinity }
+                        : { delay: 0.25 + idx * 0.02 }
+                      }
                       className={clsx(
                         'aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all',
                         unlocked
                           ? 'bg-primary/10 border border-primary/20'
-                          : 'bg-muted border border-border',
+                          : 'bg-muted border border-border opacity-40 grayscale',
                       )}
                       title={unlocked ? `${a.name} · ${a.description}` : `${a.name}（未解锁）`}
                     >
-                      <span className={clsx('text-lg', !unlocked && 'grayscale opacity-30')}>
+                      <span className={clsx('text-lg', !unlocked && 'grayscale opacity-40')}>
                         {a.icon}
                       </span>
                       <span className={clsx(
@@ -750,7 +756,7 @@ function StatCard({ icon, value, label, iconBg, iconColor }: {
   return (
     <Card className="p-3 text-center">
       <CardContent className="p-0">
-        <div className={clsx('inline-flex items-center justify-center size-9 rounded-xl mb-2', iconBg || 'bg-[#FFF5D6]', iconColor || 'text-[#FFC800]')}>
+        <div className={clsx('inline-flex items-center justify-center size-8 rounded-[10px] mb-2', iconBg || 'bg-[#FFF5D6]', iconColor || 'text-[#FFC800]')}>
           {icon}
         </div>
         <div className="text-lg font-bold text-foreground tabular-nums">{value}</div>
@@ -769,15 +775,16 @@ function QuickAction({ icon, label, iconBg, iconColor, onClick }: {
   onClick: () => void
 }) {
   return (
-    <button
+    <motion.button
       onClick={onClick}
-      className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-card shadow-sm border border-border hover:shadow-md transition-all active:scale-95"
+      whileTap={{ scale: 0.95 }}
+      className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-card shadow-sm border border-border hover:shadow-md transition-all"
     >
-      <div className={clsx('size-9 rounded-xl grid place-items-center', iconBg || 'bg-[#E0F4FF]', iconColor || 'text-[#1CB0F6]')}>
+      <div className={clsx('size-8 rounded-[10px] grid place-items-center', iconBg || 'bg-[#E0F4FF]', iconColor || 'text-[#1CB0F6]')}>
         {icon}
       </div>
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
-    </button>
+    </motion.button>
   )
 }
 
@@ -817,10 +824,12 @@ function SettingRow({ icon, label, active, onChange }: {
       <span className={clsx('flex-1 text-sm', active ? 'text-foreground' : 'text-muted-foreground')}>
         {label}
       </span>
-      <Switch
-        checked={active}
-        onCheckedChange={(v) => onChange(v as boolean)}
-      />
+      <motion.div whileTap={{ scale: 0.9 }}>
+        <Switch
+          checked={active}
+          onCheckedChange={(v) => onChange(v as boolean)}
+        />
+      </motion.div>
     </div>
   )
 }

@@ -22,7 +22,7 @@
   --border: 220 13% 91%;
   --input: 220 13% 91%;
   --ring: 96 100% 40%;
-  --radius: 0.75rem;
+  --radius: 16px;
 
   --duolingo-green: #58CC02;
   --duolingo-blue: #1CB0F6;
@@ -33,6 +33,19 @@
   --duolingo-gray: #777777;
   --duolingo-gray-light: #F4F4F4;
   --duolingo-white: #FFFFFF;
+
+  /* 功能色浅底 */
+  --icon-green-bg: #E8F9D8;
+  --icon-blue-bg: #E0F4FF;
+  --icon-gold-bg: #FFF5D6;
+  --icon-red-bg: #FFE4E4;
+  --icon-purple-bg: #F3E8FF;
+  --icon-gray-bg: #F3F4F6;
+
+  /* 动效参数 */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
 }
 
 html, body, #root {

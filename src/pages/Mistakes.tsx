@@ -3,15 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
 import { getQuestionsByIds } from '@/services/content'
-import { Trash2, Swords, ChevronDown, ChevronUp, Target, TrendingUp, CheckCircle2, ArrowLeft, RefreshCw } from 'lucide-react'
+import { Trash2, ChevronDown, ChevronUp, CheckCircle2, ArrowLeft } from 'lucide-react'
 import clsx from 'clsx'
 import { useSessionStore } from '@/store/useSessionStore'
 import type { Question } from '@/types/models'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { toast } from 'sonner'
 import { handleApiError } from '@/utils/apiError'
 
 // ---------- helpers ----------
@@ -147,6 +145,7 @@ export default function Mistakes() {
     return (
       <motion.div
         key={item.q.id}
+        layout
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.03 }}
@@ -257,22 +256,42 @@ export default function Mistakes() {
 
       <div className="flex-1 px-4 py-4 overflow-y-auto flex flex-col gap-4">
         {/* 标签切换 */}
-        <Tabs defaultValue="all" value={tab} onValueChange={(v) => setTab(v as 'all' | 'byKP')}>
-          <TabsList className="w-full flex gap-1.5 mb-3 h-9 bg-muted p-1">
-            <TabsTrigger
-              value="all"
-              className="flex-1 h-8 rounded-lg text-xs font-medium"
-            >
-              全部错题
-            </TabsTrigger>
-            <TabsTrigger
-              value="byKP"
-              className="flex-1 h-8 rounded-lg text-xs font-medium"
-            >
-              按知识点
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="relative flex gap-1.5 mb-3 h-9 bg-muted p-1 rounded-lg">
+          {tab === 'all' && (
+            <motion.div
+              layoutId="tab-indicator"
+              className="absolute top-1 left-1.5 h-[calc(100%-8px)] rounded-md bg-background shadow-sm"
+              style={{ width: 'calc(50% - 12px)' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            />
+          )}
+          {tab === 'byKP' && (
+            <motion.div
+              layoutId="tab-indicator"
+              className="absolute top-1 right-1.5 h-[calc(100%-8px)] rounded-md bg-background shadow-sm"
+              style={{ width: 'calc(50% - 12px)' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            />
+          )}
+          <button
+            onClick={() => setTab('all')}
+            className={clsx(
+              'relative z-10 flex-1 h-8 rounded-md text-xs font-medium transition-colors',
+              tab === 'all' ? 'text-foreground' : 'text-muted-foreground',
+            )}
+          >
+            全部错题
+          </button>
+          <button
+            onClick={() => setTab('byKP')}
+            className={clsx(
+              'relative z-10 flex-1 h-8 rounded-md text-xs font-medium transition-colors',
+              tab === 'byKP' ? 'text-foreground' : 'text-muted-foreground',
+            )}
+          >
+            按知识点
+          </button>
+        </div>
 
         {/* 加载状态 */}
         {loading ? (
@@ -296,7 +315,13 @@ export default function Mistakes() {
             className="flex flex-col items-center justify-center min-h-[60vh] pt-8"
           >
             <div className="text-center">
-              <div className="text-5xl mb-3">🎉</div>
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="mb-3 flex justify-center"
+              >
+                <CheckCircle2 size={48} className="text-primary" />
+              </motion.div>
               <div className="text-base font-bold text-foreground">太棒了，没有错题！</div>
               <div className="text-sm text-muted-foreground mt-1">继续挑战更多关卡吧</div>
             </div>

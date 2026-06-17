@@ -454,6 +454,7 @@ export default function Battle() {
                       'h-14 rounded-xl text-lg font-bold transition-all duration-200',
                       'flex items-center justify-center relative',
                       showCorrect && 'animate-correct-pulse',
+                      showCorrectHighlight && 'animate-correct-highlight-pulse',
                     )}
                     style={{
                       background: showCorrect
@@ -670,6 +671,14 @@ export default function Battle() {
         }
         .animate-correct-pulse {
           animation: correct-pulse 0.6s ease-out;
+        }
+        @keyframes correct-highlight-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(88,204,2,0.4); }
+          50% { box-shadow: 0 0 16px 4px rgba(88,204,2,0.25); }
+          100% { box-shadow: 0 0 12px rgba(88,204,2,0.3); }
+        }
+        .animate-correct-highlight-pulse {
+          animation: correct-highlight-pulse 1s ease-in-out 0.3s 2;
         }
       `}</style>
     </div>

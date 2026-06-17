@@ -59,12 +59,12 @@ export default function Stats() {
   const rankProgress = getRankProgress(user.xp, user.systemConfigs || {})
 
   const statCards = [
-    { icon: <BookOpen size={18} />, label: '答题总数', value: stats.totalQuestions, iconBg: 'bg-[#E8F9D8]' },
-    { icon: <Target size={18} />, label: '正确率', value: `${accuracy}%`, iconBg: 'bg-[#E0F4FF]' },
-    { icon: <Zap size={18} />, label: '经验值', value: user.xp, iconBg: 'bg-[#E8F9D8]' },
-    { icon: <Flame size={18} />, label: '连续天数', value: `${user.streak}天`, iconBg: 'bg-[#FFE4E4]' },
-    { icon: <Calendar size={18} />, label: '学习天数', value: `${stats.totalDays}天`, iconBg: 'bg-[#F3F4F6]' },
-    { icon: <Award size={18} />, label: '当前段位', value: rankInfo.name, iconBg: 'bg-[#FFF5D6]' },
+    { icon: <BookOpen size={18} />, label: '答题总数', value: stats.totalQuestions, iconBg: 'bg-[#E8F9D8]', iconColor: 'text-[#58CC02]' },
+    { icon: <Target size={18} />, label: '正确率', value: `${accuracy}%`, iconBg: 'bg-[#E0F4FF]', iconColor: 'text-[#1CB0F6]' },
+    { icon: <Zap size={18} />, label: '经验值', value: user.xp, iconBg: 'bg-[#E8F9D8]', iconColor: 'text-[#58CC02]' },
+    { icon: <Flame size={18} />, label: '连续天数', value: `${user.streak}天`, iconBg: 'bg-[#FFE4E4]', iconColor: 'text-[#FF4B4B]' },
+    { icon: <Calendar size={18} />, label: '学习天数', value: `${stats.totalDays}天`, iconBg: 'bg-[#F3F4F6]', iconColor: 'text-[#9CA3AF]' },
+    { icon: <Award size={18} />, label: '当前段位', value: rankInfo.name, iconBg: 'bg-[#FFF5D6]', iconColor: 'text-[#FFC800]' },
   ]
 
   // 知识点掌握度
@@ -92,7 +92,7 @@ export default function Stats() {
         <h1 className="text-lg font-bold text-foreground">学习统计</h1>
       </div>
 
-      <div className="flex-1 px-4 py-4 overflow-y-auto">
+      <div className="flex-1 px-4 py-4 overflow-y-auto flex flex-col gap-4">
         {isLoading ? (
           <div className="flex flex-col gap-4">
             <Skeleton className="h-32 w-full rounded-xl" />
@@ -102,7 +102,7 @@ export default function Stats() {
         ) : (
           <>
             {/* 概览卡片 */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-3">
           {statCards.map((card, i) => (
             <motion.div
               key={card.label}
@@ -112,7 +112,7 @@ export default function Stats() {
             >
               <Card className="p-3 text-center">
                 <CardContent className="p-0">
-                  <div className={`inline-flex items-center justify-center size-9 rounded-xl mb-2 ${card.iconBg} text-primary`}>
+                  <div className={`inline-flex items-center justify-center size-8 rounded-[10px] mb-2 ${card.iconBg} ${card.iconColor}`}>
                     {card.icon}
                   </div>
                   <div className="text-lg font-bold text-foreground">{card.value}</div>
@@ -124,7 +124,7 @@ export default function Stats() {
         </div>
 
         {/* 正确率进度条 */}
-        <Card className="p-4 mb-4">
+        <Card className="p-4">
           <CardHeader className="p-0 mb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-bold text-foreground">正确率</CardTitle>
@@ -145,7 +145,7 @@ export default function Stats() {
         </Card>
 
         {/* 段位进度 */}
-        <Card className="p-4 mb-4">
+        <Card className="p-4">
           <CardHeader className="p-0 mb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-bold text-foreground">段位进度</CardTitle>
@@ -170,7 +170,7 @@ export default function Stats() {
         </Card>
 
         {/* 知识点掌握度 */}
-        <Card className="p-4 mb-4">
+        <Card className="p-4">
           <CardHeader className="p-0 mb-3">
             <div className="flex items-center gap-2">
               <TrendingUp size={16} className="text-primary" />
@@ -180,31 +180,42 @@ export default function Stats() {
           <CardContent className="p-0">
             {hasKnowledge ? (
               <div className="flex flex-col gap-3">
-                {knowledgeEntries.map(([name, progress]) => (
+                {knowledgeEntries.map(([name, progress]) => {
+                  const pct = Math.round(progress * 100)
+                  const masteryColor = pct < 50 ? 'text-destructive' : pct <= 80 ? 'text-amber-500' : 'text-primary'
+                  const barColor = pct < 50 ? 'bg-destructive' : pct <= 80 ? 'bg-amber-500' : 'bg-primary'
+                  return (
                   <div key={name}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-muted-foreground">{name}</span>
-                      <span className="text-xs font-bold text-primary">{Math.round(progress * 100)}%</span>
+                      <span className={`text-xs font-bold ${masteryColor}`}>{pct}%</span>
                     </div>
-                    <Progress value={progress * 100}>
+                    <Progress value={pct}>
                       <ProgressTrack className="h-2">
-                        <ProgressIndicator className="bg-primary transition-all duration-500" />
+                        <ProgressIndicator className={`${barColor} transition-all duration-500`} />
                       </ProgressTrack>
                     </Progress>
                   </div>
-                ))}
+                  )
+                })}
               </div>
             ) : (
-              <div className="text-center py-6">
-                <TrendingUp size={32} className="text-primary" />
-                <p className="text-sm text-muted-foreground">完成更多关卡后，这里会显示知识点掌握情况</p>
+              <div className="flex flex-col items-center justify-center py-8">
+                <motion.div
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <TrendingUp size={48} className="text-muted-foreground/40" />
+                </motion.div>
+                <p className="text-sm font-bold text-foreground mt-3">暂无知识点数据</p>
+                <p className="text-xs text-muted-foreground mt-1">完成更多关卡后，这里会显示知识点掌握情况</p>
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* 成就统计 */}
-        <Card className="p-4 mb-4">
+        <Card className="p-4">
           <CardHeader className="p-0 mb-3">
             <div className="flex items-center gap-2">
               <Award size={16} className="text-amber-500" />
@@ -238,7 +249,7 @@ export default function Stats() {
         </Card>
 
         {/* 收到的鼓励 */}
-        <Card className="p-4 mb-4">
+        <Card className="p-4">
           <CardHeader className="p-0 mb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -285,9 +296,15 @@ export default function Stats() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6">
-                <div className="text-3xl mb-2 text-purple-400"><Flower2 size={32} /></div>
-                <p className="text-sm text-muted-foreground">还没有收到鼓励，快邀请同学加入班级吧</p>
+              <div className="flex flex-col items-center justify-center py-8">
+                <motion.div
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Flower2 size={48} className="text-purple-300" />
+                </motion.div>
+                <p className="text-sm font-bold text-foreground mt-3">还没有收到鼓励</p>
+                <p className="text-xs text-muted-foreground mt-1">快邀请同学加入班级吧</p>
               </div>
             )}
           </CardContent>

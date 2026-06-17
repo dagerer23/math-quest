@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
 import { Card, CardContent } from '@/components/ui/card'
-import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress'
+import { Progress, ProgressTrack } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, Target, Trophy, Calendar, Zap, Flame, ArrowLeft } from 'lucide-react'
+import { CheckCircle, Target, Trophy, Calendar, Zap, Flame, ArrowLeft, AlertCircle, Lightbulb } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getDailyGoalTemplates, type DailyGoalTemplate } from '@/services/content'
 import { toast } from 'sonner'
@@ -53,16 +53,28 @@ export default function DailyGoals() {
     if (templates.length === 0) return
 
     const iconMap: Record<string, React.ReactNode> = {
-      '⚡': <Zap size={24} className="text-primary" />,
-      '🎯': <Target size={24} className="text-primary" />,
-      '🔥': <Flame size={24} className="text-destructive" />,
+      '⚡': (
+        <div className="size-11 rounded-xl bg-[#E8F9D8] grid place-items-center flex-shrink-0">
+          <Zap size={24} className="text-[#58CC02]" />
+        </div>
+      ),
+      '🎯': (
+        <div className="size-11 rounded-xl bg-[#E0F4FF] grid place-items-center flex-shrink-0">
+          <Target size={24} className="text-[#1CB0F6]" />
+        </div>
+      ),
+      '🔥': (
+        <div className="size-11 rounded-xl bg-[#FFE4E4] grid place-items-center flex-shrink-0">
+          <Flame size={24} className="text-[#FF4B4B]" />
+        </div>
+      ),
     }
 
     const newGoals: Goal[] = templates.map((t) => ({
       id: t.id,
       title: t.title,
       description: t.description,
-      icon: iconMap[t.icon] || <Target size={24} className="text-primary" />,
+      icon: iconMap[t.icon] || <div className="size-11 rounded-xl bg-[#E0F4FF] grid place-items-center flex-shrink-0"><Target size={24} className="text-[#1CB0F6]" /></div>,
       type: t.type,
       target: t.target,
       reward: { xp: t.rewardXp, coins: t.rewardCoins },
@@ -144,7 +156,12 @@ export default function DailyGoals() {
               <div className="flex-1">
                 <Progress value={(goals.filter(g => g.getCurrentProgress() >= g.target).length / goals.length) * 100}>
                   <ProgressTrack className="h-2.5">
-                    <ProgressIndicator className="bg-gradient-to-r from-duolingo-green to-duolingo-blue transition-all duration-500" />
+                    <motion.div
+                      className="h-full rounded-full bg-gradient-to-r from-duolingo-green to-duolingo-blue"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(goals.filter(g => g.getCurrentProgress() >= g.target).length / goals.length) * 100}%` }}
+                      transition={{ duration: 0.6, ease: 'easeOut' }}
+                    />
                   </ProgressTrack>
                 </Progress>
               </div>
@@ -159,7 +176,11 @@ export default function DailyGoals() {
       {/* 加载错误提示 */}
       {error && !loading && (
         <div className="text-center py-8">
-          <div className="text-3xl mb-2">😕</div>
+          <div className="flex justify-center mb-2">
+            <div className="size-11 rounded-xl bg-[#FFE4E4] grid place-items-center">
+              <AlertCircle size={24} className="text-[#FF4B4B]" />
+            </div>
+          </div>
           <p className="text-sm text-muted-foreground mb-3">{error}</p>
           <Button
             onClick={() => {
@@ -199,9 +220,7 @@ export default function DailyGoals() {
             >
               <Card className={`p-4 ${completed ? 'bg-primary/5' : ''}`}>
                 <div className="flex items-start gap-3">
-                  <div className="size-11 rounded-xl bg-muted grid place-items-center flex-shrink-0">
-                    {goal.icon}
-                  </div>
+                  {goal.icon}
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -230,7 +249,12 @@ export default function DailyGoals() {
 
                       <Progress value={Math.min((progress / goal.target) * 100, 100)}>
                         <ProgressTrack className="h-2">
-                          <ProgressIndicator className={`transition-all duration-500 ${completed ? 'bg-primary' : 'bg-muted-foreground/50'}`} />
+                          <motion.div
+                            className={`h-full rounded-full ${completed ? 'bg-primary' : 'bg-muted-foreground/50'}`}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.min((progress / goal.target) * 100, 100)}%` }}
+                            transition={{ duration: 0.6, ease: 'easeOut' }}
+                          />
                         </ProgressTrack>
                       </Progress>
                     </div>
@@ -238,7 +262,7 @@ export default function DailyGoals() {
                 </div>
 
                 {completed && !alreadyClaimed && (
-                  <div className="mt-3">
+                  <motion.div className="mt-3" whileTap={{ scale: 0.95 }}>
                     <Button
                       variant="default"
                       className="w-full"
@@ -246,7 +270,7 @@ export default function DailyGoals() {
                     >
                       领取奖励
                     </Button>
-                  </div>
+                  </motion.div>
                 )}
 
                 {alreadyClaimed && (
@@ -268,7 +292,7 @@ export default function DailyGoals() {
       >
         <Card className="p-3 bg-muted border-border">
           <p className="text-xs text-muted-foreground">
-            💡 每日目标会在每天凌晨 0:00 重置，记得及时完成并领取奖励哦！
+            <Lightbulb size={14} className="inline text-[#FFC800] mr-1" />每日目标会在每天凌晨 0:00 重置，记得及时完成并领取奖励哦！
           </p>
         </Card>
       </motion.div>

@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '@/store/useUserStore'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Crown, Medal, Trophy, Star, Sparkles, Award, Target, ChevronRight, Zap, Gem, Loader2, Users, Globe2, Flower2 } from 'lucide-react'
 import clsx from 'clsx'
 import { RANK_COLORS, getRankFromXp, getRankInfo, getRankProgress, getNextRankInfo } from '@/utils/rank'
 import { getAvatarUrl, getAvatarBorderColor, getInitial, getAvatarBgColor, getAvatarTextColor } from '@/utils/avatar'
 import { getLeaderboard, type LeaderboardUser } from '@/services/content'
 import * as classApi from '@/services/classApi'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -165,46 +164,62 @@ export default function Leaderboard() {
       <div className="flex-1 px-4 py-4 overflow-y-auto flex flex-col gap-4">
 
       {/* ═══ 分段 Tab 切换器 ═══ */}
-      <Tabs defaultValue="classmates" value={tab} onValueChange={(v) => setTab(v as 'global' | 'classmates' | 'rank')}>
-        <TabsList className="w-full rounded-xl bg-muted p-1 grid grid-cols-3 gap-1">
-          <TabsTrigger
-            value="classmates"
-            className={clsx(
-              'h-10 rounded-lg text-sm font-medium transition-all',
-              tab === 'classmates'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            <Users size={16} className="mr-1.5" />
-            同学
-          </TabsTrigger>
-          <TabsTrigger
-            value="global"
-            className={clsx(
-              'h-10 rounded-lg text-sm font-medium transition-all',
-              tab === 'global'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            <Globe2 size={16} className="mr-1.5" />
-            总榜
-          </TabsTrigger>
-          <TabsTrigger
-            value="rank"
-            className={clsx(
-              'h-10 rounded-lg text-sm font-medium transition-all',
-              tab === 'rank'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            <Award size={16} className="mr-1.5" />
-            段位
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="relative flex gap-1 h-11 bg-muted p-1 rounded-xl">
+        {tab === 'classmates' && (
+          <motion.div
+            layoutId="leaderboard-tab-indicator"
+            className="absolute top-1 left-1 h-[calc(100%-8px)] rounded-lg bg-white shadow-sm"
+            style={{ width: 'calc(33.333% - 6px)' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          />
+        )}
+        {tab === 'global' && (
+          <motion.div
+            layoutId="leaderboard-tab-indicator"
+            className="absolute top-1 left-[calc(33.333%+2px)] h-[calc(100%-8px)] rounded-lg bg-white shadow-sm"
+            style={{ width: 'calc(33.333% - 6px)' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          />
+        )}
+        {tab === 'rank' && (
+          <motion.div
+            layoutId="leaderboard-tab-indicator"
+            className="absolute top-1 right-1 h-[calc(100%-8px)] rounded-lg bg-white shadow-sm"
+            style={{ width: 'calc(33.333% - 6px)' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          />
+        )}
+        <button
+          onClick={() => setTab('classmates')}
+          className={clsx(
+            'relative z-10 flex-1 h-9 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5',
+            tab === 'classmates' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          <Users size={16} />
+          同学
+        </button>
+        <button
+          onClick={() => setTab('global')}
+          className={clsx(
+            'relative z-10 flex-1 h-9 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5',
+            tab === 'global' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          <Globe2 size={16} />
+          总榜
+        </button>
+        <button
+          onClick={() => setTab('rank')}
+          className={clsx(
+            'relative z-10 flex-1 h-9 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5',
+            tab === 'rank' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          <Award size={16} />
+          段位
+        </button>
+      </div>
 
       {/* 我的段位信息卡 */}
       <Card className="p-4">
@@ -238,8 +253,16 @@ export default function Leaderboard() {
       </Card>
 
       {/* ═══ 内容区 ═══ */}
-      {tab === 'classmates' ? (
-        <div className="space-y-3">
+      <AnimatePresence mode="wait">
+        {tab === 'classmates' && (
+          <motion.div
+            key="classmates"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-3"
+          >
           {classmatesLoading ? (
             <div className="space-y-2">
               {[0, 1, 2, 3].map((i) => (
@@ -258,7 +281,12 @@ export default function Leaderboard() {
             </div>
           ) : classmatesData.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <Users size={48} className="text-muted-foreground" />
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <Users size={48} className="text-muted-foreground" />
+              </motion.div>
               <div className="text-center">
                 <div className="text-base font-bold text-muted-foreground">加入班级后查看同学排行</div>
                 <div className="text-xs text-muted-foreground mt-1">去「我的」页面创建或加入班级</div>
@@ -283,92 +311,118 @@ export default function Leaderboard() {
                   const rank = idx + 1
                   const rankColor = rank === 1 ? '#f59e0b' : rank === 2 ? '#64748b' : '#d97706'
                   return (
-                    <Card key={u.userId} className={clsx('p-3 transition-all', u.isMe && 'border-primary/30 bg-primary/5')}>
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={clsx('w-8 h-8 rounded-lg grid place-items-center font-bold text-sm', rank === 1 ? 'bg-amber-100 text-amber-700' : rank === 2 ? 'bg-slate-100 text-slate-700' : 'bg-amber-50 text-amber-800')}
-                          style={{ color: rankColor }}
-                        >
-                          {rank}
-                        </div>
-                        <div className="w-10 h-10 rounded-full border-2 overflow-hidden flex-shrink-0" style={{ borderColor: getAvatarBorderColor(u.nickname || '同学') }}>
-                          <img src={getAvatarUrl(u.nickname || '同学')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
-                          <div className="hidden w-full h-full items-center justify-center text-sm font-bold" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>
-                            {getInitial(u.nickname || '同学')}
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-sm text-foreground truncate flex items-center gap-1.5">
-                            {u.nickname}
-                            {u.isMe && <Badge variant="outline" className="text-[10px] h-4 px-1 border-primary/40 text-primary/80">我</Badge>}
-                          </div>
-                          <div className="text-xs text-muted-foreground">{u.targetGrade}年级</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-base font-bold text-foreground tabular-nums">{u.xp.toLocaleString()}</div>
-                          <div className="text-[10px] text-muted-foreground">XP</div>
-                        </div>
-                        {!u.isMe && (
-                          <Button
-                            size="sm"
-                            variant={sentFlowers.has(u.userId) ? 'default' : 'outline'}
-                            onClick={() => handleSendFlower(u.userId, u.nickname)}
-                            disabled={sentFlowers.has(u.userId)}
-                            className="shrink-0 gap-1 h-8 px-2"
+                    <motion.div
+                      key={u.userId}
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: idx * 0.04 }}
+                    >
+                      <Card className={clsx('p-3 transition-all', u.isMe && 'border-primary/30 bg-primary/5')}>
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={clsx('w-8 h-8 rounded-lg grid place-items-center font-bold text-sm', rank === 1 ? 'bg-amber-100 text-amber-700' : rank === 2 ? 'bg-slate-100 text-slate-700' : 'bg-amber-50 text-amber-800')}
+                            style={{ color: rankColor }}
                           >
-                            <Flower2 size={14} className="text-pink-500" />
-                            {sentFlowers.has(u.userId) ? '已送' : '送花'}
-                          </Button>
-                        )}
-                      </div>
-                    </Card>
+                            {rank}
+                          </div>
+                          <div className="w-10 h-10 rounded-full border-2 overflow-hidden flex-shrink-0" style={{ borderColor: getAvatarBorderColor(u.nickname || '同学') }}>
+                            <img src={getAvatarUrl(u.nickname || '同学')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
+                            <div className="hidden w-full h-full items-center justify-center text-sm font-bold" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>
+                              {getInitial(u.nickname || '同学')}
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-sm text-foreground truncate flex items-center gap-1.5">
+                              {u.nickname}
+                              {u.isMe && <Badge variant="outline" className="text-[10px] h-4 px-1 border-primary/40 text-primary/80">我</Badge>}
+                            </div>
+                            <div className="text-xs text-muted-foreground">{u.targetGrade}年级</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-base font-bold text-foreground tabular-nums">{u.xp.toLocaleString()}</div>
+                            <div className="text-[10px] text-muted-foreground">XP</div>
+                          </div>
+                          {!u.isMe && (
+                            <motion.div whileTap={{ scale: 0.9 }}>
+                              <Button
+                                size="sm"
+                                variant={sentFlowers.has(u.userId) ? 'default' : 'outline'}
+                                onClick={() => handleSendFlower(u.userId, u.nickname)}
+                                disabled={sentFlowers.has(u.userId)}
+                                className="shrink-0 gap-1 h-8 px-2"
+                              >
+                                <Flower2 size={14} className="text-pink-500" />
+                                {sentFlowers.has(u.userId) ? '已送' : '送花'}
+                              </Button>
+                            </motion.div>
+                          )}
+                        </div>
+                      </Card>
+                    </motion.div>
                   )
                 })}
                 {classmatesData.length > 3 && classmatesData.slice(3).map((u, idx) => {
                   const rank = idx + 4
                   return (
-                    <Card key={u.userId} className={clsx('p-3 transition-all', u.isMe && 'border-primary/30 bg-primary/5')}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg grid place-items-center font-bold text-sm" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>{rank}</div>
-                        <div className="w-10 h-10 rounded-full border-2 overflow-hidden flex-shrink-0" style={{ borderColor: getAvatarBorderColor(u.nickname || '同学') }}>
-                          <img src={getAvatarUrl(u.nickname || '同学')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
-                          <div className="hidden w-full h-full items-center justify-center text-sm font-bold" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>
-                            {getInitial(u.nickname || '同学')}
+                    <motion.div
+                      key={u.userId}
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: (idx + 3) * 0.04 }}
+                    >
+                      <Card className={clsx('p-3 transition-all', u.isMe && 'border-primary/30 bg-primary/5')}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg grid place-items-center font-bold text-sm" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>{rank}</div>
+                          <div className="w-10 h-10 rounded-full border-2 overflow-hidden flex-shrink-0" style={{ borderColor: getAvatarBorderColor(u.nickname || '同学') }}>
+                            <img src={getAvatarUrl(u.nickname || '同学')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
+                            <div className="hidden w-full h-full items-center justify-center text-sm font-bold" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>
+                              {getInitial(u.nickname || '同学')}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-sm text-foreground truncate flex items-center gap-1.5">
-                            {u.nickname}
-                            {u.isMe && <Badge variant="outline" className="text-[10px] h-4 px-1 border-primary/40 text-primary/80">我</Badge>}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-sm text-foreground truncate flex items-center gap-1.5">
+                              {u.nickname}
+                              {u.isMe && <Badge variant="outline" className="text-[10px] h-4 px-1 border-primary/40 text-primary/80">我</Badge>}
+                            </div>
+                            <div className="text-xs text-muted-foreground">{u.targetGrade}年级</div>
                           </div>
-                          <div className="text-xs text-muted-foreground">{u.targetGrade}年级</div>
+                          <div className="text-right">
+                            <div className="text-sm font-bold text-foreground tabular-nums">{u.xp.toLocaleString()}</div>
+                            <div className="text-[10px] text-muted-foreground">XP</div>
+                          </div>
+                          {!u.isMe && (
+                            <motion.div whileTap={{ scale: 0.9 }}>
+                              <Button
+                                size="sm"
+                                variant={sentFlowers.has(u.userId) ? 'default' : 'outline'}
+                                onClick={() => handleSendFlower(u.userId, u.nickname)}
+                                disabled={sentFlowers.has(u.userId)}
+                                className="shrink-0 gap-1 h-8 px-2"
+                              >
+                                <Flower2 size={14} className="text-pink-500" />
+                                {sentFlowers.has(u.userId) ? '已送' : '送花'}
+                              </Button>
+                            </motion.div>
+                          )}
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold text-foreground tabular-nums">{u.xp.toLocaleString()}</div>
-                          <div className="text-[10px] text-muted-foreground">XP</div>
-                        </div>
-                        {!u.isMe && (
-                          <Button
-                            size="sm"
-                            variant={sentFlowers.has(u.userId) ? 'default' : 'outline'}
-                            onClick={() => handleSendFlower(u.userId, u.nickname)}
-                            disabled={sentFlowers.has(u.userId)}
-                            className="shrink-0 gap-1 h-8 px-2"
-                          >
-                            <Flower2 size={14} className="text-pink-500" />
-                            {sentFlowers.has(u.userId) ? '已送' : '送花'}
-                          </Button>
-                        )}
-                      </div>
-                    </Card>
+                      </Card>
+                    </motion.div>
                   )
                 })}
               </div>
             </>
           )}
-        </div>
-      ) : tab === 'global' ? (
-        <div className="space-y-5">
+          </motion.div>
+        )}
+        {tab === 'global' && (
+          <motion.div
+            key="global"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-5"
+          >
           {loading ? (
             <div className="space-y-2">
               <div className="grid grid-cols-3 gap-2 mb-2">
@@ -396,7 +450,12 @@ export default function Leaderboard() {
             </div>
           ) : list.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <Trophy size={48} className="text-muted-foreground" />
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <Trophy size={48} className="text-muted-foreground" />
+              </motion.div>
               <div className="text-center">
                 <div className="text-base font-bold text-muted-foreground">暂无排行数据</div>
                 <div className="text-xs text-muted-foreground mt-1">完成关卡后来这里看看</div>
@@ -508,10 +567,20 @@ export default function Leaderboard() {
                 )}
               </>
             )}
-          </div>
-        ) : (
-          <RankTab currentXp={myXp} />
+          </motion.div>
         )}
+        {tab === 'rank' && (
+          <motion.div
+            key="rank"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <RankTab currentXp={myXp} />
+          </motion.div>
+        )}
+      </AnimatePresence>
       </div>
     </div>
   )

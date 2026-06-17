@@ -7,7 +7,7 @@ import StarRow from '@/components/StarRow'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Coins, Sparkles, CheckCircle2, Repeat, Trophy, Star, Zap, ArrowLeft } from 'lucide-react'
+import { Coins, Sparkles, CheckCircle2, Repeat, Trophy, Star, Zap, ArrowLeft, FileText, Lightbulb } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { playSound } from '@/utils/sound'
 import { generateQuestions } from '@/services/content'
@@ -269,9 +269,9 @@ export default function Result() {
 
         {/* 奖励卡片 */}
         <div className="grid grid-cols-3 gap-2 mt-4">
-          <RewardBadge icon={<Sparkles size={16} className="text-primary" />} label="XP" value={`+${record.xpGained}`} color="purple" />
-          <RewardBadge icon={<Coins size={16} className="text-primary" />} label="金币" value={`+${record.coinsGained}`} color="gold" />
-          <RewardBadge icon={<Zap size={16} className="text-primary" />} label="连击" value={`×${record.comboMax}`} color="red" />
+          <RewardBadge icon={<Sparkles size={16} className="text-[#CE82FF]" />} label="XP" value={`+${record.xpGained}`} color="purple" />
+          <RewardBadge icon={<Coins size={16} className="text-[#FFC800]" />} label="金币" value={`+${record.coinsGained}`} color="gold" />
+          <RewardBadge icon={<Zap size={16} className="text-[#FF4B4B]" />} label="连击" value={`×${record.comboMax}`} color="red" />
         </div>
         </Card>
       </motion.section>
@@ -311,7 +311,7 @@ export default function Result() {
       )}
 
       <Card className="p-4">
-        <div className="font-bold text-sm text-foreground mb-2 flex items-center gap-2">📝 错题回顾</div>
+        <div className="font-bold text-sm text-foreground mb-2 flex items-center gap-2"><FileText size={16} className="text-[#1CB0F6]" /> 错题回顾</div>
         {wrongAnswers.length === 0 ? (
           <div className="text-center text-muted-foreground py-5">
             <motion.div
@@ -336,7 +336,7 @@ export default function Result() {
                 </div>
                 {a.question?.explanation && (
                   <div className="mt-1 text-xs text-primary/80 bg-primary/5 rounded-lg p-2">
-                    💡 {a.question.explanation}
+                    <Lightbulb size={12} className="inline text-[#FFC800] mr-0.5" />{a.question.explanation}
                   </div>
                 )}
               </li>
@@ -365,10 +365,10 @@ export default function Result() {
 }
 
 function RewardBadge({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string; color: 'purple' | 'gold' | 'red' }) {
-  const bgClass = {
-    purple: 'bg-muted',
-    gold: 'bg-muted',
-    red: 'bg-muted',
+  const colorStyles = {
+    purple: 'bg-[#F3E8FF]',
+    gold: 'bg-[#FFF5D6]',
+    red: 'bg-[#FFE4E4]',
   }
   const variant = {
     purple: 'secondary' as const,
@@ -381,11 +381,12 @@ function RewardBadge({ icon, label, value, color }: { icon: React.ReactNode; lab
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.4 }}
-      className={`${bgClass[color]} rounded-xl py-2.5 flex flex-col items-center border border-border`}
+      className={`${colorStyles[color]} rounded-xl py-2.5 flex flex-col items-center border border-border`}
     >
-      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-        {icon} {label}
+      <div className={`size-8 rounded-lg bg-white/50 grid place-items-center`}>
+        {icon}
       </div>
+      <div className="text-xs text-muted-foreground mt-1">{label}</div>
       <motion.div
         initial={{ scale: 0.5 }}
         animate={{ scale: 1 }}
