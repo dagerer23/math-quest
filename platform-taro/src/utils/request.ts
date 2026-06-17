@@ -3,6 +3,20 @@
  */
 import Taro from '@tarojs/taro'
 
+const BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://api.mathquest.com'
+  : 'http://localhost:3001'
+
+export const TOKEN_KEY = 'mq_token'
+
+function getToken(): string {
+  try {
+    return Taro.getStorageSync(TOKEN_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
 interface RequestOptions {
   timeout?: number
   retries?: number
@@ -23,34 +37,53 @@ export async function request<T>(
 ): Promise<T> {
   const { retries = 3, retryDelay = 1000, timeout = 10000, ...rest } = options
 
+  const fullUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`
+  const token = getToken()
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(rest.headers || {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
+
   let lastError: Error | null = null
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       if (isWeapp()) {
         const res = await Taro.request({
-          url,
+          url: fullUrl,
           method: (rest.method || 'GET') as any,
           data: rest.data || rest.body,
-          header: rest.headers || {},
+          header: headers,
           timeout: timeout,
         })
+        if (res.statusCode === 401) {
+          Taro.removeStorageSync(TOKEN_KEY)
+          Taro.redirectTo({ url: '/pages/login/index' })
+          throw new Error('Unauthorized')
+        }
         if (res.statusCode >= 200 && res.statusCode < 300) {
           return res.data as T
         }
         throw new Error(`HTTP ${res.statusCode}`)
       } else {
-        const response = await fetch(url, {
+        const response = await fetch(fullUrl, {
           method: rest.method || 'GET',
-          headers: { 'Content-Type': 'application/json', ...(rest.headers || {}) },
+          headers,
           body: rest.body || rest.data ? JSON.stringify(rest.body || rest.data) : undefined,
           signal: AbortSignal.timeout(timeout),
         })
+        if (response.status === 401) {
+          localStorage.removeItem(TOKEN_KEY)
+          window.location.href = '/pages/login/index'
+          throw new Error('Unauthorized')
+        }
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
         return response.json()
       }
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
+      if (lastError.message === 'Unauthorized') throw lastError
       if (lastError.message.includes('HTTP 4')) throw lastError
       if (attempt === retries) throw lastError
       await new Promise((resolve) => setTimeout(resolve, retryDelay * (attempt + 1)))

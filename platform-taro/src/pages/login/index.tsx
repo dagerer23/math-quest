@@ -4,6 +4,7 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import { Button, Input, Avatar } from '@/components/ui/Controls'
 import { Card, Title, Subtitle, Spacer, Row, Col } from '@/components/ui/Basic'
 import { useUserStore } from '@/store/useUserStore'
+import { loginWithPhone as apiLogin, sendVerificationCode, validatePhone, TOKEN_KEY } from '@/services/auth'
 
 export default function LoginPage() {
   const [phone, setPhone] = useState('')
@@ -19,30 +20,45 @@ export default function LoginPage() {
     }
   })
 
-  const requestCode = () => {
-    if (phone.length !== 11) {
+  const requestCode = async () => {
+    if (!validatePhone(phone)) {
       Taro.showToast({ title: '请输入正确的手机号', icon: 'none' })
       return
     }
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
+    const result = await sendVerificationCode(phone)
+    setLoading(false)
+    if (result.success) {
       setStep('code')
-      Taro.showToast({ title: '验证码已发送（测试：1234）', icon: 'none' })
-    }, 500)
+      Taro.showToast({ title: '验证码已发送', icon: 'none' })
+    } else {
+      Taro.showToast({ title: result.message || '发送失败', icon: 'none' })
+    }
   }
 
-  const verify = () => {
-    if (code !== '1234') {
-      Taro.showToast({ title: '验证码错误', icon: 'none' })
+  const verify = async () => {
+    if (code.length < 4) {
+      Taro.showToast({ title: '请输入验证码', icon: 'none' })
       return
     }
     setLoading(true)
-    setTimeout(() => {
-      loginWithPhone(phone, `user-${phone.slice(-4)}`)
-      setLoading(false)
-      Taro.switchTab({ url: '/pages/home/index' })
-    }, 500)
+    const result = await apiLogin(phone, code)
+    setLoading(false)
+    if (result.success && result.user && result.token) {
+      // Save token
+      Taro.setStorageSync(TOKEN_KEY, result.token)
+      // Update user store
+      loginWithPhone(phone, result.user.id)
+      if (result.user.nickname && result.user.targetGrade) {
+        // Existing user - go to home
+        Taro.switchTab({ url: '/pages/home/index' })
+      } else {
+        // New user - go to onboarding
+        Taro.redirectTo({ url: '/pages/onboarding/index' })
+      }
+    } else {
+      Taro.showToast({ title: result.message || '登录失败', icon: 'none' })
+    }
   }
 
   return (

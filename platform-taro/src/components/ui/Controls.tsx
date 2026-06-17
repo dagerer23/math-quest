@@ -1,4 +1,4 @@
-import { View, Text } from '@tarojs/components'
+import { View, Text, Input as TaroInput, Image } from '@tarojs/components'
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
 type Size = 'sm' | 'md' | 'lg'
@@ -74,7 +74,7 @@ interface InputProps {
 }
 
 export function Input({ value, placeholder, onChange, type = 'text', maxLength, style, onFocus, onBlur }: InputProps) {
-  const inputType = type === 'number' || type === 'phone' ? 'number' : type === 'password' ? 'password' : 'text'
+  const taroType = type === 'number' || type === 'phone' ? 'number' : 'text'
 
   return (
     <View
@@ -90,19 +90,18 @@ export function Input({ value, placeholder, onChange, type = 'text', maxLength, 
         ...style,
       }}
     >
-      <input
-        type={inputType}
+      <TaroInput
+        type={taroType}
+        password={type === 'password'}
         value={value}
         placeholder={placeholder}
-        onInput={(e: any) => onChange && onChange(e.detail?.value ?? e.target.value)}
+        onInput={(e) => onChange && onChange(e.detail.value)}
         onFocus={onFocus}
         onBlur={onBlur}
-        maxLength={maxLength}
+        maxlength={maxLength}
         style={{
           flex: 1,
           fontSize: 16,
-          border: 'none',
-          outline: 'none',
           background: 'transparent',
           width: '100%',
           color: '#1a1a1a',
@@ -143,7 +142,7 @@ export function Avatar({ name = '', size = 48, url, style }: AvatarProps) {
   if (url) {
     return (
       <View style={{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden', background: color, ...style }}>
-        <img src={url} alt={name} style={{ width: '100%', height: '100%' }} />
+        <Image src={url} mode="aspectFill" style={{ width: '100%', height: '100%' }} />
       </View>
     )
   }

@@ -34,16 +34,13 @@ export default function HomePage() {
       Taro.showToast({ title: '暂无题目', icon: 'none' })
       return
     }
-    // 存到全局以便答题页读取
-    (Taro as any).currentLevel = level
-    ;(Taro as any).currentQuestions = qs
-    Taro.navigateTo({ url: '/pages/assessment/index' })
+    Taro.navigateTo({ url: `/pages/assessment/index?levelId=${level.id}&grade=${grade}` })
   }
 
   return (
     <View style={{ minHeight: '100vh', background: '#F8FAF5' }}>
       {/* 顶部信息栏 */}
-      <View style={{ background: 'linear-gradient(135deg, #58CC02 0%, #8DE30A 100%)', padding: 24, paddingTop: 40, color: '#FFF' }}>
+      <View style={{ background: '#58CC02', padding: 24, paddingTop: 40, color: '#FFF' }}>
         <Row justify="space-between">
           <Col gap={4}>
             <Text style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>

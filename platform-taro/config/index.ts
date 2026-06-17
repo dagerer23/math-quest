@@ -19,7 +19,8 @@ const config = {
   compiler: 'webpack5',
   plugins: [
     '@tarojs/plugin-platform-h5',
-    '@tarojs/plugin-platform-weapp'
+    '@tarojs/plugin-platform-weapp',
+    'unocss/taro',
   ],
   mini: {
     compile: {

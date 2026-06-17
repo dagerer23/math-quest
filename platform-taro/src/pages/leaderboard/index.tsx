@@ -37,7 +37,7 @@ export default function LeaderboardPage() {
       </View>
 
       {/* 我的排名 */}
-      <Card padding={16} style={{ margin: 8, background: 'linear-gradient(135deg, #58CC02 0%, #8DE30A 100%)' }}>
+      <Card padding={16} style={{ margin: 8, background: '#58CC02' }}>
         <Row justify="space-between">
           <Col gap={4} flex={1}>
             <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)' }}>我的排名</Text>
@@ -112,9 +112,7 @@ export default function LeaderboardPage() {
             key={p.id}
             style={{
               padding: 16,
-              borderBottomWidth: idx < others.length - 1 ? 1 : 0,
-              borderBottomColor: '#F3F4F6',
-              borderStyle: 'solid',
+              borderBottom: idx < others.length - 1 ? '1px solid #F3F4F6' : 'none',
             }}
           >
             <Row justify="space-between">

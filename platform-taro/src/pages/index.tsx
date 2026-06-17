@@ -9,7 +9,7 @@ export default function Index() {
   return (
     <View className='shell' style={{ padding: '20px' }}>
       <View style={{
-        background: 'linear-gradient(135deg, #58CC02 0%, #1CB0F6 100%)',
+        background: '#58CC02',
         borderRadius: '16px',
         padding: '32px 24px',
         textAlign: 'center'

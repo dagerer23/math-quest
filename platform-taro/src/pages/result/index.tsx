@@ -6,7 +6,7 @@ import { Card, Title, Spacer, Row, Col } from '@/components/ui/Basic'
 
 export default function ResultPage() {
   const user = useUserStore()
-  const record = (Taro as any).lastRecord || {
+  const record = Taro.getStorageSync('temp_lastRecord') || {
     score: 0,
     stars: 0,
     correctCount: 0,
@@ -14,6 +14,8 @@ export default function ResultPage() {
     xpGained: 0,
     coinsGained: 0,
   }
+  // 读取后清除临时存储
+  Taro.removeStorageSync('temp_lastRecord')
 
   const { stars, correctCount, totalCount, xpGained, coinsGained } = record
   const accuracy = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { View, Text } from '@tarojs/components'
+import { View, Text, Input } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useUserStore } from '@/store/useUserStore'
 import { useSessionStore } from '@/store/useSessionStore'
 import { Button } from '@/components/ui/Controls'
 import { Card, Title, Spacer, Row, Col } from '@/components/ui/Basic'
+import { LEVELS } from '@/data/questionBank'
 import type { Question, Level } from '@/types/models'
 
 export default function AssessmentPage() {
@@ -21,9 +22,31 @@ export default function AssessmentPage() {
   const sessionStore = useSessionStore()
 
   useEffect(() => {
-    // 从临时存储中读取
-    const level = (Taro as any).currentLevel
-    const qs = (Taro as any).currentQuestions || []
+    const instance = Taro.getCurrentInstance()
+    const params = instance.router?.params
+
+    // 错题复习模式
+    if (params?.mode === 'review') {
+      const reviewQs = JSON.parse(Taro.getStorageSync('temp_reviewQuestions') || '[]')
+      if (reviewQs.length > 0) {
+        const level: Level = { id: 'mistake-review', grade: 1, title: '错题复习', sortOrder: 0 }
+        setCurrentLevel(level)
+        setQuestions(reviewQs)
+        sessionStore.start(level, reviewQs)
+        Taro.removeStorageSync('temp_reviewQuestions')
+        return
+      }
+    }
+
+    // 正常模式：从路由参数获取 levelId 和 grade
+    const levelId = params?.levelId || ''
+    const grade = Number(params?.grade) || 1
+
+    const gradeData = (LEVELS as any)[`g${grade}`]
+    const levels: Level[] = gradeData?.levels || []
+    const level = levels.find((l) => l.id === levelId)
+    const qs = gradeData?.questions?.[levelId] || []
+
     if (!level || qs.length === 0) {
       Taro.showToast({ title: '题目加载失败', icon: 'none' })
       setTimeout(() => Taro.navigateBack(), 1000)
@@ -81,7 +104,7 @@ export default function AssessmentPage() {
       // 同步到用户 store
       userStore.registerSession(record)
       // 把记录传到结果页
-      ;(Taro as any).lastRecord = record
+      Taro.setStorageSync('temp_lastRecord', record)
       setIsFinished(true)
     } else {
       setIndex(index + 1)
@@ -120,7 +143,7 @@ export default function AssessmentPage() {
           </Text>
         </Row>
         <View style={{ height: 8, background: '#E5E7EB', borderRadius: 999, overflow: 'hidden', marginTop: 12 }}>
-          <View style={{ height: '100%', width: `${progress}%`, background: '#58CC02', transition: 'width 0.3s', borderRadius: 999 }} />
+          <View style={{ height: '100%', width: `${progress}%`, background: '#58CC02', borderRadius: 999 }} />
         </View>
       </View>
 
@@ -185,7 +208,6 @@ export default function AssessmentPage() {
                   borderRadius: 16,
                   background: bg,
                   border,
-                  cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -226,23 +248,18 @@ export default function AssessmentPage() {
               alignItems: 'center',
             }}
           >
-            <input
-              type="text"
-              inputMode="numeric"
+            <Input
+              type="number"
               placeholder="输入答案..."
               value={inputAnswer}
-              onChange={(e: any) => setInputAnswer(e.target.value)}
-              onKeyDown={(e: any) => {
-                if (e.key === 'Enter') submitInput()
-              }}
+              onInput={(e) => setInputAnswer(e.detail.value)}
+              onConfirm={submitInput}
               disabled={showFeedback}
               style={{
                 flex: 1,
                 fontSize: 24,
                 fontWeight: 700,
                 color: '#1a1a1a',
-                border: 'none',
-                outline: 'none',
                 textAlign: 'center',
               }}
             />

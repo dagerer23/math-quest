@@ -67,9 +67,8 @@ export default function MistakesPage() {
                   variant="outline"
                   onClick={() => {
                     // 单个复习
-                    ;(Taro as any).currentLevel = { id: 'mistake-review', grade: 1, title: '错题复习', sortOrder: 0 }
-                    ;(Taro as any).currentQuestions = [q]
-                    Taro.navigateTo({ url: '/pages/assessment/index' })
+                    Taro.setStorageSync('temp_reviewQuestions', JSON.stringify([q]))
+                    Taro.navigateTo({ url: '/pages/assessment/index?mode=review&grade=1' })
                   }}
                 >
                   再练一次

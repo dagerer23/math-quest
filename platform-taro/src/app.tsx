@@ -1,5 +1,6 @@
 import { Component, PropsWithChildren } from 'react'
 import { useLaunch } from '@tarojs/taro'
+import 'virtual:uno.css'
 import '@/styles/global.css'
 
 function App({ children }: PropsWithChildren<any>) {

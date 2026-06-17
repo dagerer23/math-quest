@@ -110,10 +110,7 @@ export default function ProfilePage() {
             onClick={item.action || (() => Taro.showToast({ title: '敬请期待', icon: 'none' }))}
             style={{
               padding: 16,
-              borderBottomWidth: idx < 3 ? 1 : 0,
-              borderBottomColor: '#F3F4F6',
-              borderStyle: 'solid',
-              cursor: 'pointer',
+              borderBottom: idx < 3 ? '1px solid #F3F4F6' : 'none',
             }}
           >
             <Row justify="space-between">
