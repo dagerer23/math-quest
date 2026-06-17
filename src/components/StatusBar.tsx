@@ -75,7 +75,7 @@ export default function StatusBar() {
           <button
             onClick={() => setPopup('hearts')}
             aria-label={`心数: ${user.hearts}`}
-            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform"
+            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-ring"
             style={{ background: 'linear-gradient(135deg, #FFF0F0, #FFE8E8)' }}
           >
             <Heart size={12} fill="#FF4B4B" stroke="#FF4B4B" />
@@ -84,7 +84,7 @@ export default function StatusBar() {
           <button
             onClick={() => setPopup('coins')}
             aria-label={`金币: ${user.coins}`}
-            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform"
+            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-ring"
             style={{ background: 'linear-gradient(135deg, #FFF8EB, #FFEDC8)' }}
           >
             <Coins size={12} fill="#E5A13B" stroke="#C8891F" />
@@ -93,7 +93,7 @@ export default function StatusBar() {
           <button
             onClick={() => setPopup('diamonds')}
             aria-label={`钻石: ${user.diamonds}`}
-            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform"
+            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform focus-visible:ring-2 focus-visible:ring-ring"
             style={{ background: 'linear-gradient(135deg, #EEF3FF, #DDE8FF)' }}
           >
             <Gem size={12} fill="#5B8DEF" stroke="#4A7AD4" />

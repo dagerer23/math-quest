@@ -241,7 +241,7 @@ export default function Assessment() {
                         onClick={() => handleSelectOption(option)}
                         disabled={showResult}
                         className={clsx(
-                          'h-16 rounded-2xl font-bold text-lg transition-[background-color,border-color,transform]',
+                          'h-16 rounded-2xl font-bold text-lg transition-[background-color,border-color,transform] duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                           showResult ? (
                             isCorrectAnswer
                               ? 'bg-primary text-primary-foreground'

@@ -192,7 +192,7 @@ export default function Leaderboard() {
         <button
           onClick={() => setTab('classmates')}
           className={clsx(
-            'relative z-10 flex-1 h-9 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5',
+            'relative z-10 flex-1 h-9 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-ring',
             tab === 'classmates' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
           )}
         >
@@ -202,7 +202,7 @@ export default function Leaderboard() {
         <button
           onClick={() => setTab('global')}
           className={clsx(
-            'relative z-10 flex-1 h-9 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5',
+            'relative z-10 flex-1 h-9 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-ring',
             tab === 'global' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
           )}
         >
@@ -212,7 +212,7 @@ export default function Leaderboard() {
         <button
           onClick={() => setTab('rank')}
           className={clsx(
-            'relative z-10 flex-1 h-9 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5',
+            'relative z-10 flex-1 h-9 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-ring',
             tab === 'rank' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
           )}
         >
@@ -317,7 +317,7 @@ export default function Leaderboard() {
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: idx * 0.04 }}
                     >
-                      <Card className={clsx('p-3 transition-all', u.isMe && 'border-primary/30 bg-primary/5')}>
+                      <Card className={clsx('p-3 transition-[background-color,border-color,box-shadow,transform] duration-200', u.isMe && 'border-primary/30 bg-primary/5')}>
                         <div className="flex items-center gap-3">
                           <div
                             className={clsx('w-8 h-8 rounded-lg grid place-items-center font-bold text-sm', rank === 1 ? 'bg-amber-100 text-amber-700' : rank === 2 ? 'bg-slate-100 text-slate-700' : 'bg-amber-50 text-amber-800')}
@@ -370,7 +370,7 @@ export default function Leaderboard() {
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: (idx + 3) * 0.04 }}
                     >
-                      <Card className={clsx('p-3 transition-all', u.isMe && 'border-primary/30 bg-primary/5')}>
+                      <Card className={clsx('p-3 transition-[background-color,border-color,box-shadow,transform] duration-200', u.isMe && 'border-primary/30 bg-primary/5')}>
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg grid place-items-center font-bold text-sm" style={{ background: getAvatarBgColor(u.nickname || '同学'), color: getAvatarTextColor(u.nickname || '同学') }}>{rank}</div>
                           <div className="w-10 h-10 rounded-full border-2 overflow-hidden flex-shrink-0" style={{ borderColor: getAvatarBorderColor(u.nickname || '同学') }}>
@@ -480,7 +480,7 @@ export default function Leaderboard() {
                         transition={{ delay: idx * 0.04 }}
                       >
                         <Card className={clsx(
-                          'p-3 transition-all',
+                          'p-3 transition-[background-color,border-color,box-shadow] duration-200',
                           isMe ? 'border-primary/30 bg-primary/5' : '',
                         )}>
                           <div className={clsx('flex items-center gap-3 relative', isMe && 'pl-4')}>

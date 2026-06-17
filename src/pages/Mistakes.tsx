@@ -157,7 +157,7 @@ export default function Mistakes() {
           {/* 折叠头部 — 点击展开 */}
           <button
             onClick={() => toggleExpand(item.q.id)}
-            className="w-full flex items-start gap-2.5 p-3 text-left"
+            className="w-full flex items-start gap-2.5 p-3 text-left focus-visible:ring-2 focus-visible:ring-ring rounded-xl"
           >
             <span className={clsx(
               'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5',
@@ -221,7 +221,7 @@ export default function Mistakes() {
                       e.stopPropagation()
                       clearMistake(item.q.id)
                     }}
-                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors py-2 px-3"
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors py-2 px-3 focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
                   >
                     <Trash2 size={14} />
                     移出错题本
@@ -276,7 +276,7 @@ export default function Mistakes() {
           <button
             onClick={() => setTab('all')}
             className={clsx(
-              'relative z-10 flex-1 h-8 rounded-md text-xs font-medium transition-colors',
+              'relative z-10 flex-1 h-8 rounded-md text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring',
               tab === 'all' ? 'text-foreground' : 'text-muted-foreground',
             )}
           >
@@ -285,7 +285,7 @@ export default function Mistakes() {
           <button
             onClick={() => setTab('byKP')}
             className={clsx(
-              'relative z-10 flex-1 h-8 rounded-md text-xs font-medium transition-colors',
+              'relative z-10 flex-1 h-8 rounded-md text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring',
               tab === 'byKP' ? 'text-foreground' : 'text-muted-foreground',
             )}
           >

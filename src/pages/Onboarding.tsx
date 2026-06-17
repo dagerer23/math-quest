@@ -195,7 +195,7 @@ export default function Onboarding() {
                   key={stage.id}
                   onClick={() => handleStageChange(stage.id as LearningStage)}
                   className={clsx(
-                    'p-4 rounded-2xl border-2 transition-all text-left',
+                    'p-4 rounded-2xl border-2 transition-[border-color,background-color,transform] duration-200 text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                     form.stage === stage.id
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:border-gray-300 bg-white',
@@ -217,7 +217,7 @@ export default function Onboarding() {
                   key={goal.id}
                   onClick={() => setForm(f => ({ ...f, goal: goal.id as LearningGoal }))}
                   className={clsx(
-                    'w-full p-4 rounded-2xl border-2 transition-all text-left flex items-center gap-4',
+                    'w-full p-4 rounded-2xl border-2 transition-[border-color,background-color,transform] duration-200 text-left flex items-center gap-4 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                     form.goal === goal.id
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:border-gray-300 bg-white',
@@ -254,7 +254,7 @@ export default function Onboarding() {
                     key={grade}
                     onClick={() => setForm(f => ({ ...f, grade }))}
                     className={clsx(
-                      'h-20 rounded-2xl border-2 transition-all flex items-center justify-center font-bold text-lg',
+                      'h-20 rounded-2xl border-2 transition-[border-color,background-color,color,transform] duration-200 flex items-center justify-center font-bold text-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                       form.grade === grade
                         ? 'border-primary bg-primary/5 text-primary'
                         : 'border-border hover:border-gray-300 bg-white text-muted-foreground',
@@ -278,7 +278,7 @@ export default function Onboarding() {
                       key={avatar}
                       onClick={() => setForm(f => ({ ...f, avatar }))}
                       className={clsx(
-                        'w-14 h-14 rounded-2xl border-2 transition-all text-2xl flex items-center justify-center',
+                        'w-14 h-14 rounded-2xl border-2 transition-[border-color,background-color,transform] duration-200 text-2xl flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                         form.avatar === avatar
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-gray-300 bg-white',
@@ -297,7 +297,7 @@ export default function Onboarding() {
                   onChange={(e) => setForm(f => ({ ...f, nickname: e.target.value }))}
                   placeholder="输入2-10个字的昵称"
                   maxLength={10}
-                  className="w-full h-14 px-4 rounded-2xl border-2 border-border focus:border-primary focus:outline-none transition-all text-foreground font-medium"
+                  className="w-full h-14 px-4 rounded-2xl border-2 border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-[border-color,background-color] duration-200 text-foreground font-medium"
                 />
                 {form.nickname.trim().length > 0 && form.nickname.trim().length < 2 && (
                   <p className="text-destructive text-xs mt-2">昵称至少需要2个字</p>

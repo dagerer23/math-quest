@@ -122,7 +122,7 @@ export function LevelNode({
         onClick={onClick}
         disabled={!isUnlocked}
         aria-label={`第${index + 1}关 ${level.chapter} ${isCompleted ? '已完成' : isCurrent ? '进行中' : isUnlocked ? '未完成' : '未解锁'}`}
-        className={clsx('flex flex-col items-center', isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed')}
+        className={clsx('flex flex-col items-center focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full', isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed')}
       >
         {/* 当前关卡：箭头图标标记 */}
         {isCurrent && (

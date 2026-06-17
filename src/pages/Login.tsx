@@ -285,7 +285,7 @@ export default function Login() {
                 <div className="pt-2">
                   <button
                     onClick={() => setShowOther((v) => !v)}
-                    className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors w-full py-2"
+                    className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors w-full py-2 focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
                   >
                     <span>其他方式登录</span>
                     {showOther ? <ChevronUp size={14} /> : <ChevronDown size={14} />}

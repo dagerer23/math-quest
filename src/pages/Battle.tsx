@@ -237,7 +237,7 @@ export default function Battle() {
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowExitConfirm(true)}
             aria-label="退出答题"
-            className="w-11 h-11 rounded-xl bg-white/80 shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="w-11 h-11 rounded-xl bg-white/80 shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             style={{ border: `1px solid ${theme.accentSoft}` }}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -453,7 +453,7 @@ export default function Battle() {
                     disabled={!!feedback}
                     aria-label={`选项 ${opt}`}
                     className={clsx(
-                      'h-14 rounded-xl text-lg font-bold transition-[transform,box-shadow,background-color] duration-200',
+                      'h-14 rounded-xl text-lg font-bold transition-[transform,box-shadow,background-color] duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                       'flex items-center justify-center relative',
                       showCorrect && 'animate-correct-pulse',
                       showCorrectHighlight && 'animate-correct-highlight-pulse',

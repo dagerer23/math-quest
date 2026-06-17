@@ -24,7 +24,7 @@ export default function BottomNav() {
                 aria-label={it.label}
                 className={({ isActive }) =>
                   clsx(
-                    'flex flex-col items-center gap-1 py-1.5 px-2 transition-all',
+                    'flex flex-col items-center gap-1 py-1.5 px-2 transition-[color,transform] duration-200 focus-visible:ring-2 focus-visible:ring-ring rounded-xl',
                     isActive ? 'text-duolingo-green' : 'text-gray-400',
                   )
                 }

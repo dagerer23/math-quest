@@ -193,7 +193,7 @@ export default function Profile() {
                 <div className="relative flex-shrink-0">
                   <button
                     onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                    className="rounded-full border-2 overflow-hidden hover:border-primary/50 hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-all"
+                    className="rounded-full border-2 overflow-hidden hover:border-primary/50 hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-[transform,border-color] duration-200"
                     style={{ borderColor: getAvatarBorderColor(user.profile.nickname || '用户') }}
                   >
                     <div className="size-14">
@@ -224,7 +224,7 @@ export default function Profile() {
                               key={seed}
                               onClick={() => handleSelectAvatar(seed)}
                               className={clsx(
-                                'aspect-square rounded-xl overflow-hidden transition-all focus-visible:ring-2 focus-visible:ring-ring',
+                                'aspect-square rounded-xl overflow-hidden transition-[opacity,transform] duration-200 focus-visible:ring-2 focus-visible:ring-ring',
                                 user.profile.avatar === seed
                                   ? 'ring-2 ring-primary'
                                   : 'hover:opacity-80',
@@ -411,7 +411,7 @@ export default function Profile() {
                         : { delay: 0.25 + idx * 0.02 }
                       }
                       className={clsx(
-                        'aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all',
+                        'aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 transition-[background-color,border-color,opacity,filter] duration-200',
                         unlocked
                           ? 'bg-primary/10 border border-primary/20'
                           : 'bg-muted border border-border opacity-40 grayscale',
@@ -600,7 +600,7 @@ export default function Profile() {
         >
           <Button
             variant="outline"
-            className="w-full h-11 rounded-2xl justify-center gap-2 text-sm font-medium hover:border-destructive hover:text-destructive transition-all"
+            className="w-full h-11 rounded-2xl justify-center gap-2 text-sm font-medium hover:border-destructive hover:text-destructive transition-[color,border-color,background-color] duration-200"
             onClick={() => setShowLogoutConfirm(true)}
           >
             <LogOut size={15} /> 退出登录
@@ -779,7 +779,7 @@ function QuickAction({ icon, label, iconBg, iconColor, onClick }: {
     <motion.button
       onClick={onClick}
       whileTap={{ scale: 0.95 }}
-      className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-card shadow-sm border border-border hover:shadow-md transition-all"
+      className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-card shadow-sm border border-border hover:shadow-md transition-[box-shadow,transform] duration-200"
     >
       <div className={clsx('size-8 rounded-[10px] grid place-items-center', iconBg || 'bg-[#E0F4FF]', iconColor || 'text-[#1CB0F6]')}>
         {icon}
