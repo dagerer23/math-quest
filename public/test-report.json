@@ -1,0 +1,394 @@
+{
+  "style_issues": [
+    {
+      "page": "home",
+      "severity": "medium",
+      "description": "文字重叠: \"🦁测试同学Lv.167532012已签\" 与 \"5/53201201100 以内加减法3 ★ 通关02乘法口诀与厘米米2 ★ 通\" 重叠面积 19875px"
+    },
+    {
+      "page": "home",
+      "severity": "medium",
+      "description": "文字重叠: \"🦁测试同学Lv.167532012已签\" 与 \"5/53201201100 以内加减法3 ★ 通关02乘法口诀与厘米米2 ★ 通\" 重叠面积 19875px"
+    },
+    {
+      "page": "home",
+      "severity": "medium",
+      "description": "文字重叠: \"🦁测试同学Lv.167532012已签\" 与 \"01100 以内加减法3 ★ 通关02乘法口诀与厘米米2 ★ 通关03混合运算与\" 重叠面积 19875px"
+    },
+    {
+      "page": "home",
+      "severity": "medium",
+      "description": "文字重叠: \"🦁测试同学Lv.167532012已签\" 与 \"01100 以内加减法3 ★ 通关02乘法口诀与厘米米2 ★ 通关03混合运算与\" 重叠面积 18603px"
+    },
+    {
+      "page": "home",
+      "severity": "medium",
+      "description": "文字重叠: \"🦁测试同学Lv.167532012已签\" 与 \"01100 以内加减法3 ★ 通关\" 重叠面积 4028px"
+    },
+    {
+      "page": "battle",
+      "severity": "medium",
+      "description": "文字重叠: \"🔍关卡不存在返回首页\" 与 \"地图\" 重叠面积 384px"
+    },
+    {
+      "page": "battle",
+      "severity": "medium",
+      "description": "文字重叠: \"🔍关卡不存在返回首页\" 与 \"目标\" 重叠面积 384px"
+    },
+    {
+      "page": "battle",
+      "severity": "medium",
+      "description": "文字重叠: \"🔍关卡不存在返回首页\" 与 \"错题\" 重叠面积 384px"
+    },
+    {
+      "page": "battle",
+      "severity": "medium",
+      "description": "文字重叠: \"🔍关卡不存在返回首页\" 与 \"榜单\" 重叠面积 384px"
+    },
+    {
+      "page": "battle",
+      "severity": "medium",
+      "description": "文字重叠: \"🔍关卡不存在返回首页\" 与 \"我的\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"地图\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"目标\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"错题\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"榜单\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"我的\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位黄金段位LV.41,500 XP距离下一段位0 / 2000\" 与 \"地图\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位黄金段位LV.41,500 XP距离下一段位0 / 2000\" 与 \"目标\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位黄金段位LV.41,500 XP距离下一段位0 / 2000\" 与 \"错题\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位黄金段位LV.41,500 XP距离下一段位0 / 2000\" 与 \"榜单\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位黄金段位LV.41,500 XP距离下一段位0 / 2000\" 与 \"我的\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"地图\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"目标\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"错题\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"榜单\" 重叠面积 384px"
+    },
+    {
+      "page": "mistakes-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"错题本0 题全部错题按知识点太棒了，没有错题！继续挑战更多关卡吧\" 与 \"我的\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位青铜段位LV.10 XP距离下一段位0 / 500 XP加入\" 与 \"地图\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位青铜段位LV.10 XP距离下一段位0 / 500 XP加入\" 与 \"目标\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位青铜段位LV.10 XP距离下一段位0 / 500 XP加入\" 与 \"错题\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位青铜段位LV.10 XP距离下一段位0 / 500 XP加入\" 与 \"榜单\" 重叠面积 384px"
+    },
+    {
+      "page": "leaderboard-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"巅峰榜单同学总榜段位青铜段位LV.10 XP距离下一段位0 / 500 XP加入\" 与 \"我的\" 重叠面积 384px"
+    },
+    {
+      "page": "home-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"5/5805015 以内加减法进行中 · 10题0210 以内加减法10题032\" 与 \"地图\" 重叠面积 384px"
+    },
+    {
+      "page": "home-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"5/5805015 以内加减法进行中 · 10题0210 以内加减法10题032\" 与 \"目标\" 重叠面积 384px"
+    },
+    {
+      "page": "home-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"5/5805015 以内加减法进行中 · 10题0210 以内加减法10题032\" 与 \"错题\" 重叠面积 384px"
+    },
+    {
+      "page": "home-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"5/5805015 以内加减法进行中 · 10题0210 以内加减法10题032\" 与 \"榜单\" 重叠面积 384px"
+    },
+    {
+      "page": "home-empty",
+      "severity": "medium",
+      "description": "文字重叠: \"5/5805015 以内加减法进行中 · 10题0210 以内加减法10题032\" 与 \"我的\" 重叠面积 384px"
+    },
+    {
+      "page": "admin-dashboard",
+      "severity": "medium",
+      "description": "文字重叠: \"用户端\" 与 \"加载仪表盘数据失败\" 重叠面积 4200px"
+    },
+    {
+      "page": "admin-dashboard",
+      "severity": "medium",
+      "description": "文字重叠: \"人\" 与 \"加载仪表盘数据失败\" 重叠面积 216px"
+    },
+    {
+      "page": "admin-dashboard",
+      "severity": "medium",
+      "description": "文字重叠: \"题\" 与 \"加载仪表盘数据失败\" 重叠面积 216px"
+    },
+    {
+      "page": "admin-dashboard",
+      "severity": "medium",
+      "description": "文字重叠: \"人\" 与 \"加载仪表盘数据失败\" 重叠面积 216px"
+    },
+    {
+      "page": "admin-dashboard",
+      "severity": "medium",
+      "description": "文字重叠: \"%\" 与 \"加载仪表盘数据失败\" 重叠面积 360px"
+    },
+    {
+      "page": "admin-questions",
+      "severity": "medium",
+      "description": "文字重叠: \"后台题库管理\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 2496px"
+    },
+    {
+      "page": "admin-questions",
+      "severity": "medium",
+      "description": "文字重叠: \"后台\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 768px"
+    },
+    {
+      "page": "admin-questions",
+      "severity": "medium",
+      "description": "文字重叠: \"题库管理\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 1536px"
+    },
+    {
+      "page": "admin-questions",
+      "severity": "medium",
+      "description": "文字重叠: \"用户端\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 4200px"
+    },
+    {
+      "page": "admin-questions",
+      "severity": "medium",
+      "description": "文字重叠: \"刷新\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 3575px"
+    },
+    {
+      "page": "admin-import",
+      "severity": "medium",
+      "description": "文字重叠: \"用户端\" 与 \"加载历史记录失败\" 重叠面积 3150px"
+    },
+    {
+      "page": "admin-import",
+      "severity": "medium",
+      "description": "文字重叠: \"导出与模板\" 与 \"加载历史记录失败\" 重叠面积 5207px"
+    },
+    {
+      "page": "admin-import",
+      "severity": "medium",
+      "description": "文字重叠: \"导入题目\" 与 \"加载历史记录失败\" 重叠面积 8636px"
+    },
+    {
+      "page": "admin-import",
+      "severity": "medium",
+      "description": "文字重叠: \"导出全量题库一键导出数据库中所有关卡和题目为 JSON 格式，可用于备份或迁移到\" 与 \"加载历史记录失败\" 重叠面积 21850px"
+    },
+    {
+      "page": "admin-import",
+      "severity": "medium",
+      "description": "文字重叠: \"Excel 导入模板下载 CSV 模板，按格式填写后导入。注意：当前仅支持 JS\" 与 \"加载历史记录失败\" 重叠面积 20672px"
+    },
+    {
+      "page": "admin-config",
+      "severity": "medium",
+      "description": "文字重叠: \"后台系统配置\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 2496px"
+    },
+    {
+      "page": "admin-config",
+      "severity": "medium",
+      "description": "文字重叠: \"后台\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 768px"
+    },
+    {
+      "page": "admin-config",
+      "severity": "medium",
+      "description": "文字重叠: \"系统配置\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 1536px"
+    },
+    {
+      "page": "admin-config",
+      "severity": "medium",
+      "description": "文字重叠: \"用户端\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 4200px"
+    },
+    {
+      "page": "admin-config",
+      "severity": "medium",
+      "description": "文字重叠: \"撤销修改\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 6298px"
+    },
+    {
+      "page": "admin-accounts",
+      "severity": "medium",
+      "description": "文字重叠: \"后台账号管理\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 2496px"
+    },
+    {
+      "page": "admin-accounts",
+      "severity": "medium",
+      "description": "文字重叠: \"后台\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 768px"
+    },
+    {
+      "page": "admin-accounts",
+      "severity": "medium",
+      "description": "文字重叠: \"账号管理\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 1536px"
+    },
+    {
+      "page": "admin-accounts",
+      "severity": "medium",
+      "description": "文字重叠: \"用户端\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 4200px"
+    },
+    {
+      "page": "admin-accounts",
+      "severity": "medium",
+      "description": "文字重叠: \"新增账号\" 与 \"HTTP 429: {\"success\":false,\"message\":\"请求\" 重叠面积 6298px"
+    },
+    {
+      "page": "edge-extreme",
+      "severity": "medium",
+      "description": "文字重叠: \"999\" 与 \"0999999999999签到\" 重叠面积 319px"
+    },
+    {
+      "page": "edge-extreme",
+      "severity": "medium",
+      "description": "文字重叠: \"999\" 与 \"0\" 重叠面积 273px"
+    },
+    {
+      "page": "edge-extreme",
+      "severity": "medium",
+      "description": "文字重叠: \"999\" 与 \"0\" 重叠面积 46px"
+    },
+    {
+      "page": "edge-extreme",
+      "severity": "medium",
+      "description": "超长昵称溢出: \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...\" scrollWidth=800 > clientWidth=49"
+    }
+  ],
+  "ui_defects": [
+    {
+      "page": "mistakes",
+      "severity": "medium",
+      "description": "小按钮缺少 aria-label: \"\""
+    },
+    {
+      "page": "daily-goals",
+      "severity": "low",
+      "description": "每日目标页未找到签到入口"
+    },
+    {
+      "page": "stats",
+      "severity": "medium",
+      "description": "小按钮缺少 aria-label: \"\""
+    }
+  ],
+  "functional_bugs": [
+    {
+      "page": "battle",
+      "severity": "high",
+      "description": "答题页面显示\"关卡不存在\"，可能后端未返回题目数据"
+    },
+    {
+      "page": "edge-zero-hearts",
+      "severity": "medium",
+      "description": "0 心数测试时关卡不存在，可能后端未返回题目"
+    }
+  ],
+  "unimplemented": [],
+  "console_errors": [],
+  "screenshots": [
+    "/workspace/public/comprehensive-test/01_login_default.png",
+    "/workspace/public/comprehensive-test/02_verify_code.png",
+    "/workspace/public/comprehensive-test/03_agreement.png",
+    "/workspace/public/comprehensive-test/04_guest_onboarding.png",
+    "/workspace/public/comprehensive-test/05_onboarding_step1.png",
+    "/workspace/public/comprehensive-test/06_onboarding_step2.png",
+    "/workspace/public/comprehensive-test/07_assessment.png",
+    "/workspace/public/comprehensive-test/08_home.png",
+    "/workspace/public/comprehensive-test/09_battle.png",
+    "/workspace/public/comprehensive-test/10_mistakes.png",
+    "/workspace/public/comprehensive-test/11_leaderboard.png",
+    "/workspace/public/comprehensive-test/12_profile.png",
+    "/workspace/public/comprehensive-test/13_daily_goals.png",
+    "/workspace/public/comprehensive-test/14_stats.png",
+    "/workspace/public/comprehensive-test/15_mistakes_empty.png",
+    "/workspace/public/comprehensive-test/16_leaderboard_empty.png",
+    "/workspace/public/comprehensive-test/17_stats_empty.png",
+    "/workspace/public/comprehensive-test/18_daily_goals_empty.png",
+    "/workspace/public/comprehensive-test/19_profile_empty.png",
+    "/workspace/public/comprehensive-test/20_home_empty.png",
+    "/workspace/public/comprehensive-test/21_home_tab_focus.png",
+    "/workspace/public/comprehensive-test/22_nav_1.png",
+    "/workspace/public/comprehensive-test/22_nav_2.png",
+    "/workspace/public/comprehensive-test/22_nav_3.png",
+    "/workspace/public/comprehensive-test/22_nav_4.png",
+    "/workspace/public/comprehensive-test/22_nav_5.png",
+    "/workspace/public/comprehensive-test/23_admin_login.png",
+    "/workspace/public/comprehensive-test/24_admin_dashboard.png",
+    "/workspace/public/comprehensive-test/25_admin_questions.png",
+    "/workspace/public/comprehensive-test/26_admin_analytics.png",
+    "/workspace/public/comprehensive-test/27_admin_import.png",
+    "/workspace/public/comprehensive-test/28_admin_config.png",
+    "/workspace/public/comprehensive-test/29_admin_accounts.png",
+    "/workspace/public/comprehensive-test/30_404_page.png",
+    "/workspace/public/comprehensive-test/31_no_storage.png",
+    "/workspace/public/comprehensive-test/32_extreme_profile.png",
+    "/workspace/public/comprehensive-test/33_zero_hearts_battle.png"
+  ]
+}
