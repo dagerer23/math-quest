@@ -5,13 +5,25 @@ export default defineAppConfig({
     'pages/daily-goals/index',
     'pages/mistakes/index',
     'pages/leaderboard/index',
-    'pages/profile/index',
-    'pages/assessment/index',
-    'pages/battle/index',
-    'pages/result/index',
-    'pages/onboarding/index',
-    'pages/agreement/index',
-    'pages/stats/index'
+    'pages/profile/index'
+  ],
+  subPackages: [
+    {
+      root: 'pages-game',
+      pages: [
+        'assessment/index',
+        'battle/index',
+        'result/index'
+      ]
+    },
+    {
+      root: 'pages-extra',
+      pages: [
+        'onboarding/index',
+        'agreement/index',
+        'stats/index'
+      ]
+    }
   ],
   window: {
     backgroundTextStyle: 'light',

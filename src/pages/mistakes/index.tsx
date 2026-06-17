@@ -52,7 +52,7 @@ export default function MistakesPage() {
                 <Button size="sm" variant="outline" onClick={() => {
                   ;(Taro as any).currentLevel = { id: 'mistake-review', grade: 1, title: '错题复习', sortOrder: 0 }
                   ;(Taro as any).currentQuestions = [q]
-                  Taro.navigateTo({ url: '/pages/assessment/index' })
+                  Taro.navigateTo({ url: '/pages-game/assessment/index' })
                 }}>再练一次</Button>
               </Col>
             </Row>

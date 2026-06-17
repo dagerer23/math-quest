@@ -36,7 +36,7 @@ export default function HomePage() {
     }
     ;(Taro as any).currentLevel = level
     ;(Taro as any).currentQuestions = qs
-    Taro.navigateTo({ url: '/pages/assessment/index' })
+    Taro.navigateTo({ url: '/pages-game/assessment/index' })
   }
 
   return (
