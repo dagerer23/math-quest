@@ -1,0 +1,1200 @@
+{
+  "login": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "agreement": {
+    "pageWidth": 390,
+    "pageHeight": 1857,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "alignment_issue",
+        "parent": "<BUTTON> class=\"flex items-center gap-1.5 text-muted-foreground hover:text-f\"",
+        "child": "<svg> class=\"undefined\"",
+        "leftMargin": 0,
+        "rightMargin": 34,
+        "diff": 34
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<BUTTON> class=\"flex items-center gap-1.5 text-muted-foreground hover:text-f\"",
+        "child": "<SPAN> class=\"text-sm\"",
+        "leftMargin": 24,
+        "rightMargin": 0,
+        "diff": 24
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "返回",
+        "width": 52,
+        "height": 20
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 88,
+        "height": 36
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 88,
+        "height": 36
+      }
+    ]
+  },
+  "admin-login": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": []
+  },
+  "home": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "onboarding": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "assessment": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "assessment-result": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "mistakes": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "leaderboard": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "profile": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "daily-goals": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "stats": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "battle": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "result": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  },
+  "verify-code": {
+    "pageWidth": 390,
+    "pageHeight": 844,
+    "viewportWidth": 390,
+    "viewportHeight": 844,
+    "hasHorizontalScroll": false,
+    "issues": [
+      {
+        "type": "text_overlap",
+        "element1": "<DIV> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 266.5,
+          "w": 32,
+          "h": 56
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "text_overlap",
+        "element1": "<SPAN> \"+86\"",
+        "element2": "<DIV> \"请输入手机号\"",
+        "rect1": {
+          "x": 51,
+          "y": 284.5,
+          "w": 24,
+          "h": 20
+        },
+        "rect2": {
+          "x": 35,
+          "y": 266.5,
+          "w": 320,
+          "h": 56
+        }
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"absolute inset-y-0 left-4 flex items-center gap-2 pointer-ev\"",
+        "child": "<SPAN> class=\"text-muted-foreground text-sm font-medium\"",
+        "leftMargin": 0,
+        "rightMargin": 8,
+        "diff": 8
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 0,
+        "rightMargin": 177,
+        "diff": 177
+      },
+      {
+        "type": "alignment_issue",
+        "parent": "<DIV> class=\"flex items-center gap-3 py-1 mb-2\"",
+        "child": "<DIV> class=\"bg-border data-horizontal:h-px data-horizontal:w-full data-v\"",
+        "leftMargin": 177,
+        "rightMargin": 0,
+        "diff": 177
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "游客模式体验",
+        "width": 320,
+        "height": 32
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "用户协议",
+        "width": 40,
+        "height": 15
+      },
+      {
+        "type": "small_touch_target",
+        "tag": "BUTTON",
+        "text": "隐私政策",
+        "width": 40,
+        "height": 15
+      }
+    ]
+  }
+}
