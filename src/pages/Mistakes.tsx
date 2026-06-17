@@ -221,9 +221,9 @@ export default function Mistakes() {
                       e.stopPropagation()
                       clearMistake(item.q.id)
                     }}
-                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors py-1"
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors py-2 px-3"
                   >
-                    <Trash2 size={12} />
+                    <Trash2 size={14} />
                     移出错题本
                   </button>
                 </div>
@@ -351,7 +351,7 @@ export default function Mistakes() {
                     <div className="flex items-center gap-2">
                       <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-500 bg-primary"
+                          className="h-full rounded-full transition-[width] duration-500 bg-primary"
                           style={{ width: `${pct}%` }}
                         />
                       </div>

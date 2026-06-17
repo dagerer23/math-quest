@@ -74,6 +74,7 @@ export default function StatusBar() {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setPopup('hearts')}
+            aria-label={`心数: ${user.hearts}`}
             className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform"
             style={{ background: 'linear-gradient(135deg, #FFF0F0, #FFE8E8)' }}
           >
@@ -82,6 +83,7 @@ export default function StatusBar() {
           </button>
           <button
             onClick={() => setPopup('coins')}
+            aria-label={`金币: ${user.coins}`}
             className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform"
             style={{ background: 'linear-gradient(135deg, #FFF8EB, #FFEDC8)' }}
           >
@@ -90,6 +92,7 @@ export default function StatusBar() {
           </button>
           <button
             onClick={() => setPopup('diamonds')}
+            aria-label={`钻石: ${user.diamonds}`}
             className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform"
             style={{ background: 'linear-gradient(135deg, #EEF3FF, #DDE8FF)' }}
           >

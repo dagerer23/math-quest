@@ -178,7 +178,7 @@ export default function Assessment() {
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-primary transition-all duration-300"
+                  className="h-full bg-primary transition-[width] duration-300"
                   style={{ width: `${((currentIndex + (feedback ? 1 : 0)) / questions.length) * 100}%` }}
                 />
               </div>
@@ -241,7 +241,7 @@ export default function Assessment() {
                         onClick={() => handleSelectOption(option)}
                         disabled={showResult}
                         className={clsx(
-                          'h-16 rounded-2xl font-bold text-lg transition-all',
+                          'h-16 rounded-2xl font-bold text-lg transition-[background-color,border-color,transform]',
                           showResult ? (
                             isCorrectAnswer
                               ? 'bg-primary text-primary-foreground'
@@ -264,12 +264,14 @@ export default function Assessment() {
                 <div className="mb-4">
                   <input
                     type="number"
+                    inputMode="numeric"
+                    autoComplete="off"
                     value={inputAnswer}
                     onChange={(e) => setInputAnswer(e.target.value)}
                     disabled={feedback !== null}
                     placeholder="输入答案"
                     className={clsx(
-                      'w-full h-16 px-4 rounded-2xl font-bold text-xl text-center transition-all',
+                      'w-full h-16 px-4 rounded-2xl font-bold text-xl text-center transition-[background-color,border-color,color]',
                       feedback ? (
                         feedback === 'correct'
                           ? 'bg-primary text-primary-foreground'

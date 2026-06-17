@@ -241,14 +241,14 @@ export default function DailyGoals() {
                         <span className="text-muted-foreground">
                           进度 {progress}/{goal.target}
                         </span>
-                        <span className="text-primary font-medium flex items-center gap-1">
+                        <span className="text-primary font-medium flex items-center gap-1 whitespace-nowrap text-[10px]">
                           <Trophy size={12} />
                           +{goal.reward.xp} XP · +{goal.reward.coins} 金币
                         </span>
                       </div>
 
                       <Progress value={Math.min((progress / goal.target) * 100, 100)}>
-                        <ProgressTrack className="h-2">
+                        <ProgressTrack className="h-1">
                           <motion.div
                             className={`h-full rounded-full ${completed ? 'bg-primary' : 'bg-muted-foreground/50'}`}
                             initial={{ width: 0 }}

@@ -249,6 +249,7 @@ export default function Profile() {
                         className="text-sm flex-1"
                         maxLength={10}
                         placeholder="输入昵称"
+                        aria-label="昵称"
                         autoFocus
                       />
                       <Button
@@ -267,8 +268,8 @@ export default function Profile() {
                   ) : (
                     <div className="flex items-center gap-1.5">
                       <h2 className="font-bold text-base text-foreground truncate">{user.profile.nickname}</h2>
-                      <button onClick={() => setEditing(true)} className="p-0.5 rounded text-muted-foreground hover:text-foreground transition-colors">
-                        <Edit2 size={12} />
+                      <button onClick={() => setEditing(true)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors" aria-label="编辑昵称">
+                        <Edit2 size={14} />
                       </button>
                     </div>
                   )}
@@ -421,7 +422,7 @@ export default function Profile() {
                         {a.icon}
                       </span>
                       <span className={clsx(
-                        'text-[9px] font-medium leading-none text-center px-0.5',
+                        'text-[9px] font-medium leading-none text-center px-0.5 min-h-[1.25rem]',
                         unlocked ? 'text-foreground' : 'text-muted-foreground',
                       )}>
                         {a.name.slice(0, 4)}

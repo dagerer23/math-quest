@@ -182,7 +182,7 @@ export default function AssessmentResult() {
           <Trophy size={18} className="text-duolingo-gold" />
           <div className="font-bold text-foreground text-sm">奖励</div>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center gap-4">
           <div className="flex items-center gap-2 text-sm">
             <span className="font-bold text-duolingo-purple">{assessmentRewardXp} XP</span>
             <span className="text-muted-foreground">+</span>

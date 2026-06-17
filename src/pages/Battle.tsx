@@ -161,7 +161,7 @@ export default function Battle() {
         <p className="font-medium">未找到答题会话</p>
         <button
           onClick={() => navigate('/', { replace: true })}
-          className="px-6 py-2.5 rounded-2xl text-sm font-bold text-primary-foreground bg-primary shadow-md active:translate-y-[1px] transition-all"
+          className="px-6 py-2.5 rounded-2xl text-sm font-bold text-primary-foreground bg-primary shadow-md active:translate-y-[1px] transition-[transform,box-shadow]"
         >
           返回首页
         </button>
@@ -237,10 +237,10 @@ export default function Battle() {
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowExitConfirm(true)}
             aria-label="退出答题"
-            className="w-10 h-10 rounded-xl bg-white/80 shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="w-11 h-11 rounded-xl bg-white/80 shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             style={{ border: `1px solid ${theme.accentSoft}` }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </motion.button>
@@ -256,7 +256,7 @@ export default function Battle() {
                 transition={{ type: 'spring', stiffness: 200, damping: 20 }}
               />
             </div>
-            <span className="text-sm font-bold" style={{ color: theme.accent }}>
+            <span className="text-sm font-bold leading-none" style={{ color: theme.accent }}>
               {sessionIndex + 1}/{total}
             </span>
           </div>
@@ -340,7 +340,7 @@ export default function Battle() {
             exit={{ opacity: 0, scale: 0.96, y: -15 }}
             transition={{ type: 'spring', stiffness: 280, damping: 22 }}
             className={clsx(
-              'relative rounded-2xl p-6 min-h-[180px] flex flex-col items-center justify-center text-center shadow-lg',
+              'relative rounded-2xl p-6 min-h-[140px] flex flex-col items-center justify-center text-center shadow-lg',
               feedback === 'wrong' && 'animate-shake',
             )}
             style={{
@@ -378,7 +378,9 @@ export default function Battle() {
 
             {/* 粒子效果 + 连击数字 */}
             <ParticleBurst trigger={showParticle} color={theme.accent} />
-            <ComboNumber value={sessionCombo} show={feedback === 'correct'} />
+            <div className="pointer-events-none">
+              <ComboNumber value={sessionCombo} show={feedback === 'correct'} />
+            </div>
           </motion.div>
         </AnimatePresence>
 
@@ -451,7 +453,7 @@ export default function Battle() {
                     disabled={!!feedback}
                     aria-label={`选项 ${opt}`}
                     className={clsx(
-                      'h-14 rounded-xl text-lg font-bold transition-all duration-200',
+                      'h-14 rounded-xl text-lg font-bold transition-[transform,box-shadow,background-color] duration-200',
                       'flex items-center justify-center relative',
                       showCorrect && 'animate-correct-pulse',
                       showCorrectHighlight && 'animate-correct-highlight-pulse',
@@ -522,7 +524,7 @@ export default function Battle() {
                   whileTap={selectedOption && !feedback ? { scale: 0.98 } : {}}
                   onClick={() => handleSubmit()}
                   disabled={!selectedOption || !!feedback}
-                  className="w-full h-14 rounded-xl font-bold text-white text-base transition-all duration-200"
+                  className="w-full h-14 rounded-xl font-bold text-white text-base transition-[transform,background-color] duration-200"
                   style={{
                     background: selectedOption && !feedback
                       ? `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent} 100%)`
@@ -578,7 +580,7 @@ export default function Battle() {
                   whileTap={inputValue && !feedback ? { scale: 0.98 } : {}}
                   onClick={() => handleSubmit()}
                   disabled={!inputValue || !!feedback}
-                  className="w-full h-14 rounded-xl font-bold text-white text-base transition-all duration-200"
+                  className="w-full h-14 rounded-xl font-bold text-white text-base transition-[transform,background-color] duration-200"
                   style={{
                     background: inputValue && !feedback
                       ? `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent} 100%)`

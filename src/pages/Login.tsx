@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
 import { ChevronDown, ChevronUp } from 'lucide-react'
@@ -86,7 +86,7 @@ function OneClickLoginCard({
       onClick={onClick}
       disabled={loading || disabled}
       className={[
-        'w-full py-4 rounded-2xl flex items-center gap-4 px-5 border-2 transition-all active:scale-[0.99]',
+        'w-full py-4 rounded-2xl flex items-center gap-4 px-5 border-2 transition-[background-color,border-color,transform] active:scale-[0.99]',
         disabled || loading
           ? 'bg-muted border-border text-muted-foreground'
           : 'bg-primary/5 border-primary/30 text-primary hover:bg-primary/10',
@@ -136,15 +136,10 @@ function PhoneInput({
         value={value}
         onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 11))}
         onKeyDown={(e) => { if (e.key === 'Enter') onEnter() }}
+        placeholder="请输入手机号"
         className="w-full h-14 pl-[88px] pr-4 rounded-2xl border-2 border-border bg-background focus:border-primary text-foreground font-medium text-base text-left"
         autoComplete="tel"
       />
-      {/* 居中的 placeholder 覆盖层 */}
-      {!value && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-muted-foreground/50 text-base font-medium">请输入手机号</span>
-        </div>
-      )}
     </div>
   )
 }
@@ -307,11 +302,11 @@ export default function Login() {
                       >
                         <div className="pt-4 flex flex-col gap-4">
                           <div className="flex items-center gap-3 py-1">
-                            <Separator className="flex-1" />
+                            <Separator className="flex-1 h-px" />
                             <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                               手机号验证码登录
                             </span>
-                            <Separator className="flex-1" />
+                            <Separator className="flex-1 h-px" />
                           </div>
 
                           <PhoneInput
@@ -393,14 +388,14 @@ export default function Login() {
             {/* ── 底部：游客登录 ── */}
             <div className="pt-4 mt-2">
               <div className="flex items-center gap-3 py-1 mb-2">
-                <Separator className="flex-1" />
+                <Separator className="flex-1 h-px" />
                 <span className="text-[10px] text-muted-foreground uppercase tracking-wider">或</span>
-                <Separator className="flex-1" />
+                <Separator className="flex-1 h-px" />
               </div>
               <Button
                 variant="ghost"
                 onClick={handleGuestLogin}
-                className="w-full py-3 text-xs text-muted-foreground hover:text-foreground"
+                className="w-full h-11 text-xs text-muted-foreground hover:text-foreground"
               >
                 游客模式体验
               </Button>
@@ -415,13 +410,9 @@ export default function Login() {
           >
             <p className="text-[10px] text-muted-foreground">
               登录即同意
-              <button onClick={() => navigate('/agreement')} className="text-muted-foreground hover:text-foreground transition-colors mx-0.5">
-                用户协议
-              </button>
+              <Link to="/agreement" className="text-muted-foreground hover:text-foreground transition-colors mx-0.5 min-h-[44px] inline-flex items-center">用户协议</Link>
               和
-              <button onClick={() => navigate('/agreement?tab=privacy')} className="text-muted-foreground hover:text-foreground transition-colors mx-0.5">
-                隐私政策
-              </button>
+              <Link to="/agreement?tab=privacy" className="text-muted-foreground hover:text-foreground transition-colors mx-0.5 min-h-[44px] inline-flex items-center">隐私政策</Link>
               <br />
               <span className="text-[9px] mt-1 inline-block">测试验证码：123456</span>
             </p>

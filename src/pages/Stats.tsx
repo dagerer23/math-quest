@@ -110,8 +110,8 @@ export default function Stats() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <Card className="p-3 text-center">
-                <CardContent className="p-0">
+              <Card className="p-3 text-center h-full">
+                <CardContent className="p-0 flex flex-col justify-between h-full">
                   <div className={`inline-flex items-center justify-center size-8 rounded-[10px] mb-2 ${card.iconBg} ${card.iconColor}`}>
                     {card.icon}
                   </div>
@@ -191,8 +191,8 @@ export default function Stats() {
                       <span className={`text-xs font-bold ${masteryColor}`}>{pct}%</span>
                     </div>
                     <Progress value={pct}>
-                      <ProgressTrack className="h-2">
-                        <ProgressIndicator className={`${barColor} transition-all duration-500`} />
+                      <ProgressTrack className="h-1.5">
+                        <ProgressIndicator className={`${barColor} transition-[width] duration-500`} />
                       </ProgressTrack>
                     </Progress>
                   </div>

@@ -161,7 +161,7 @@ export default function Result() {
         <h1 className="text-lg font-bold text-foreground">结算</h1>
       </div>
 
-      <div className="flex-1 px-4 py-4 flex flex-col gap-4 overflow-y-auto">
+      <div className="flex-1 px-4 py-4 flex flex-col gap-4 overflow-y-auto pb-8">
       {/* 彩纸效果 */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
@@ -199,15 +199,16 @@ export default function Result() {
       >
         <Card className="p-5 text-center relative overflow-hidden">
         {/* 装饰性背景 */}
-        <div className="absolute top-0 left-0 size-20 bg-primary/10 rounded-full -translate-y-1/2 -translate-x-1/2" />
-        <div className="absolute bottom-0 right-0 size-24 bg-primary/10 rounded-full translate-y-1/2 translate-x-1/2" />
-        <div className="absolute top-8 right-8 text-3xl text-muted-foreground/20">
+        <div className="absolute top-0 left-0 size-20 bg-primary/10 rounded-full -translate-y-1/2 -translate-x-1/2 pointer-events-none z-0" />
+        <div className="absolute bottom-0 right-0 size-24 bg-primary/10 rounded-full translate-y-1/2 translate-x-1/2 pointer-events-none z-0" />
+        <div className="absolute top-8 right-8 text-3xl text-muted-foreground/20 pointer-events-none z-0">
           <Star />
         </div>
-        <div className="absolute bottom-12 left-6 text-2xl text-muted-foreground/20">
+        <div className="absolute bottom-12 left-6 text-2xl text-muted-foreground/20 pointer-events-none z-0">
           <Zap />
         </div>
 
+        <div className="relative z-10">
         <div className="text-xs font-bold text-muted-foreground">{level.chapter}</div>
         
         {/* 动态标题 */}
@@ -272,6 +273,7 @@ export default function Result() {
           <RewardBadge icon={<Sparkles size={16} className="text-[#CE82FF]" />} label="XP" value={`+${record.xpGained}`} color="purple" />
           <RewardBadge icon={<Coins size={16} className="text-[#FFC800]" />} label="金币" value={`+${record.coinsGained}`} color="gold" />
           <RewardBadge icon={<Zap size={16} className="text-[#FF4B4B]" />} label="连击" value={`×${record.comboMax}`} color="red" />
+        </div>
         </div>
         </Card>
       </motion.section>
@@ -345,7 +347,7 @@ export default function Result() {
         )}
       </Card>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 mt-2">
         <Button variant="outline" size="lg" onClick={() => navigate('/')}>
           返回首页
         </Button>

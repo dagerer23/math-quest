@@ -483,7 +483,7 @@ export default function Leaderboard() {
                           'p-3 transition-all',
                           isMe ? 'border-primary/30 bg-primary/5' : '',
                         )}>
-                          <div className={clsx('flex items-center gap-3', isMe && 'pl-4')}>
+                          <div className={clsx('flex items-center gap-3 relative', isMe && 'pl-4')}>
                             {isMe && (
                               <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg" />
                             )}
@@ -595,9 +595,9 @@ function Top3Podium({ list }: { list: RankUser[] }) {
 
   // 领奖台顺序：2 1 3
   const positions = [
-    { rank: 2, height: 'h-28', label: '亚军', accent: '#B0B8C4', accentSoft: 'rgba(176,184,196,0.15)', icon: Medal, textColor: '#6B7280', ringColor: 'ring-slate-300' },
-    { rank: 1, height: 'h-36', label: '冠军', accent: '#FFC800', accentSoft: 'rgba(255,200,0,0.2)', icon: Crown, textColor: '#C78A00', ringColor: 'ring-yellow-400' },
-    { rank: 3, height: 'h-24', label: '季军', accent: '#D97706', accentSoft: 'rgba(217,119,6,0.15)', icon: Medal, textColor: '#92400E', ringColor: 'ring-amber-400' },
+    { rank: 2, height: 'min-h-[7rem]', label: '亚军', accent: '#B0B8C4', accentSoft: 'rgba(176,184,196,0.15)', icon: Medal, textColor: '#6B7280', ringColor: 'ring-slate-300' },
+    { rank: 1, height: 'min-h-[9rem]', label: '冠军', accent: '#FFC800', accentSoft: 'rgba(255,200,0,0.2)', icon: Crown, textColor: '#C78A00', ringColor: 'ring-yellow-400' },
+    { rank: 3, height: 'min-h-[6rem]', label: '季军', accent: '#D97706', accentSoft: 'rgba(217,119,6,0.15)', icon: Medal, textColor: '#92400E', ringColor: 'ring-amber-400' },
   ]
 
   return (
@@ -729,7 +729,7 @@ function RankProgressBar({ xp }: { xp: number }) {
           {next ? `${progress.current} / ${progress.target} XP` : '已达最高段位'}
         </span>
       </div>
-      <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+      <div className="relative h-1 bg-muted rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(100, progress.pct * 100)}%` }}

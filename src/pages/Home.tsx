@@ -123,17 +123,17 @@ export default function Home() {
       {/* 顶部资源栏 */}
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF4B4B"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            <span className="text-sm font-bold text-foreground">{user.hearts}/{user.maxHearts}</span>
+            <span className="text-sm font-bold text-foreground tabular-nums">{user.hearts}/{user.maxHearts}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <Coins size={16} className="text-[#FFC800]" />
-            <span className="text-sm font-bold text-foreground">{user.coins}</span>
+            <span className="text-sm font-bold text-foreground tabular-nums">{user.coins}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <Sparkles size={16} className="text-[#1CB0F6]" />
-            <span className="text-sm font-bold text-foreground">{user.diamonds}</span>
+            <span className="text-sm font-bold text-foreground tabular-nums">{user.diamonds}</span>
           </div>
         </div>
       </div>
@@ -235,7 +235,7 @@ export default function Home() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
             className="relative mx-auto"
-            style={{ maxWidth: '420px', height: `${Math.max(640, visibleLevels.length * 140)}px` }}
+            style={{ maxWidth: '420px', minHeight: `${Math.max(640, visibleLevels.length * 140)}px` }}
           >
             {visibleLevels.map((level, i) => {
               if (i >= visibleLevels.length - 1) return null

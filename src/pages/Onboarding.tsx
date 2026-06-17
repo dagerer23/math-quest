@@ -168,14 +168,10 @@ export default function Onboarding() {
             <div
               key={s.id}
               className={clsx(
-                'h-1.5 rounded-full transition-all duration-300',
-                i < stepIndex
-                  ? 'bg-primary'
-                  : i === stepIndex
-                    ? 'bg-primary w-8'
-                    : 'bg-border',
+                'h-1.5 rounded-full transition-colors duration-300',
+                i <= stepIndex ? 'bg-primary' : 'bg-border',
               )}
-              style={{ flex: i === stepIndex ? 0 : 1 }}
+              style={{ flex: 1 }}
             />
           ))}
         </div>

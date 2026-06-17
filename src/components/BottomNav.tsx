@@ -31,7 +31,7 @@ export default function BottomNav() {
               >
                 {({ isActive }) => (
                   <>
-                    <div className={clsx('p-2 rounded-xl transition-all', isActive ? 'bg-duolingo-green/10 scale-110' : '')}>
+                    <div className={clsx('p-2 rounded-xl transition-[transform,background-color] origin-center', isActive ? 'bg-duolingo-green/10 scale-110' : '')}>
                       <Icon size={22} />
                     </div>
                     <span className="text-xs font-bold">{it.label}</span>
