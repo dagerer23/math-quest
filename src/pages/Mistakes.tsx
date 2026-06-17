@@ -247,7 +247,7 @@ export default function Mistakes() {
 
       {/* 头部 */}
       <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
-        <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
+        <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring rounded">
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-lg font-bold text-foreground">错题本</h1>
