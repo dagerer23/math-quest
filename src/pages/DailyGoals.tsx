@@ -131,7 +131,7 @@ export default function DailyGoals() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/')}
-            className="size-10 rounded-xl bg-muted grid place-items-center"
+            className="size-10 rounded-xl bg-muted grid place-items-center focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ArrowLeft size={18} />
           </button>

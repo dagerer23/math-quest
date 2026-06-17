@@ -219,3 +219,16 @@ html, body, #root {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 全局交互元素焦点样式 */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}

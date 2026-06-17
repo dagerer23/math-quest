@@ -193,7 +193,7 @@ export default function Profile() {
                 <div className="relative flex-shrink-0">
                   <button
                     onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                    className="rounded-full border-2 overflow-hidden hover:border-primary/30 transition-colors"
+                    className="rounded-full border-2 overflow-hidden hover:border-primary/50 hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-all"
                     style={{ borderColor: getAvatarBorderColor(user.profile.nickname || '用户') }}
                   >
                     <div className="size-14">
@@ -214,7 +214,7 @@ export default function Profile() {
                       >
                         <div className="flex items-center justify-between mb-2 px-1">
                           <span className="text-xs font-bold text-foreground">选择头像</span>
-                          <button onClick={() => setShowAvatarPicker(false)} className="text-muted-foreground hover:text-foreground">
+                          <button onClick={() => setShowAvatarPicker(false)} className="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring rounded">
                             <X size={14} />
                           </button>
                         </div>
@@ -224,7 +224,7 @@ export default function Profile() {
                               key={seed}
                               onClick={() => handleSelectAvatar(seed)}
                               className={clsx(
-                                'aspect-square rounded-xl overflow-hidden transition-all',
+                                'aspect-square rounded-xl overflow-hidden transition-all focus-visible:ring-2 focus-visible:ring-ring',
                                 user.profile.avatar === seed
                                   ? 'ring-2 ring-primary'
                                   : 'hover:opacity-80',
@@ -268,7 +268,7 @@ export default function Profile() {
                   ) : (
                     <div className="flex items-center gap-1.5">
                       <h2 className="font-bold text-base text-foreground truncate">{user.profile.nickname}</h2>
-                      <button onClick={() => setEditing(true)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors" aria-label="编辑昵称">
+                      <button onClick={() => setEditing(true)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring" aria-label="编辑昵称">
                         <Edit2 size={14} />
                       </button>
                     </div>
@@ -499,7 +499,7 @@ export default function Profile() {
                       <div className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                         <span>班级码:</span>
                         <code className="px-1.5 py-0.5 rounded bg-muted text-foreground font-mono text-xs">{myClass.code}</code>
-                        <button onClick={handleCopyCode} className="hover:text-primary transition-colors" aria-label="复制班级码">
+                        <button onClick={handleCopyCode} className="hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-ring rounded" aria-label="复制班级码">
                           {copiedCode ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
                         </button>
                       </div>
@@ -676,7 +676,7 @@ export default function Profile() {
                 <h3 className="font-bold text-foreground">
                   {classDialogTab === 'join' ? '加入班级' : '创建班级'}
                 </h3>
-                <button onClick={() => !submittingClass && setShowClassDialog(false)} className="text-muted-foreground hover:text-foreground" aria-label="关闭">
+                <button onClick={() => !submittingClass && setShowClassDialog(false)} className="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring rounded" aria-label="关闭">
                   <X size={18} />
                 </button>
               </div>
