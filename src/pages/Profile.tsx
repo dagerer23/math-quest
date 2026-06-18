@@ -300,7 +300,7 @@ export default function Profile() {
                   <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
                     <span className="font-medium">{user.xp.toLocaleString()} XP</span>
                     <Separator orientation="vertical" className="h-3" />
-                    <span>{user.profile.targetGrade}年级</span>
+                    <span>{GRADE_LABELS[user.profile.targetGrade] ?? `${user.profile.targetGrade}年级`}</span>
                   </div>
                 </div>
               </div>

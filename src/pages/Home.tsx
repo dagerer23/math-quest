@@ -20,7 +20,7 @@ export default function Home() {
   const navigate = useNavigate()
   const user = useUserStore()
   const startSession = useSessionStore((s) => s.start)
-  const selectedGrade = Math.max(1, Math.min(3, user.profile.targetGrade || 2)) as 1 | 2 | 3
+  const selectedGrade = Math.max(1, Math.min(12, user.profile.targetGrade || 1))
   const [navigating, setNavigating] = useState(false)
   const [navigatingLevelId, setNavigatingLevelId] = useState<string | null>(null)
   const [showNoHearts, setShowNoHearts] = useState(false)
@@ -237,6 +237,19 @@ export default function Home() {
             className="relative mx-auto"
             style={{ maxWidth: '420px', height: `${Math.max(640, visibleLevels.length * 140)}px` }}
           >
+            {visibleLevels.length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center px-6">
+                <div className="text-center max-w-xs">
+                  <div className="text-6xl mb-4">🚧</div>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: theme.textPrimary }}>
+                    该年级内容筹备中
+                  </h3>
+                  <p className="text-xs" style={{ color: theme.textSecondary, lineHeight: 1.6 }}>
+                    我们正在精心准备这一年级的数学关卡，敬请期待！
+                  </p>
+                </div>
+              </div>
+            )}
             {visibleLevels.map((level, i) => {
               if (i >= visibleLevels.length - 1) return null
               const { isCompleted } = getLevelStatus(level.id)

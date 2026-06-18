@@ -54,7 +54,7 @@ export default function Battle() {
 
   const level = useSessionStore((s) => s.level)
   const currentQ = sessionQuestions[sessionIndex]
-  const theme = GRADE_THEMES[level?.grade || 2] || GRADE_THEMES[2]
+  const theme = getBattleThemeByGrade(level?.grade || 1)
 
   // 从配置读取连击阈值
   const comboShowThreshold = Number(user.systemConfigs['combo.show_threshold']) || 3

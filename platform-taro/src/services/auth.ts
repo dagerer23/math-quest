@@ -1,5 +1,6 @@
-import { post, get } from '@/utils/request'
-import { TOKEN_KEY } from '@/utils/request'
+import { post, get, TOKEN_KEY } from '@/utils/request'
+
+export { TOKEN_KEY }
 
 const API_BASE = '/api/auth'
 

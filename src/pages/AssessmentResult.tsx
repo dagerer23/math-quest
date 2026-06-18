@@ -66,7 +66,7 @@ export default function AssessmentResult() {
     const levels = await getLevelsByGrade(grade)
     if (levels.length === 0) {
       setLoading(false)
-      navigate('/')
+      setEmptyHint('该年级内容筹备中，请返回选择其他年级体验')
       return
     }
     // 2. 取第一个关卡的完整详情
@@ -238,10 +238,15 @@ export default function AssessmentResult() {
         transition={{ delay: 0.9 }}
         className="space-y-2.5"
       >
-        <PixelButton 
-          variant="green" 
-          size="lg" 
-          className="w-full" 
+        {emptyHint && (
+          <div className="pixel-card p-3 text-center text-sm text-amber-600 bg-amber-50">
+            🚧 {emptyHint}
+          </div>
+        )}
+        <PixelButton
+          variant="green"
+          size="lg"
+          className="w-full"
           onClick={handleStartLearning}
           icon={<Trophy size={18} />}
         >

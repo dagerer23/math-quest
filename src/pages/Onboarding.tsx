@@ -72,24 +72,20 @@ export default function Onboarding() {
   const [stepIndex, setStepIndex] = useState(0)
   const [submitting, setSubmitting] = useState(false)
 
-  const steps = getSteps(form.stage)
+  const steps = getSteps()
   const currentStep = steps[stepIndex]
   const isLastStep = stepIndex === steps.length - 1
 
-  // 切换学习阶段时重置年级选项，并处理步骤跳转
+  // 切换学习阶段时重置年级选项
   const handleStageChange = (stage: LearningStage) => {
-    const grades = stage === 'adult' ? [] : GRADE_MAP[stage as Exclude<LearningStage, 'adult'>]
+    const grades = GRADE_MAP[stage]
     const defaultGrade = grades[0] ?? 1
     setForm(f => ({ ...f, stage, grade: defaultGrade }))
-    // 如果当前在年级步骤且切换到了成人，则跳过年级步骤
-    if (currentStep?.id === 'grade' && stage === 'adult') {
-      setStepIndex(s => Math.min(s + 1, steps.length - 1))
-    }
   }
 
   // 切换到年级步骤时，根据当前阶段重置年级
   const handleEnterGradeStep = () => {
-    const grades = GRADE_MAP[form.stage as Exclude<LearningStage, 'adult'>]
+    const grades = GRADE_MAP[form.stage]
     setForm(f => ({ ...f, grade: grades[0] }))
   }
 

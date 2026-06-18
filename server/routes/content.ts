@@ -30,8 +30,8 @@ const router = Router()
 // 根据年级拉取关卡列表
 router.get('/grade/:grade', async (req: Request, res: Response) => {
   const grade = Number(req.params.grade)
-  if (!grade || grade < 1 || grade > 9) {
-    res.status(400).json({ success: false, message: '年级参数无效 (1-9)' })
+  if (!grade || grade < 1 || grade > 12) {
+    res.status(400).json({ success: false, message: '年级参数无效 (1-12)' })
     return
   }
   const data = await fetchGradeContent(grade)

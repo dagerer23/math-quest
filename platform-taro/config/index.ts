@@ -11,7 +11,7 @@ const config = {
     375: 2 / 1
   },
   sourceRoot: 'src',
-  outputRoot: 'dist',
+  outputRoot: path.resolve(__dirname, '../../dist-weapp'),
   alias: {
     '@': path.resolve(__dirname, '../src')
   },
@@ -20,7 +20,7 @@ const config = {
   plugins: [
     '@tarojs/plugin-platform-h5',
     '@tarojs/plugin-platform-weapp',
-    'unocss/taro',
+    // 'unocss/taro',  // 暂时禁用，unocss/taro 子路径不可用
   ],
   mini: {
     compile: {

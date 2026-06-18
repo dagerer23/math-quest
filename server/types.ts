@@ -11,7 +11,7 @@ export interface User {
   phone: string
   nickname?: string
   avatar?: string
-  learningStage?: 'primary' | 'middle' | 'high' | 'adult'
+  learningStage?: 'primary' | 'middle' | 'high'
   learningGoal?: 'consolidation' | 'improvement' | 'interest' | 'training'
   targetGrade?: number
   classId?: string

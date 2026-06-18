@@ -154,10 +154,10 @@ export default function Assessment() {
 
       {stage === 'quiz' && !hasQuestions && (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-          <div className="text-6xl mb-4">😅</div>
-          <h2 className="text-xl font-bold text-foreground mb-2">暂无题目</h2>
+          <div className="text-6xl mb-4">🚧</div>
+          <h2 className="text-xl font-bold text-foreground mb-2">该年级内容筹备中</h2>
           <p className="text-muted-foreground mb-6 text-center">
-            当前年级暂未收录题目，请返回首页重新设置年级。
+            我们正在准备这一年级的测评题目，请返回选择其他年级体验。
           </p>
           <PixelButton variant="green" size="lg" onClick={handleGoHome}>
             返回首页
