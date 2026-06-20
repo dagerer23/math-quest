@@ -12,6 +12,7 @@ import {
   Settings,
   Pin,
   Puzzle,
+  Gauge,
   RotateCcw,
   Save,
   Loader2,
@@ -27,16 +28,17 @@ interface ConfigItem {
 const iconSize = 18
 
 const GROUP_MAP: Record<string, { label: string; icon: React.ReactNode }> = {
-  'xp.': { label: 'XP 经验值', icon: <Star size={iconSize} className="inline-block" /> },
-  'heart.': { label: '心形系统', icon: <Heart size={iconSize} className="inline-block" /> },
-  'daily.': { label: '每日任务', icon: <Target size={iconSize} className="inline-block" /> },
-  'mistake.': { label: '错题策略', icon: <XCircle size={iconSize} className="inline-block" /> },
-  'boss.': { label: 'BOSS 关卡', icon: <Crown size={iconSize} className="inline-block" /> },
-  'coin.': { label: '货币经济', icon: <Coins size={iconSize} className="inline-block" /> },
-  'version': { label: '系统信息', icon: <Settings size={iconSize} className="inline-block" /> },
+  'xp.': { label: 'XP 经验值', icon: <Star size={iconSize} /> },
+  'heart.': { label: '心形系统', icon: <Heart size={iconSize} /> },
+  'daily.': { label: '每日任务', icon: <Target size={iconSize} /> },
+  'mistake.': { label: '错题策略', icon: <XCircle size={iconSize} /> },
+  'boss.': { label: 'BOSS 关卡', icon: <Crown size={iconSize} /> },
+  'coin.': { label: '货币经济', icon: <Coins size={iconSize} /> },
+  'rate_limit.': { label: '限流配置', icon: <Gauge size={iconSize} /> },
+  'version': { label: '系统信息', icon: <Settings size={iconSize} /> },
 }
 
-const defaultGroup = { label: '其他', icon: <Puzzle size={iconSize} className="inline-block" /> }
+const defaultGroup = { label: '其他', icon: <Puzzle size={iconSize} /> }
 
 function getGroup(key: string): { label: string; icon: React.ReactNode } {
   for (const [prefix, info] of Object.entries(GROUP_MAP)) {
@@ -119,16 +121,16 @@ export default function SystemConfig() {
         </div>
         <div className="admin-page-actions">
           <button className="admin-btn admin-btn-secondary" onClick={reset}>
-            <RotateCcw size={16} className="inline-block" /> 撤销修改
+            <RotateCcw size={16} /> 撤销修改
           </button>
           <button className="admin-btn admin-btn-primary" onClick={save} disabled={saving}>
             {saving ? (
               <>
-                <Loader2 size={16} className="inline-block animate-spin" /> 保存中...
+                <Loader2 size={16} className="animate-spin" /> 保存中...
               </>
             ) : (
               <>
-                <Save size={16} className="inline-block" /> 保存所有变更
+                <Save size={16} /> 保存所有变更
               </>
             )}
           </button>
@@ -141,17 +143,15 @@ export default function SystemConfig() {
           return (
             <div key={label} className="admin-card">
               <h3 className="admin-card-title">
-                <span className="inline-flex items-center gap-1">
-                  {groupInfo.icon} {label}
-                </span>
+                <span>{groupInfo.icon} {label}</span>
               </h3>
               <table className="admin-table">
                 <tbody>
                   {items.map(c => (
                     <tr key={c.key}>
                       <td style={{ width: '50%' }}>
-                        <div style={{ fontWeight: 500, fontSize: 13 }}>{c.description || c.key}</div>
-                        <div style={{ fontSize: 10, color: '#999', fontFamily: 'monospace', marginTop: 2 }}>{c.key}</div>
+                        <div className="admin-config-key">{c.description || c.key}</div>
+                        <div className="admin-config-desc">{c.key}</div>
                       </td>
                       <td>
                         {c.key === 'version' ? (
@@ -161,7 +161,6 @@ export default function SystemConfig() {
                             className="admin-input"
                             value={edits[c.key] ?? c.value}
                             onChange={e => setEdits(prev => ({ ...prev, [c.key]: e.target.value }))}
-                            style={{ padding: '6px 10px' }}
                           />
                         )}
                       </td>

@@ -40,6 +40,11 @@ const DEFAULT_CONFIGS: { key: string; value: string; description: string }[] = [
   { key: 'result.praise.perfect', value: '100', description: '完美赞美正确率阈值' },
   { key: 'result.praise.excellent', value: '80', description: '优秀赞美正确率阈值' },
   { key: 'result.praise.good', value: '60', description: '良好赞美正确率阈值' },
+  // 限流相关配置（可在后台管理动态调整，保存后立即生效）
+  { key: 'rate_limit.api.window_ms', value: '1000', description: '通用API限流窗口（毫秒，1000=1秒）' },
+  { key: 'rate_limit.api.max', value: '50', description: '通用API限流窗口内最大请求数' },
+  { key: 'rate_limit.auth.window_ms', value: '60000', description: '认证接口限流窗口（毫秒，60000=1分钟）' },
+  { key: 'rate_limit.auth.max', value: '5', description: '认证接口限流窗口内最大请求数' },
   { key: 'version', value: '0.1.0', description: '服务版本号' },
 ]
 

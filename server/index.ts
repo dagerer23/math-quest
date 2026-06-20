@@ -2,6 +2,7 @@
  * 算力先锋 MathQuest - 后端服务
  * 提供用户认证 API - MySQL 版本
  */
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import authRoutes from './routes/auth'
@@ -15,7 +16,7 @@ import { initDB, isMemoryMode } from './db'
 import { seedFromFallbackIfEmpty } from './services/content'
 import { initDefaultConfigs } from './services/config'
 import { initDefaultAdmin } from './services/adminAccount'
-import { apiLimiter, authLimiter } from './middleware/rateLimit'
+import { apiLimiter, authLimiter, reloadRateLimiters } from './middleware/rateLimit'
 import { requireAdminAuth, requireWriteAccess } from './middleware/adminAuth'
 import { auditLogger, getAuditLog } from './middleware/auditLog'
 import { cacheSet } from './services/cache'
@@ -94,21 +95,25 @@ initDB().then(async () => {
   try { await initDefaultConfigs() } catch (e: any) {
     console.log('[config] 初始化配置失败:', e?.message || e)
   }
+  // 初始化限流配置（依赖默认配置已写入数据库）
+  try { await reloadRateLimiters() } catch (e: any) {
+    console.log('[rate-limit] 加载限流配置失败:', e?.message || e)
+  }
   try { await initDefaultAdmin() } catch (e: any) {
     console.log('[admin] 初始化管理员失败:', e?.message || e)
   }
 
   app.listen(PORT, () => {
-    console.log(`\n  🚀 MathQuest API 服务已启动`)
-    console.log(`  📡 地址: http://localhost:${PORT}`)
+    console.log(`\n  MathQuest API 服务已启动`)
+    console.log(`  地址: http://localhost:${PORT}`)
     if (!IS_PRODUCTION) {
-      console.log(`  📋 测试验证码: 123456`)
-      console.log(`  🔐 后台账号: admin / admin123`)
+      console.log(`  测试验证码: 123456`)
+      console.log(`  后台账号: admin / admin123`)
     }
-    console.log(`  💾 存储模式: ${isMemoryMode() ? '内存 (降级)' : 'MySQL'}`)
-    console.log(`  🌐 CORS: 已启用`)
-    console.log(`  🛡️  限流: 已启用`)
-    console.log(`  🔧 环境: ${NODE_ENV}`)
+    console.log(`  存储模式: ${isMemoryMode() ? '内存 (降级)' : 'MySQL'}`)
+    console.log(`  CORS: 已启用`)
+    console.log(`  限流: 已启用`)
+    console.log(`  环境: ${NODE_ENV}`)
     console.log()
   })
 

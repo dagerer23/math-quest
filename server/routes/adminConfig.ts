@@ -3,6 +3,7 @@
  */
 import { Router } from 'express'
 import { getAllConfigs, getConfig, updateConfigs } from '../services/config'
+import { reloadRateLimiters } from '../middleware/rateLimit'
 
 const router = Router()
 
@@ -27,6 +28,10 @@ router.put('/', async (req, res) => {
     return
   }
   const result = await updateConfigs(updates, adminId)
+  // 若更新了限流配置，重新加载限流器使其立即生效
+  if (updates.some(u => u.key.startsWith('rate_limit.'))) {
+    try { await reloadRateLimiters() } catch (e) { /* 配置已保存，限流重建失败不影响写入结果 */ }
+  }
   res.json(result)
 })
 
