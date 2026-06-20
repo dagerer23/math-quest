@@ -131,7 +131,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             title="退出登录"
             aria-label="退出登录"
             className="admin-btn admin-btn-ghost"
-            style={{ color: 'rgba(255,255,255,0.5)', padding: '6px', minWidth: 32 }}
+            style={{ padding: '6px', minWidth: 32 }}
           >
             <LogOut size={14} />
           </button>
@@ -151,7 +151,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               target="_blank"
               rel="noreferrer"
               className="admin-btn admin-btn-ghost"
-              style={{ fontSize: 12, gap: 4 }}
             >
               <ExternalLink size={12} /> 用户端
             </a>

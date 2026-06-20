@@ -9,6 +9,9 @@ import {
   Users, UserPlus, ArrowRight, Flower2, Copy, Check, ChevronRight,
 } from 'lucide-react'
 import { getAvatarUrl, getAvatarBorderColor, getInitial, getAvatarBgColor, getAvatarTextColor } from '@/utils/avatar'
+import { GRADE_LABELS } from '@/data/questionBank'
+import { getAchievementReward } from '@/data/achievements'
+import type { Achievement } from '@/types/models'
 import { saveProfile, exportUserData } from '@/services/auth'
 import { getRankInfo, getNextRankInfo, getRankProgress } from '@/utils/rank'
 import { handleApiError } from '@/utils/apiError'
@@ -192,48 +195,62 @@ export default function Profile() {
                 {/* 头像 */}
                 <div className="relative flex-shrink-0">
                   <button
-                    onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+                    onClick={() => setShowAvatarPicker(true)}
                     className="rounded-full border-2 overflow-hidden hover:border-primary/30 transition-colors"
-                    style={{ borderColor: getAvatarBorderColor(user.profile.nickname || '用户') }}
+                    style={{ borderColor: getAvatarBorderColor(user.profile.avatar || user.profile.nickname || '用户') }}
                   >
                     <div className="size-14">
-                      <img src={getAvatarUrl(user.profile.nickname || '用户')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
-                      <div className="hidden w-full h-full items-center justify-center text-lg font-bold" style={{ background: getAvatarBgColor(user.profile.nickname || '用户'), color: getAvatarTextColor(user.profile.nickname || '用户') }}>
-                        {getInitial(user.profile.nickname || '用户')}
+                      <img src={getAvatarUrl(user.profile.avatar || user.profile.nickname || '用户')} alt="" className="w-full h-full" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = 'none'; el.nextElementSibling?.classList.remove('hidden') }} />
+                      <div className="hidden w-full h-full items-center justify-center text-lg font-bold" style={{ background: getAvatarBgColor(user.profile.avatar || user.profile.nickname || '用户'), color: getAvatarTextColor(user.profile.avatar || user.profile.nickname || '用户') }}>
+                        {getInitial(user.profile.avatar || user.profile.nickname || '用户')}
                       </div>
                     </div>
                   </button>
+
                   <AnimatePresence>
                     {showAvatarPicker && (
                       <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 mt-2 w-60 bg-card rounded-2xl shadow-xl border border-border p-3 z-50"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+                        onClick={() => setShowAvatarPicker(false)}
                       >
-                        <div className="flex items-center justify-between mb-2 px-1">
-                          <span className="text-xs font-bold text-foreground">选择头像</span>
-                          <button onClick={() => setShowAvatarPicker(false)} className="text-muted-foreground hover:text-foreground">
-                            <X size={14} />
-                          </button>
-                        </div>
-                        <div className="grid grid-cols-5 gap-1.5">
-                          {AVATAR_SEEDS.map((seed) => (
+                        <motion.div
+                          initial={{ scale: 0.9, y: 10 }}
+                          animate={{ scale: 1, y: 0 }}
+                          exit={{ scale: 0.9, y: 10 }}
+                          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                          className="bg-background rounded-3xl shadow-2xl border border-border w-full max-w-xs p-5"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="text-sm font-bold text-foreground">选择头像</span>
                             <button
-                              key={seed}
-                              onClick={() => handleSelectAvatar(seed)}
-                              className={clsx(
-                                'aspect-square rounded-xl overflow-hidden transition-all',
-                                user.profile.avatar === seed
-                                  ? 'ring-2 ring-primary'
-                                  : 'hover:opacity-80',
-                              )}
+                              onClick={() => setShowAvatarPicker(false)}
+                              className="size-8 rounded-full bg-muted grid place-items-center text-muted-foreground hover:text-foreground transition-colors"
+                              aria-label="关闭"
                             >
-                              <img src={getAvatarUrl(seed)} alt={seed} className="w-full h-full" />
+                              <X size={18} />
                             </button>
-                          ))}
-                        </div>
+                          </div>
+                          <div className="grid grid-cols-4 gap-3">
+                            {AVATAR_SEEDS.map((seed) => (
+                              <button
+                                key={seed}
+                                onClick={() => handleSelectAvatar(seed)}
+                                className={clsx(
+                                  'aspect-square rounded-2xl overflow-hidden transition-all',
+                                  user.profile.avatar === seed
+                                    ? 'ring-[3px] ring-primary ring-offset-2 ring-offset-background'
+                                    : 'hover:opacity-80',
+                                )}
+                              >
+                                <img src={getAvatarUrl(seed)} alt={seed} className="w-full h-full" />
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -267,15 +284,23 @@ export default function Profile() {
                   ) : (
                     <div className="flex items-center gap-1.5">
                       <h2 className="font-bold text-base text-foreground truncate">{user.profile.nickname}</h2>
-                      <button onClick={() => setEditing(true)} className="p-0.5 rounded text-muted-foreground hover:text-foreground transition-colors">
-                        <Edit2 size={12} />
+                      <button
+                        onClick={() => setEditing(true)}
+                        className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        aria-label="编辑昵称"
+                      >
+                        <Edit2 size={14} />
                       </button>
                     </div>
                   )}
 
                   {/* 段位 */}
                   <div className="mt-2 flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs font-semibold">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs font-semibold text-white border-0"
+                      style={{ backgroundColor: rankInfo.color }}
+                    >
                       <Crown size={10} className="mr-1" />
                       {rankInfo.name}
                     </Badge>
@@ -343,7 +368,7 @@ export default function Profile() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="grid grid-cols-4 gap-2.5"
+          className="grid grid-cols-2 gap-2.5"
         >
           <QuickAction
             icon={<Trophy size={20} />}
@@ -353,25 +378,11 @@ export default function Profile() {
             onClick={() => navigate('/leaderboard')}
           />
           <QuickAction
-            icon={<BookOpen size={20} />}
-            label="错题本"
-            iconBg="bg-[#E0F4FF]"
-            iconColor="text-[#1CB0F6]"
-            onClick={() => navigate('/mistakes')}
-          />
-          <QuickAction
             icon={<BarChart3 size={20} />}
             label="学习统计"
             iconBg="bg-[#F3E8FF]"
             iconColor="text-[#CE82FF]"
             onClick={() => navigate('/stats')}
-          />
-          <QuickAction
-            icon={<Swords size={20} />}
-            label="闯关冒险"
-            iconBg="bg-[#FFE4E4]"
-            iconColor="text-[#FF4B4B]"
-            onClick={() => navigate('/')}
           />
         </motion.div>
 
@@ -388,7 +399,7 @@ export default function Profile() {
                   <Trophy size={15} className="text-primary" />
                   成就
                 </CardTitle>
-                <Badge variant="secondary" className="text-[10px] tabular-nums">
+                <Badge variant="secondary" className="text-[10px] tabular-nums bg-muted text-muted-foreground hover:bg-muted">
                   {user.achievements.length}/{achievementsMeta.length || 0}
                 </Badge>
               </div>
@@ -778,9 +789,9 @@ function QuickAction({ icon, label, iconBg, iconColor, onClick }: {
     <motion.button
       onClick={onClick}
       whileTap={{ scale: 0.95 }}
-      className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-card shadow-sm border border-border hover:shadow-md transition-all"
+      className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-card shadow-sm border border-border hover:shadow-md hover:bg-muted/50 active:bg-muted transition-all"
     >
-      <div className={clsx('size-8 rounded-[10px] grid place-items-center', iconBg || 'bg-[#E0F4FF]', iconColor || 'text-[#1CB0F6]')}>
+      <div className={clsx('size-10 rounded-2xl grid place-items-center', iconBg || 'bg-[#E0F4FF]', iconColor || 'text-[#1CB0F6]')}>
         {icon}
       </div>
       <span className="text-xs font-medium text-muted-foreground">{label}</span>

@@ -155,7 +155,7 @@ export async function getUserRanking(limit = 50) {
     rank: idx + 1,
     userId: r.id,
     nickname: r.nickname || '小先锋',
-    avatar: r.avatar || '🧒',
+    avatar: r.avatar || '',
     targetGrade: r.targetGrade,
     totalXp: Number(r.totalXp),
     totalSessions: Number(r.totalSessions),

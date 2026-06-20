@@ -74,7 +74,7 @@ export default function Dashboard() {
           <p className="admin-page-subtitle">系统总览与关键指标</p>
         </div>
         <div className="admin-page-actions">
-          <span className="admin-tag admin-tag-gray" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span className="admin-tag admin-tag-gray">
             <Clock size={14} />
             {new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' })}
           </span>
@@ -82,7 +82,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="admin-grid admin-grid-4" style={{ marginBottom: 20 }}>
+      <div className="admin-grid admin-grid-4">
         <StatCard icon={<Users size={22} />} label="注册用户" value={summary?.totalUsers ?? 0} suffix="人" trend="+本周" />
         <StatCard icon={<BookOpen size={22} />} label="题目总数" value={summary?.totalQuestions ?? 0} suffix="题" trend="+本月" />
         <StatCard icon={<Target size={22} />} label="今日活跃" value={summary?.activeToday ?? 0} suffix="人" trend="今日" />
@@ -90,14 +90,14 @@ export default function Dashboard() {
       </div>
 
       {/* Charts row */}
-      <div className="admin-grid admin-grid-2" style={{ marginBottom: 20 }}>
+      <div className="admin-grid admin-grid-2">
         <div className="admin-card">
           <h3 className="admin-card-title">
             <span>近 7 天答题趋势</span>
             <span className="admin-tag admin-tag-green">实时</span>
           </h3>
           {trend.every(t => t.count === 0) ? (
-            <div className="admin-empty" style={{ padding: 40 }}>
+            <div className="admin-empty">
               <div className="admin-empty-icon">
                 <BarChart3 size={32} color="#58CC02" />
               </div>
@@ -124,7 +124,7 @@ export default function Dashboard() {
             <span>各年级关卡分布</span>
           </h3>
           {grades.length === 0 ? (
-            <div className="admin-empty" style={{ padding: 40 }}>
+            <div className="admin-empty">
               <div className="admin-empty-icon">
                 <BookOpen size={32} color="#58CC02" />
               </div>
@@ -164,10 +164,10 @@ export default function Dashboard() {
 function StatCard({ icon, label, value, suffix, trend }: { icon: React.ReactNode; label: string; value: number | string; suffix?: string; trend: string }) {
   return (
     <div className="admin-stat-card">
-      <div className="admin-stat-icon" style={{ color: '#10b981' }}>{icon}</div>
+      <div className="admin-stat-icon">{icon}</div>
       <div className="admin-stat-label">{label}</div>
       <div className="admin-stat-value">
-        {value}{suffix && <span style={{ fontSize: 16, color: '#666', marginLeft: 4 }}>{suffix}</span>}
+        {value}{suffix && <span className="text-base text-slate-500 ml-1">{suffix}</span>}
       </div>
       <div className="admin-stat-trend up">↑ {trend}</div>
     </div>
@@ -176,19 +176,14 @@ function StatCard({ icon, label, value, suffix, trend }: { icon: React.ReactNode
 
 function InfoCard({ icon, label, value, desc }: { icon: React.ReactNode; label: string; value: number | string; desc: string }) {
   return (
-    <div className="admin-card" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-      <div style={{
-        width: 48, height: 48, borderRadius: 12,
-        background: 'linear-gradient(135deg, #58CC02 0%, #7ED321 100%)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: '#fff', flexShrink: 0,
-      }}>
+    <div className="admin-card admin-info-card">
+      <div className="admin-info-icon">
         {icon}
       </div>
       <div>
-        <div style={{ fontSize: 12, color: '#666' }}>{label}</div>
-        <div style={{ fontSize: 22, fontWeight: 700, marginTop: 2 }}>{value}</div>
-        <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>{desc}</div>
+        <div className="text-xs text-slate-500">{label}</div>
+        <div className="text-[22px] font-bold mt-0.5">{value}</div>
+        <div className="text-[11px] text-slate-400 mt-0.5">{desc}</div>
       </div>
     </div>
   )
@@ -201,10 +196,10 @@ function GradeDistributionChart({ data, total }: { data: GradePoint[]; total: nu
       {data.map((g, idx) => {
         const pct = total > 0 ? (g.count / total) * 100 : 0
         return (
-          <div key={g.grade} style={{ marginBottom: 12 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
-              <span style={{ fontWeight: 500 }}>{g.grade} 年级</span>
-              <span style={{ color: '#666' }}>{g.count} 关 · {pct.toFixed(0)}%</span>
+          <div key={g.grade} className="mb-3">
+            <div className="flex justify-between text-xs mb-1">
+              <span className="font-medium">{g.grade} 年级</span>
+              <span className="text-slate-500">{g.count} 关 · {pct.toFixed(0)}%</span>
             </div>
             <div className="admin-progress">
               <div

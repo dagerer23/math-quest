@@ -72,7 +72,7 @@ export default function DataCenter() {
       {/* Top stat row */}
       <div className="admin-grid admin-grid-3" style={{ marginBottom: 20 }}>
         <div className="admin-stat-card">
-          <div className="admin-stat-icon" style={{ color: '#10b981' }}>
+          <div className="admin-stat-icon">
             <GraduationCap size={22} />
           </div>
           <div className="admin-stat-label">覆盖知识点</div>
@@ -80,7 +80,7 @@ export default function DataCenter() {
           <div className="admin-stat-trend up">↑ 知识体系</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-icon" style={{ color: '#10b981' }}>
+          <div className="admin-stat-icon">
             <BarChart3 size={22} />
           </div>
           <div className="admin-stat-label">累计练习</div>
@@ -88,7 +88,7 @@ export default function DataCenter() {
           <div className="admin-stat-trend up">↑ 题次</div>
         </div>
         <div className="admin-stat-card">
-          <div className="admin-stat-icon" style={{ color: '#10b981' }}>
+          <div className="admin-stat-icon">
             <Trophy size={22} />
           </div>
           <div className="admin-stat-label">活跃用户</div>
@@ -103,7 +103,7 @@ export default function DataCenter() {
           <h3 className="admin-card-title">
             <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Target size={16} />
-              知识点掌握度排行（低→高）
+              知识点掌握度排行（低到高）
             </span>
             <span className="admin-tag admin-tag-gray">Top 10</span>
           </h3>
@@ -127,7 +127,7 @@ export default function DataCenter() {
                 {lowMastery.map(k => (
                   <tr key={k.knowledgePoint}>
                     <td>{k.knowledgePoint}</td>
-                    <td style={{ color: '#666' }}>{k.totalAttempts}</td>
+                    <td>{k.totalAttempts}</td>
                     <td style={{ width: 140 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <div className="admin-progress" style={{ flex: 1 }}>
@@ -164,21 +164,11 @@ export default function DataCenter() {
           ) : (
             <div style={{ maxHeight: 380, overflowY: 'auto' }}>
               {topMistakes.map((m, idx) => (
-                <div key={m.id} style={{
-                  padding: '10px 0',
-                  borderBottom: '1px solid #f3f3f5',
-                  display: 'flex', alignItems: 'flex-start', gap: 10,
-                }}>
-                  <div style={{
-                    width: 24, height: 24, borderRadius: 6, flexShrink: 0,
-                    background: idx < 3 ? 'rgba(255,75,75,0.15)' : '#f0f0f3',
-                    color: idx < 3 ? '#FF4B4B' : '#666',
-                    fontSize: 11, fontWeight: 700,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>{idx + 1}</div>
+                <div key={m.id} className="admin-mistake-item">
+                  <div className={`admin-mistake-rank ${idx < 3 ? 'top3' : ''}`}>{idx + 1}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, lineHeight: 1.5, marginBottom: 4 }}>{m.prompt}</div>
-                    <div style={{ fontSize: 11, color: '#999' }}>
+                    <div>{m.prompt}</div>
+                    <div>
                       {m.grade && `${m.grade}年级`} {m.chapter} · {m.knowledgePoint} · 答错 <b style={{ color: '#FF4B4B' }}>{m.mistakeCount}</b> 次
                     </div>
                   </div>
@@ -221,13 +211,7 @@ export default function DataCenter() {
               {userRanking.map(u => (
                 <tr key={u.userId}>
                   <td>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: 28, height: 22, borderRadius: 6,
-                      background: u.rank <= 3 ? 'rgba(255,200,0,0.2)' : '#f0f0f3',
-                      color: u.rank <= 3 ? '#C89A3D' : '#666',
-                      fontSize: 12, fontWeight: 700,
-                    }}>
+                    <span className={`admin-rank-badge ${u.rank <= 3 ? 'top3' : ''}`}>
                       {u.rank}
                     </span>
                   </td>

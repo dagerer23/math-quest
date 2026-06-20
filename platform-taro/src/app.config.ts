@@ -1,6 +1,8 @@
+function defineAppConfig<T>(config: T): T { return config }
 export default defineAppConfig({
   pages: [
     'pages/login/index',
+    'pages/verify-code/index',
     'pages/home/index',
     'pages/daily-goals/index',
     'pages/mistakes/index',
@@ -11,13 +13,14 @@ export default defineAppConfig({
     'pages/onboarding/index',
     'pages/assessment-result/index',
     'pages/stats/index',
+    'pages/achievements/index',
     'pages/agreement/index',
     'pages/battle/index'
   ],
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#FFFFFF',
-    navigationBarTitleText: '数学探险',
+    navigationBarTitleText: '算力先锋',
     navigationBarTextStyle: 'black',
     backgroundColor: '#F8FAF5'
   },
@@ -29,7 +32,7 @@ export default defineAppConfig({
     list: [
       {
         pagePath: 'pages/home/index',
-        text: '首页',
+        text: '地图',
         iconPath: 'assets/tab-home.png',
         selectedIconPath: 'assets/tab-home-active.png'
       },

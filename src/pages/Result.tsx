@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Coins, Sparkles, CheckCircle2, Repeat, Trophy, Star, Zap, ArrowLeft, FileText, Lightbulb } from 'lucide-react'
+import { Icon } from '@/components/Icon'
 import { useEffect, useState } from 'react'
 import { playSound } from '@/utils/sound'
 import { generateQuestions } from '@/services/content'
@@ -44,8 +45,8 @@ const PRAISES = {
   ]
 }
 
-// 装饰性 emoji 雨
-const DECORATIONS = ['🎉', '✨', '🌟', '💫', '⭐', '🎊', '🎈', '🏆']
+// 装饰性图标雨
+const DECORATIONS = ['party', 'sparkles', 'sparkles', 'sparkles', 'star', 'party', 'party', 'trophy']
 
 export default function Result() {
   const navigate = useNavigate()
@@ -108,9 +109,6 @@ export default function Result() {
       <div className="min-h-screen bg-white flex flex-col">
         <div className="h-1 bg-gradient-to-r from-primary via-duolingo-blue to-primary" />
         <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={20} />
-          </button>
           <h1 className="text-lg font-bold text-foreground">结算</h1>
         </div>
         <div className="flex-1 flex items-center justify-center">
@@ -128,6 +126,9 @@ export default function Result() {
     .filter((a) => !a.isCorrect)
 
   const accuracy = Math.round((record.correctCount / record.totalCount) * 100)
+
+  const titleEmoji = accuracy === 100 ? 'trophy' : record.stars >= 1 ? 'party' : 'muscle'
+  const titleText = accuracy === 100 ? 'PERFECT!' : record.stars >= 1 ? 'VICTORY!' : '继续加油!'
 
   const restart = async () => {
     const userMastery = user.learningStats.knowledgeProgress
@@ -184,9 +185,9 @@ export default function Result() {
                 ease: 'linear',
                 delay: Math.random() * 0.5
               }}
-              className="absolute text-2xl"
+              className="absolute"
             >
-              {DECORATIONS[Math.floor(Math.random() * DECORATIONS.length)]}
+              <Icon name={DECORATIONS[Math.floor(Math.random() * DECORATIONS.length)]} size={24} className="text-primary" />
             </motion.div>
           ))}
         </div>
@@ -211,8 +212,9 @@ export default function Result() {
         <div className="text-xs font-bold text-muted-foreground">{level.chapter}</div>
         
         {/* 动态标题 */}
-        <div className="font-bold text-xl mt-2 text-foreground">
-          {accuracy === 100 ? '🏆 PERFECT!' : record.stars >= 1 ? '🎉 VICTORY!' : '💪 继续加油!'}
+        <div className="font-bold text-xl mt-2 text-foreground flex items-center justify-center gap-1.5">
+          <Icon name={titleEmoji} size={22} className="text-primary" />
+          {titleText}
         </div>
 
         {/* 花式赞美 */}
@@ -284,7 +286,7 @@ export default function Result() {
           <Card className="p-4">
           <div className="font-bold text-sm text-foreground mb-2 flex items-center gap-2">
             <Trophy size={14} className="text-primary" />
-            🎉 解锁成就
+            解锁成就
           </div>
           <div className="grid grid-cols-2 gap-2">
             {user.achievements.slice(-3).map((a) => {
@@ -320,7 +322,7 @@ export default function Result() {
             >
               <CheckCircle2 className="mx-auto text-primary" size={36} />
             </motion.div>
-            <p className="mt-2 text-sm font-medium text-primary">太棒了！零失误完美通关 🎉</p>
+            <p className="mt-2 text-sm font-medium text-primary">太棒了！零失误完美通关</p>
             <p className="text-xs text-muted-foreground mt-1">你真是太厉害了！</p>
           </div>
         ) : (

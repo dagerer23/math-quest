@@ -1,151 +1,717 @@
-import { View, Text } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import { useState, useEffect } from 'react'
+import { View, Text, Input, ScrollView, Image } from '@tarojs/components'
+import Taro, { useDidShow } from '@tarojs/taro'
 import { useUserStore } from '@/store/useUserStore'
-import { Button } from '@/components/ui/Controls'
-import { Card, Title, Subtitle, Spacer, Row, Col } from '@/components/ui/Basic'
+import { saveProfile, exportUserData, TOKEN_KEY } from '@/services/auth'
+import { getAchievements } from '@/services/content'
+import * as classApi from '@/services/classApi'
+import type { ClassInfo } from '@/services/classApi'
+import { getRankInfo, getNextRankInfo, getRankProgress } from '@/utils/rank'
+import { C, TOKEN } from '@/styles/theme'
+import { AVATAR_SEEDS, getAvatarUrl } from '@/utils/avatar'
+import { getAchievementReward } from '@/data/achievements'
+import { Icon } from '@/components/Icon'
+
+// 浅主色背景（头像选中 / 成就解锁，对齐 Web 端 primary/10）
+const PRIMARY_LIGHT = 'rgba(88,204,2,0.08)'
+
+// 年级标签
+const GRADE_LABELS: Record<number, string> = {
+  1: '一年级', 2: '二年级', 3: '三年级', 4: '四年级',
+  5: '五年级', 6: '六年级', 7: '初一', 8: '初二', 9: '初三',
+}
+
+// 头像背景色（按昵称首字符 hash）
+function getAvatarBg(name: string): string {
+  const colors = ['#58CC02', '#1CB0F6', '#FF4B4B', '#FFC800', '#CE82FF', '#FF8C42', '#00C9A7', '#FF6B9D']
+  const code = (name || '?').charCodeAt(0) || 0
+  return colors[code % colors.length]
+}
 
 export default function ProfilePage() {
   const user = useUserStore()
+  const [editing, setEditing] = useState(false)
+  const [nickName, setNickName] = useState(user.profile.nickname || '')
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+  const [savingProfile, setSavingProfile] = useState(false)
 
+  // 班级状态
+  const [myClass, setMyClass] = useState<ClassInfo | null>(null)
+  const [classLoading, setClassLoading] = useState(false)
+  const [showClassDialog, setShowClassDialog] = useState(false)
+  const [classTab, setClassTab] = useState<'join' | 'create'>('join')
+  const [classCode, setClassCode] = useState('')
+  const [className, setClassName] = useState('')
+  const [submittingClass, setSubmittingClass] = useState(false)
+
+  useDidShow(() => {
+    Taro.setNavigationBarTitle({ title: '我的' })
+    // 加载成就元数据
+    if (user.achievementsMeta.length === 0) {
+      getAchievements().then(list => {
+        if (list.length > 0) user.setAchievementsMeta(list)
+      }).catch(() => {})
+    }
+    // 加载班级信息
+    if (user.userId) {
+      setClassLoading(true)
+      classApi.getMyClass(user.userId).then(res => {
+        setMyClass(res.class || null)
+        setClassLoading(false)
+      }).catch(() => setClassLoading(false))
+    }
+  })
+
+  useEffect(() => {
+    setNickName(user.profile.nickname || '')
+  }, [user.profile.nickname])
+
+  const rankInfo = getRankInfo(user.xp, user.systemConfigs)
+  const nextRank = getNextRankInfo(user.xp, user.systemConfigs)
+  const rankProgress = getRankProgress(user.xp, user.systemConfigs)
+  const accuracy = user.learningStats.totalQuestions > 0
+    ? Math.round((user.learningStats.correctQuestions / user.learningStats.totalQuestions) * 100)
+    : 0
+
+  // 保存昵称
+  const handleSaveName = async () => {
+    const newName = nickName.trim() || '数学爱好者'
+    user.setProfile({ nickname: newName })
+    setEditing(false)
+    if (!user.userId) return
+    setSavingProfile(true)
+    await saveProfile({ userId: user.userId, nickname: newName, avatar: user.profile.avatar })
+    setSavingProfile(false)
+  }
+
+  // 选择头像
+  const handleSelectAvatar = async (seed: string) => {
+    user.setProfile({ avatar: seed })
+    setShowAvatarPicker(false)
+    if (!user.userId) return
+    setSavingProfile(true)
+    await saveProfile({ userId: user.userId, nickname: user.profile.nickname, avatar: seed })
+    setSavingProfile(false)
+  }
+
+  // 导出数据（小程序端复制到剪贴板）
+  const handleExport = async () => {
+    if (!user.userId) {
+      Taro.showToast({ title: '请先登录', icon: 'none' })
+      return
+    }
+    Taro.showLoading({ title: '导出中...' })
+    try {
+      const res = await exportUserData(user.userId)
+      Taro.hideLoading()
+      if (res.success && res.data) {
+        const json = JSON.stringify(res.data, null, 2)
+        Taro.setClipboardData({
+          data: json,
+          success: () => Taro.showToast({ title: '数据已复制到剪贴板', icon: 'success' }),
+        })
+      } else {
+        Taro.showToast({ title: res.message || '导出失败', icon: 'none' })
+      }
+    } catch {
+      Taro.hideLoading()
+      Taro.showToast({ title: '导出失败', icon: 'none' })
+    }
+  }
+
+  // 退出登录
   const handleLogout = () => {
-    user.logout()
-    Taro.redirectTo({ url: '/pages/login/index' })
+    Taro.showModal({
+      title: '提示',
+      content: '确定退出登录吗？下次需要重新验证。',
+      confirmText: '退出',
+      confirmColor: '#EF4444',
+      success: (res) => {
+        if (res.confirm) {
+          Taro.removeStorageSync(TOKEN_KEY)
+          Taro.removeStorageSync('userId')
+          Taro.removeStorageSync('lastPhone')
+          user.logout()
+          Taro.redirectTo({ url: '/pages/login/index' })
+        }
+      },
+    })
   }
 
-  const setNewGrade = (g: number) => {
-    user.setGrade(g)
-    Taro.showToast({ title: '已切换年级', icon: 'success' })
+  // 重置存档
+  const handleReset = () => {
+    Taro.showModal({
+      title: '危险操作',
+      content: '确定重置所有数据吗？此操作不可撤销。',
+      confirmText: '重置',
+      confirmColor: '#EF4444',
+      success: (res) => {
+        if (res.confirm) {
+          Taro.removeStorageSync(TOKEN_KEY)
+          Taro.removeStorageSync('userId')
+          user.reset()
+          Taro.redirectTo({ url: '/pages/login/index' })
+        }
+      },
+    })
   }
+
+  // 班级操作
+  const handleCreateClass = async () => {
+    if (!user.userId) return
+    if (!className.trim()) { Taro.showToast({ title: '请输入班级名称', icon: 'none' }); return }
+    setSubmittingClass(true)
+    const res = await classApi.createClass(user.userId, className.trim())
+    setSubmittingClass(false)
+    if (res.success && res.class) {
+      setMyClass(res.class)
+      setShowClassDialog(false)
+      setClassName('')
+      Taro.showToast({ title: '班级创建成功', icon: 'success' })
+    } else {
+      Taro.showToast({ title: res.message, icon: 'none' })
+    }
+  }
+
+  const handleJoinClass = async () => {
+    if (!user.userId) return
+    if (!classCode.trim()) { Taro.showToast({ title: '请输入班级码', icon: 'none' }); return }
+    setSubmittingClass(true)
+    const res = await classApi.joinClass(user.userId, classCode.trim())
+    setSubmittingClass(false)
+    if (res.success && res.class) {
+      setMyClass(res.class)
+      setShowClassDialog(false)
+      setClassCode('')
+      Taro.showToast({ title: '加入班级成功', icon: 'success' })
+    } else {
+      Taro.showToast({ title: res.message, icon: 'none' })
+    }
+  }
+
+  const handleLeaveClass = () => {
+    Taro.showModal({
+      title: '提示',
+      content: '确定退出当前班级吗？',
+      confirmText: '退出',
+      confirmColor: '#EF4444',
+      success: async (res) => {
+        if (res.confirm && user.userId && myClass) {
+          const result = await classApi.leaveClass(user.userId, myClass.id)
+          if (result.success) {
+            setMyClass(null)
+            Taro.showToast({ title: '已退出班级', icon: 'success' })
+          } else {
+            Taro.showToast({ title: result.message, icon: 'none' })
+          }
+        }
+      },
+    })
+  }
+
+  const handleCopyCode = () => {
+    if (!myClass) return
+    Taro.setClipboardData({
+      data: myClass.code,
+      success: () => Taro.showToast({ title: '已复制班级码', icon: 'success' }),
+    })
+  }
+
+  // 切换设置
+  const toggleSetting = (key: 'sound' | 'vibration') => {
+    user.setSettings({ [key]: !user.settings[key] })
+  }
+
+  const achievementsMeta = user.achievementsMeta
 
   return (
-    <View style={{ minHeight: '100vh', background: '#F8FAF5', padding: 16 }}>
-      <View style={{ padding: 16, paddingTop: 32 }}>
-        <Title size={22}>个人中心</Title>
+    <ScrollView scrollY className="taro-fade-in" style={{ minHeight: '100vh', background: C.pageBg }}>
+      {/* 顶部渐变条 */}
+      <View style={{ height: 3, background: `linear-gradient(to right, ${C.semantic.primary}, ${C.duolingo.blue}, ${C.semantic.primary})` }} />
+
+      <View style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {/* ═══ 个人信息卡 ═══ */}
+        <View style={{ background: C.semantic.card, borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}>
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 16 }}>
+            {/* 头像 */}
+            <View>
+              <View
+                onClick={() => setShowAvatarPicker(true)}
+                style={{
+                  width: 56, height: 56, borderRadius: 28, overflow: 'hidden',
+                  borderWidth: 2, borderStyle: 'solid', borderColor: getAvatarBg(user.profile.nickname || '用户'),
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: PRIMARY_LIGHT,
+                }}
+              >
+                {user.profile.avatar ? (
+                  <Image src={getAvatarUrl(user.profile.avatar)} mode="aspectFill" style={{ width: '100%', height: '100%' }} />
+                ) : (
+                  <Text style={{ fontSize: 22, fontWeight: 700, color: getAvatarBg(user.profile.nickname || '用户') }}>
+                    {(user.profile.nickname || '?')[0]}
+                  </Text>
+                )}
+              </View>
+            </View>
+
+            {/* 信息 */}
+            <View style={{ flex: 1, minWidth: 0 }}>
+              {editing ? (
+                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Input
+                    value={nickName}
+                    onInput={(e) => setNickName(e.detail.value)}
+                    maxLength={10}
+                    placeholder="输入昵称"
+                    autoFocus
+                    style={{
+                      flex: 1, fontSize: 14, height: 36, padding: '0 8px',
+                      borderWidth: 1, borderStyle: 'solid', borderColor: C.semantic.border, borderRadius: 8,
+                    }}
+                  />
+                  <View
+                    onClick={handleSaveName}
+                    style={{
+                      width: 36, height: 36, borderRadius: 8, background: C.semantic.primary,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, color: '#fff', fontWeight: 700 }}>{savingProfile ? '...' : '保存'}</Text>
+                  </View>
+                </View>
+              ) : (
+                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 16, fontWeight: 700, color: C.semantic.foreground }} numberOfLines={1}>
+                    {user.profile.nickname || '同学'}
+                  </Text>
+                  <View
+                    onClick={() => setEditing(true)}
+                    style={{
+                      width: 26, height: 26, borderRadius: 6,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                    hoverStyle={{ backgroundColor: C.icon.iconGrayBg }}
+                  >
+                    <Icon name="pencil" size={14} color={C.semantic.mutedForeground} />
+                  </View>
+                </View>
+              )}
+
+              {/* 段位 */}
+              <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                <View style={{ paddingTop: 2, paddingBottom: 2, paddingLeft: 8, paddingRight: 8, borderRadius: 999, background: rankInfo.color }}>
+                  <Text style={{ fontSize: 11, fontWeight: 600, color: '#FFFFFF' }}>{rankInfo.name}</Text>
+                </View>
+                {nextRank && (
+                  <Text style={{ fontSize: 10, color: C.semantic.mutedForeground }}>
+                    距{nextRank.name}还需{rankProgress.target - rankProgress.current}XP
+                  </Text>
+                )}
+              </View>
+
+              {/* 进度条 */}
+              <View style={{ height: 6, background: C.icon.iconGrayBg, borderRadius: 999, overflow: 'hidden', marginTop: 8 }}>
+                <View style={{ height: '100%', width: `${rankProgress.pct * 100}%`, background: C.semantic.primary, borderRadius: 999 }} />
+              </View>
+
+              {/* XP / 年级 */}
+              <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                <Text style={{ fontSize: 11, fontWeight: 500, color: C.semantic.mutedForeground }}>{user.xp} XP</Text>
+                <Text style={{ fontSize: 11, color: C.semantic.border }}>|</Text>
+                <Text style={{ fontSize: 11, color: C.semantic.mutedForeground }}>{GRADE_LABELS[user.profile.targetGrade] ?? `${user.profile.targetGrade || 1}年级`}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* ═══ 数据统计 ═══ */}
+        <View style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
+          {[
+            { icon: 'coin', value: user.coins, label: '金币', bg: C.icon.iconGoldBg, color: C.duolingo.gold },
+            { icon: 'sparkles', value: user.diamonds, label: '钻石', bg: C.icon.iconBlueBg, color: C.duolingo.blue },
+            { icon: 'lightning', value: user.comboMax, label: '最高连击', bg: C.icon.iconRedBg, color: C.semantic.destructive },
+          ].map((s) => (
+            <View key={s.label} style={{ flex: 1, background: C.semantic.card, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: TOKEN.shadow.md }}>
+              <View style={{ width: 32, height: 32, borderRadius: 10, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                <Icon name={s.icon} size={16} color={s.color} />
+              </View>
+              <Text style={{ fontSize: 18, fontWeight: 700, color: C.semantic.foreground }}>{s.value}</Text>
+              <Text style={{ fontSize: 11, color: C.semantic.mutedForeground }}>{s.label}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* ═══ 快捷操作 ═══ */}
+        <View style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
+          {[
+            { icon: 'trophy', label: '排行榜', bg: C.icon.iconGoldBg, action: () => Taro.switchTab({ url: '/pages/leaderboard/index' }) },
+            { icon: 'chart', label: '学习统计', bg: C.icon.iconPurpleBg, action: () => Taro.navigateTo({ url: '/pages/stats/index' }) },
+          ].map((a) => (
+            <View
+              key={a.label}
+              className="taro-btn-press"
+              onClick={a.action}
+              hoverStyle={{ opacity: 0.8, backgroundColor: C.semantic.muted }}
+              style={{ flex: 1, background: C.semantic.card, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderWidth: 1, borderStyle: 'solid', borderColor: C.semantic.border, boxShadow: TOKEN.shadow.md }}
+            >
+              <View style={{ width: 32, height: 32, borderRadius: 10, background: a.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name={a.icon} size={18} color={C.semantic.foreground} />
+              </View>
+              <Text style={{ fontSize: 11, fontWeight: 500, color: C.semantic.mutedForeground }}>{a.label}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* ═══ 成就墙 ═══ */}
+        <View style={{ background: C.semantic.card, borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}>
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Icon name="trophy" size={14} color={C.semantic.foreground} />
+              <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>成就</Text>
+            </View>
+            <View style={{ paddingTop: 2, paddingBottom: 2, paddingLeft: 8, paddingRight: 8, borderRadius: 999, background: C.icon.iconGrayBg }}>
+              <Text style={{ fontSize: 10, color: C.semantic.mutedForeground }}>{user.achievements.length}/{achievementsMeta.length || 0}</Text>
+            </View>
+          </View>
+          {achievementsMeta.length > 0 ? (
+            <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {achievementsMeta.map((a) => {
+                const unlocked = user.achievements.some((x) => x.id === a.id)
+                return (
+                  <View
+                    key={a.id}
+                    style={{
+                      width: '18%', aspectRatio: '1', borderRadius: 12,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+                      background: unlocked ? PRIMARY_LIGHT : C.icon.iconGrayBg,
+                      borderWidth: 1, borderStyle: 'solid',
+                      borderColor: unlocked ? 'rgba(88,204,2,0.2)' : 'transparent',
+                      opacity: unlocked ? 1 : 0.4,
+                    }}
+                  >
+                    <Icon name={a.icon} size={18} color={C.semantic.foreground} />
+                    <Text style={{ fontSize: 9, fontWeight: 500, color: unlocked ? C.semantic.foreground : C.semantic.mutedForeground, textAlign: 'center' }} numberOfLines={1}>
+                      {a.name.slice(0, 4)}
+                    </Text>
+                  </View>
+                )
+              })}
+            </View>
+          ) : (
+            <Text style={{ fontSize: 13, color: C.semantic.mutedForeground, textAlign: 'center', padding: 16 }}>暂无成就数据</Text>
+          )}
+        </View>
+
+        {/* ═══ 学习数据 ═══ */}
+        <View style={{ background: C.semantic.card, borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}>
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <Icon name="chart" size={14} color={C.semantic.foreground} />
+            <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>学习数据</Text>
+          </View>
+          {[
+            { icon: 'goal', label: '已通关卡', value: String(Object.keys(user.completedLevels).length), sub: '个关卡' },
+            { icon: 'lightning', label: '最高连击', value: String(user.comboMax), sub: '次连击' },
+            { icon: 'trophy', label: '答题正确率', value: `${accuracy}%`, sub: `${user.learningStats.correctQuestions}/${user.learningStats.totalQuestions}题` },
+          ].map((row, i) => (
+            <View key={row.label}>
+              {i > 0 && <View style={{ height: 1, background: C.semantic.border, margin: '4px 0' }} />}
+              <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, padding: '8px 0' }}>
+                <View style={{ width: 32, height: 32, borderRadius: 10, background: C.icon.iconGreenBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name={row.icon} size={16} color={C.semantic.foreground} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>{row.label}</Text>
+                  <Text style={{ fontSize: 10, color: C.semantic.mutedForeground, opacity: 0.6 }}>{row.sub}</Text>
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>{row.value}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* ═══ 我的班级 ═══ */}
+        <View style={{ background: C.semantic.card, borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}>
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <Icon name="users" size={14} color={C.semantic.foreground} />
+            <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>我的班级</Text>
+          </View>
+          {classLoading ? (
+            <Text style={{ fontSize: 13, color: C.semantic.mutedForeground, textAlign: 'center', padding: 16 }}>加载中...</Text>
+          ) : myClass ? (
+            <View>
+              <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>{myClass.name}</Text>
+                  <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                    <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>班级码:</Text>
+                    <View style={{ paddingTop: 2, paddingBottom: 2, paddingLeft: 6, paddingRight: 6, borderRadius: 4, background: C.icon.iconGrayBg }}>
+                      <Text style={{ fontSize: 12, color: C.semantic.foreground, fontFamily: 'monospace' }}>{myClass.code}</Text>
+                    </View>
+                    <View onClick={handleCopyCode}><Icon name="clipboard" size={12} color={C.semantic.primary} /></View>
+                  </View>
+                </View>
+                <View style={{ paddingTop: 2, paddingBottom: 2, paddingLeft: 8, paddingRight: 8, borderRadius: 999, background: C.icon.iconGrayBg }}>
+                  <Text style={{ fontSize: 11, color: C.semantic.mutedForeground }}>{myClass.memberCount}人</Text>
+                </View>
+              </View>
+              <View style={{ display: 'flex', flexDirection: 'row', gap: 8, marginTop: 12 }}>
+                <View
+                  onClick={() => Taro.switchTab({ url: '/pages/leaderboard/index' })}
+                  style={{ flex: 1, height: 36, borderRadius: 8, borderWidth: 1, borderStyle: 'solid', borderColor: C.semantic.border, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ fontSize: 13, color: C.semantic.foreground }}>同学榜</Text>
+                </View>
+                <View
+                  onClick={handleLeaveClass}
+                  style={{ flex: 1, height: 36, borderRadius: 8, background: C.icon.iconGrayBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ fontSize: 13, color: C.semantic.mutedForeground }}>退出班级</Text>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View>
+              <Text style={{ fontSize: 13, color: C.semantic.mutedForeground, marginBottom: 12 }}>加入班级，和同学一起学习</Text>
+              <View style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
+                <View
+                  onClick={() => { setClassTab('join'); setShowClassDialog(true) }}
+                  style={{ flex: 1, height: 40, borderRadius: 8, borderWidth: 1, borderStyle: 'solid', borderColor: C.semantic.border, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ fontSize: 13, color: C.semantic.foreground }}>加入班级</Text>
+                </View>
+                <View
+                  onClick={() => { setClassTab('create'); setShowClassDialog(true) }}
+                  style={{ flex: 1, height: 40, borderRadius: 8, background: C.semantic.primary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ fontSize: 13, color: '#fff' }}>创建班级</Text>
+                </View>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* ═══ 设置 ═══ */}
+        <View style={{ background: C.semantic.card, borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}>
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <Icon name="settings" size={14} color={C.semantic.foreground} />
+            <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>设置</Text>
+          </View>
+          {/* 音效 */}
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, padding: '10px 0' }}>
+            <Icon name={user.settings.sound ? 'soundOn' : 'soundOff'} size={16} color={C.semantic.foreground} />
+            <Text style={{ flex: 1, fontSize: 14, color: user.settings.sound ? C.semantic.foreground : C.semantic.mutedForeground }}>音效</Text>
+            <View
+              onClick={() => toggleSetting('sound')}
+              style={{
+                width: 44, height: 24, borderRadius: 12,
+                background: user.settings.sound ? C.semantic.primary : C.semantic.border,
+                display: 'flex', flexDirection: 'row', alignItems: 'center',
+                paddingLeft: user.settings.sound ? 22 : 2, paddingRight: user.settings.sound ? 2 : 22,
+                transition: 'all 0.2s',
+              }}
+            >
+              <View style={{ width: 20, height: 20, borderRadius: 10, background: '#fff' }} />
+            </View>
+          </View>
+          <View style={{ height: 1, background: C.semantic.border }} />
+          {/* 震动 */}
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, padding: '10px 0' }}>
+            <Icon name={user.settings.vibration ? 'vibrateOn' : 'vibrateOff'} size={16} color={C.semantic.foreground} />
+            <Text style={{ flex: 1, fontSize: 14, color: user.settings.vibration ? C.semantic.foreground : C.semantic.mutedForeground }}>震动反馈</Text>
+            <View
+              onClick={() => toggleSetting('vibration')}
+              style={{
+                width: 44, height: 24, borderRadius: 12,
+                background: user.settings.vibration ? C.semantic.primary : C.semantic.border,
+                display: 'flex', flexDirection: 'row', alignItems: 'center',
+                paddingLeft: user.settings.vibration ? 22 : 2, paddingRight: user.settings.vibration ? 2 : 22,
+                transition: 'all 0.2s',
+              }}
+            >
+              <View style={{ width: 20, height: 20, borderRadius: 10, background: '#fff' }} />
+            </View>
+          </View>
+          <View style={{ height: 1, background: C.semantic.border }} />
+          {/* 导出数据 */}
+          <View
+            onClick={handleExport}
+            style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '12px 0' }}
+          >
+            <Icon name="download" size={14} color={C.semantic.foreground} />
+            <Text style={{ fontSize: 14, fontWeight: 500, color: C.semantic.foreground }}>导出我的数据</Text>
+          </View>
+        </View>
+
+        {/* ═══ 底部操作 ═══ */}
+        <View style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 4 }}>
+          <View
+            className="taro-btn-press"
+            onClick={handleLogout}
+            style={{
+              height: 44, borderRadius: 12, borderWidth: 1, borderStyle: 'solid', borderColor: C.semantic.border,
+              display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}
+          >
+            <Text style={{ fontSize: 14, fontWeight: 500, color: C.semantic.destructive }}>退出登录</Text>
+          </View>
+          {user.profile.phone ? (
+            <View
+              onClick={handleReset}
+              style={{ height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>重置存档</Text>
+            </View>
+          ) : null}
+          <Text style={{ fontSize: 10, color: C.semantic.mutedForeground, textAlign: 'center', paddingTop: 8 }}>
+            算力先锋 MathQuest · v0.1
+          </Text>
+        </View>
       </View>
 
-      {/* 用户卡片 */}
-      <Card padding={20} style={{ margin: 8 }}>
-        <Row gap={16}>
-          <View
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 36,
-              background: '#58CC02',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexDirection: 'row',
-            }}
-          >
-            <Text style={{ fontSize: 28, color: '#FFF', fontWeight: 700 }}>
-              {(user.profile.nickname || '小')[0]}
-            </Text>
-          </View>
-          <Col gap={4} flex={1}>
-            <Text style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>
-              {user.profile.nickname || '小同学'}
-            </Text>
-            <Text style={{ fontSize: 13, color: '#6b7280' }}>
-              {user.profile.learningStage || '小学'} · {user.rank} · 🔥 {user.streak}
-            </Text>
-          </Col>
-        </Row>
-        <Spacer size={12} />
-        <Row gap={0} justify="space-between">
-          <Col style={{ alignItems: 'center' }} gap={2} flex={1}>
-            <Text style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{user.xp}</Text>
-            <Text style={{ fontSize: 11, color: '#6b7280' }}>总 XP</Text>
-          </Col>
-          <Col style={{ alignItems: 'center' }} gap={2} flex={1}>
-            <Text style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{user.coins}</Text>
-            <Text style={{ fontSize: 11, color: '#6b7280' }}>金币</Text>
-          </Col>
-          <Col style={{ alignItems: 'center' }} gap={2} flex={1}>
-            <Text style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{user.diamonds}</Text>
-            <Text style={{ fontSize: 11, color: '#6b7280' }}>钻石</Text>
-          </Col>
-          <Col style={{ alignItems: 'center' }} gap={2} flex={1}>
-            <Text style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>{user.streak}</Text>
-            <Text style={{ fontSize: 11, color: '#6b7280' }}>连续天数</Text>
-          </Col>
-        </Row>
-      </Card>
-
-      <Spacer size={8} />
-
-      {/* 年级选择 */}
-      <Card padding={16} style={{ margin: 8 }}>
-        <Col gap={12}>
-          <Title size={16}>选择年级</Title>
-          <Row gap={8} style={{ flexWrap: 'wrap' }}>
-            {[1, 2, 3, 4, 5, 6].map((g) => (
-              <View key={g}>
-                <Button
-                  size="sm"
-                  variant={user.grade === g ? 'primary' : 'secondary'}
-                  onClick={() => setNewGrade(g)}
-                  style={{ minWidth: 64 }}
-                >
-                  {g}年级
-                </Button>
-              </View>
-            ))}
-          </Row>
-        </Col>
-      </Card>
-
-      <Spacer size={8} />
-
-      {/* 设置项 */}
-      <Card padding={0} style={{ margin: 8 }}>
-        {[
-          { icon: '⚙️', title: '设置', desc: '声音与振动' },
-          { icon: '📚', title: '学习统计', desc: '查看学习进度', action: () => Taro.showToast({ title: '即将上线', icon: 'none' }) },
-          { icon: '🏆', title: '成就徽章', desc: '已解锁成就', action: () => Taro.showToast({ title: '即将上线', icon: 'none' }) },
-          { icon: '❤️', title: '关于我们', desc: '了解数学探险', action: () => Taro.showToast({ title: '数学探险 v1.0', icon: 'none' }) },
-        ].map((item, idx) => (
-          <View
-            key={item.title}
-            onClick={item.action || (() => Taro.showToast({ title: '敬请期待', icon: 'none' }))}
-            style={{
-              padding: 16,
-              borderBottom: idx < 3 ? '1px solid #F3F4F6' : 'none',
-            }}
-          >
-            <Row justify="space-between">
-              <Row gap={12} flex={1}>
-                <Text style={{ fontSize: 20 }}>{item.icon}</Text>
-                <Col gap={2}>
-                  <Text style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a' }}>{item.title}</Text>
-                  <Text style={{ fontSize: 12, color: '#6b7280' }}>{item.desc}</Text>
-                </Col>
-              </Row>
-              <Text style={{ fontSize: 14, color: '#D1D5DB' }}>›</Text>
-            </Row>
-          </View>
-        ))}
-      </Card>
-
-      <Spacer size={16} />
-
-      {/* 退出登录 */}
-      <Card style={{ margin: 8 }} padding={0}>
+      {/* ═══ 头像选择弹窗 ═══ */}
+      {showAvatarPicker && (
         <View
-          onClick={handleLogout}
+          onClick={() => setShowAvatarPicker(false)}
           style={{
-            padding: 16,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'row',
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 60,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32,
           }}
         >
-          <Text style={{ fontSize: 15, color: '#EF4444', fontWeight: 600 }}>退出登录</Text>
+          <View
+            className="taro-pop-in"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: 280, background: C.semantic.card, borderRadius: 20, padding: 20,
+              boxShadow: TOKEN.shadow.lg,
+            }}
+          >
+            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <Text style={{ fontSize: 15, fontWeight: 700, color: C.semantic.foreground }}>选择头像</Text>
+              <View
+                onClick={() => setShowAvatarPicker(false)}
+                style={{
+                  width: 28, height: 28, borderRadius: 14,
+                  background: C.icon.iconGrayBg,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <Icon name="x" size={16} color={C.semantic.mutedForeground} />
+              </View>
+            </View>
+            <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+              {AVATAR_SEEDS.map(seed => (
+                <View
+                  key={seed}
+                  onClick={() => handleSelectAvatar(seed)}
+                  style={{
+                    width: 52, height: 52, borderRadius: 12, overflow: 'hidden',
+                    borderWidth: user.profile.avatar === seed ? 2 : 0,
+                    borderStyle: 'solid',
+                    borderColor: user.profile.avatar === seed ? C.semantic.primary : 'transparent',
+                  }}
+                >
+                  <Image src={getAvatarUrl(seed)} mode="aspectFill" style={{ width: '100%', height: '100%' }} />
+                </View>
+              ))}
+            </View>
+          </View>
         </View>
-      </Card>
+      )}
 
-      <Spacer size={40} />
-    </View>
+      {/* ═══ 班级弹窗 ═══ */}
+      {showClassDialog && (
+        <View
+          onClick={() => !submittingClass && setShowClassDialog(false)}
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 50,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32,
+          }}
+        >
+          <View
+            className="taro-pop-in"
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: '100%', background: '#fff', borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}
+          >
+            {/* 标题 */}
+            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 12, borderBottom: `1px solid ${C.semantic.border}` }}>
+              <Text style={{ fontSize: 16, fontWeight: 700, color: C.semantic.foreground }}>
+                {classTab === 'join' ? '加入班级' : '创建班级'}
+              </Text>
+              <View onClick={() => !submittingClass && setShowClassDialog(false)}><Icon name="x" size={16} color={C.semantic.mutedForeground} /></View>
+            </View>
+
+            {/* Tab 切换 */}
+            <View style={{ display: 'flex', flexDirection: 'row', gap: 8, paddingTop: 12 }}>
+              {(['join', 'create'] as const).map(tab => (
+                <View
+                  key={tab}
+                  onClick={() => setClassTab(tab)}
+                  style={{
+                    flex: 1, height: 36, borderRadius: 8,
+                    background: classTab === tab ? C.semantic.primary : C.icon.iconGrayBg,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 13, fontWeight: 500, color: classTab === tab ? '#fff' : C.semantic.mutedForeground }}>
+                    {tab === 'join' ? '加入班级' : '创建班级'}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            {/* 输入区 */}
+            <View style={{ paddingTop: 16, paddingBottom: 16 }}>
+              {classTab === 'join' ? (
+                <View>
+                  <Text style={{ fontSize: 12, color: C.semantic.mutedForeground, marginBottom: 8 }}>输入班级码</Text>
+                  <Input
+                    value={classCode}
+                    onInput={(e) => setClassCode(e.detail.value.toUpperCase())}
+                    placeholder="例如：ABC123"
+                    maxLength={12}
+                    style={{
+                      fontSize: 16, fontFamily: 'monospace', textAlign: 'center', letterSpacing: 2,
+                      height: 44, padding: '0 16px', borderRadius: 12,
+                      borderWidth: 1, borderStyle: 'solid', borderColor: C.semantic.border,
+                    }}
+                  />
+                  <Text style={{ fontSize: 12, color: C.semantic.mutedForeground, marginTop: 8 }}>向老师或同学获取班级码</Text>
+                </View>
+              ) : (
+                <View>
+                  <Text style={{ fontSize: 12, color: C.semantic.mutedForeground, marginBottom: 8 }}>班级名称</Text>
+                  <Input
+                    value={className}
+                    onInput={(e) => setClassName(e.detail.value)}
+                    placeholder="例如：三年级一班"
+                    maxLength={20}
+                    style={{
+                      fontSize: 16, height: 44, padding: '0 16px', borderRadius: 12,
+                      borderWidth: 1, borderStyle: 'solid', borderColor: C.semantic.border,
+                    }}
+                  />
+                  <Text style={{ fontSize: 12, color: C.semantic.mutedForeground, marginTop: 8 }}>创建后可分享班级码给同学加入</Text>
+                </View>
+              )}
+              <View
+                className="taro-btn-press"
+                onClick={classTab === 'join' ? handleJoinClass : handleCreateClass}
+                style={{
+                  height: 44, borderRadius: 12, background: C.semantic.primary,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 16,
+                  opacity: submittingClass ? 0.6 : 1,
+                }}
+              >
+                <Text style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>
+                  {submittingClass ? '处理中...' : classTab === 'join' ? '加入' : '创建'}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
+    </ScrollView>
   )
 }

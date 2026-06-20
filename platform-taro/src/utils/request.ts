@@ -3,9 +3,9 @@
  */
 import Taro from '@tarojs/taro'
 
-const BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://api.mathquest.com'
-  : 'http://localhost:3001'
+// 后端服务地址
+// 小程序运行时无 process 对象，直接硬编码；生产部署时修改此处
+const BASE_URL = 'http://localhost:3001'
 
 export const TOKEN_KEY = 'mq_token'
 

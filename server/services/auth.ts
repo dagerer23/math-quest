@@ -5,6 +5,7 @@
 import {
   findUserByPhone,
   findUserById,
+  findUserByOpenid,
   createUser,
   updateUser,
   getVerificationRecord,
@@ -269,4 +270,50 @@ export async function getAssessment(userId: string): Promise<{ success: boolean;
   }
   const record = await getLatestAssessment(userId)
   return { success: true, message: 'ok', assessment: record }
+}
+
+/**
+ * 微信小程序登录
+ * - 用 code 调用微信 jscode2session 接口换取 openid
+ * - 用 openid 查找或创建用户
+ * - 生成 30 天 token 返回
+ * - 未配置 WX_APPID/WX_SECRET 时进入开发模式（用 code 作为模拟 openid）
+ */
+export async function wxLogin(code: string): Promise<{
+  success: boolean
+  message: string
+  user?: any
+  token?: string
+}> {
+  const WX_APPID = process.env.WX_APPID || ''
+  const WX_SECRET = process.env.WX_SECRET || ''
+
+  let openid: string
+
+  if (WX_APPID && WX_SECRET) {
+    const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${WX_APPID}&secret=${WX_SECRET}&js_code=${encodeURIComponent(code)}&grant_type=authorization_code`
+    const resp = await fetch(url)
+    const data: any = await resp.json()
+    if (data.errcode) {
+      console.error(`[Auth] 微信登录失败: errcode=${data.errcode}, errmsg=${data.errmsg}`)
+      return { success: false, message: `微信登录失败: ${data.errmsg}` }
+    }
+    openid = data.openid
+  } else {
+    console.warn('[Auth] 未配置 WX_APPID/WX_SECRET，使用开发模式（code 作为模拟 openid）')
+    openid = `dev_${code}`
+  }
+
+  // 查找或创建用户
+  let user = await findUserByOpenid(openid)
+  if (!user) {
+    user = await createUser('', { openid })
+    console.log(`[Auth] 微信新用户注册: openid=${openid}, id=${user.id}`)
+  } else {
+    user = await updateUser(user.id, { lastLoginAt: Date.now() })
+    console.log(`[Auth] 微信用户登录: openid=${openid}, id=${user.id}`)
+  }
+
+  const token = await generateToken(user.id, user.phone || '')
+  return { success: true, message: '登录成功', user, token }
 }

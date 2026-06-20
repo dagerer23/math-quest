@@ -1,4 +1,5 @@
 import { View, Text, Input as TaroInput, Image } from '@tarojs/components'
+import { Icon } from '@/components/Icon'
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
 type Size = 'sm' | 'md' | 'lg'
@@ -33,6 +34,7 @@ export function Button({
   size = 'md',
   block = false,
   disabled = false,
+  className,
   style,
   onClick,
 }: ButtonProps) {
@@ -41,6 +43,7 @@ export function Button({
 
   return (
     <View
+      className={className}
       onClick={disabled ? undefined : onClick}
       style={{
         display: 'flex',
@@ -184,36 +187,17 @@ export function Progress({ value, max = 100, color = '#58CC02', bg = '#E5E7EB', 
   )
 }
 
-interface IconProps {
-  size?: number
-  color?: string
-  style?: React.CSSProperties
+// 旧图标键名 -> SemanticKey（保持 EmojiIcon API 向后兼容）
+const emojiNameMap: Record<string, string> = {
+  star: 'star', heart: 'heart', coin: 'coin', diamond: 'diamond',
+  trophy: 'trophy', user: 'user', book: 'book', home: 'home',
+  goal: 'goal', mistake: 'xCircle', rank: 'chart', fire: 'fire',
+  check: 'checkCircle', arrow: 'arrowRight', back: 'arrowLeft',
+  plus: 'plus', minus: 'minus', gift: 'gift', calendar: 'calendar',
+  time: 'clock', question: 'question',
 }
 
-const emojiMap = {
-  star: '⭐',
-  heart: '❤️',
-  coin: '🪙',
-  diamond: '💎',
-  trophy: '🏆',
-  user: '👤',
-  book: '📖',
-  home: '🏠',
-  goal: '🎯',
-  mistake: '❌',
-  rank: '📊',
-  fire: '🔥',
-  check: '✅',
-  arrow: '➡️',
-  back: '⬅️',
-  plus: '➕',
-  minus: '➖',
-  gift: '🎁',
-  calendar: '📅',
-  time: '⏱️',
-  question: '❓',
-}
-
-export function EmojiIcon({ name, size = 24, style }: { name: keyof typeof emojiMap; size?: number; style?: React.CSSProperties }) {
-  return <Text style={{ fontSize: size, lineHeight: size, ...style }}>{emojiMap[name]}</Text>
+/** @deprecated 请直接使用 Icon 组件 */
+export function EmojiIcon({ name, size = 24, color = '#1a1a1a', style }: { name: string; size?: number; color?: string; style?: React.CSSProperties }) {
+  return <Icon name={emojiNameMap[name] || name} size={size} color={color} style={style} />
 }

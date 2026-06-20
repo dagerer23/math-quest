@@ -107,7 +107,7 @@ export async function sendEncouragement(fromUserId: string, toUserId: string, co
   if (!toUser) return { success: false, message: '同学不存在' }
 
   await dbSendEncouragement(fromUserId, toUserId, context)
-  return { success: true, message: '已送出一朵花 🌸' }
+  return { success: true, message: '已送出一朵花' }
 }
 
 /** 获取收到的鼓励列表 */

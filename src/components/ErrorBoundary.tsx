@@ -2,6 +2,7 @@ import { Component, ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Icon } from '@/components/Icon'
 
 interface Props {
   children: ReactNode
@@ -49,7 +50,7 @@ export default class ErrorBoundary extends Component<Props, State> {
         <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center p-4">
           <Card className="max-w-md w-full">
             <CardContent className="p-6 text-center">
-              <div className="text-5xl mb-4">😵</div>
+              <Icon name="frown" size={48} className="text-gray-400 mb-4" />
               <h1 className="text-xl font-bold text-foreground mb-2">
                 出错了
               </h1>

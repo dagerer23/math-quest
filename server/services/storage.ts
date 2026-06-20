@@ -25,7 +25,7 @@ export async function findUserByPhone(phone: string): Promise<User | null> {
   if (!pool) return null
 
   const [rows] = await pool.query<RowDataPacket[]>(
-    'SELECT id, phone, nickname, avatar, learning_stage, learning_goal, target_grade, created_at, last_login_at FROM t_user WHERE phone = ?',
+    'SELECT id, phone, openid, nickname, avatar, learning_stage, learning_goal, target_grade, created_at, last_login_at FROM t_user WHERE phone = ?',
     [phone]
   )
   if (rows.length === 0) return null
@@ -33,6 +33,7 @@ export async function findUserByPhone(phone: string): Promise<User | null> {
   return {
     id: row.id,
     phone: row.phone,
+    openid: row.openid,
     nickname: row.nickname,
     avatar: row.avatar,
     learningStage: row.learning_stage,
@@ -52,7 +53,7 @@ export async function findUserById(id: string): Promise<User | null> {
   if (!pool) return null
 
   const [rows] = await pool.query<RowDataPacket[]>(
-    'SELECT id, phone, nickname, avatar, learning_stage, learning_goal, target_grade, created_at, last_login_at FROM t_user WHERE id = ?',
+    'SELECT id, phone, openid, nickname, avatar, learning_stage, learning_goal, target_grade, created_at, last_login_at FROM t_user WHERE id = ?',
     [id]
   )
   if (rows.length === 0) return null
@@ -60,6 +61,38 @@ export async function findUserById(id: string): Promise<User | null> {
   return {
     id: row.id,
     phone: row.phone,
+    openid: row.openid,
+    nickname: row.nickname,
+    avatar: row.avatar,
+    learningStage: row.learning_stage,
+    learningGoal: row.learning_goal,
+    targetGrade: row.target_grade,
+    createdAt: row.created_at,
+    lastLoginAt: row.last_login_at,
+  }
+}
+
+export async function findUserByOpenid(openid: string): Promise<User | null> {
+  if (isMemoryMode()) {
+    for (const user of memoryUsers.values()) {
+      if (user.openid === openid) return user
+    }
+    return null
+  }
+
+  const pool = getPool()
+  if (!pool) return null
+
+  const [rows] = await pool.query<RowDataPacket[]>(
+    'SELECT id, phone, openid, nickname, avatar, learning_stage, learning_goal, target_grade, created_at, last_login_at FROM t_user WHERE openid = ?',
+    [openid]
+  )
+  if (rows.length === 0) return null
+  const row = rows[0]
+  return {
+    id: row.id,
+    phone: row.phone,
+    openid: row.openid,
     nickname: row.nickname,
     avatar: row.avatar,
     learningStage: row.learning_stage,
@@ -75,9 +108,11 @@ export async function createUser(phone: string, profile?: Partial<User>): Promis
   const now = Date.now()
   // 新用户不设置默认昵称/年级，让前端走 onboarding + 测评流程
   // 只有显式传入 profile 时才覆盖（例如用户手动注册时）
+  // 微信登录用户：phone 可为空字符串，openid 由 profile 传入
   const user: User = {
     id,
     phone,
+    openid: profile?.openid ?? null,
     nickname: profile?.nickname ?? null,
     avatar: profile?.avatar ?? null,
     learningStage: profile?.learningStage ?? null,
@@ -89,7 +124,7 @@ export async function createUser(phone: string, profile?: Partial<User>): Promis
 
   if (isMemoryMode()) {
     memoryUsers.set(id, user)
-    console.log(`[Memory] 新用户注册: phone=${phone}, id=${id}`)
+    console.log(`[Memory] 新用户注册: phone=${phone || '(空)'}, openid=${user.openid || '(空)'}, id=${id}`)
     return user
   }
 
@@ -97,11 +132,12 @@ export async function createUser(phone: string, profile?: Partial<User>): Promis
   if (!pool) return user
 
   await pool.query<ResultSetHeader>(
-    `INSERT INTO t_user (id, phone, nickname, avatar, learning_stage, learning_goal, target_grade, created_at, last_login_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO t_user (id, phone, openid, nickname, avatar, learning_stage, learning_goal, target_grade, created_at, last_login_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       id,
-      phone,
+      phone || null,
+      user.openid || null,
       user.nickname,
       user.avatar,
       user.learningStage,
@@ -111,7 +147,7 @@ export async function createUser(phone: string, profile?: Partial<User>): Promis
       now,
     ]
   )
-  console.log(`[MySQL] 新用户注册: phone=${phone}, id=${id}`)
+  console.log(`[MySQL] 新用户注册: phone=${phone || '(空)'}, openid=${user.openid || '(空)'}, id=${id}`)
   return user
 }
 
@@ -514,7 +550,7 @@ export async function findClassMembersByIds(userIds: string[]): Promise<ClassMem
         result.push({
           userId: u.id,
           nickname: u.nickname || '同学',
-          avatar: u.avatar || '😊',
+          avatar: u.avatar || '',
           targetGrade: u.targetGrade || 0,
           xp: 0,
           createdAt: u.createdAt,
@@ -533,7 +569,7 @@ export async function findClassMembersByIds(userIds: string[]): Promise<ClassMem
   return rows.map((r) => ({
     userId: r.id,
     nickname: r.nickname || '同学',
-    avatar: r.avatar || '😊',
+    avatar: r.avatar || '',
     targetGrade: r.target_grade || 0,
     xp: 0,
     createdAt: r.created_at,
@@ -549,7 +585,7 @@ export async function sendEncouragement(fromUserId: string, toUserId: string, co
     id: 'enc-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
     fromUserId,
     toUserId,
-    emoji: '🌸',
+    emoji: 'flower',
     context,
     createdAt: Date.now(),
   }
@@ -576,7 +612,7 @@ export async function getEncouragementsReceived(userId: string): Promise<Array<E
     const list = memoryEncouragements.get(userId) || []
     return list.slice(-10).map((enc) => {
       const u = memoryUsers.get(enc.fromUserId)
-      return { ...enc, fromUserName: u?.nickname || '同学', fromUserAvatar: u?.avatar || '😊' }
+      return { ...enc, fromUserName: u?.nickname || '同学', fromUserAvatar: u?.avatar || '' }
     })
   }
   const pool = getPool()
@@ -593,7 +629,7 @@ export async function getEncouragementsReceived(userId: string): Promise<Array<E
     context: r.context,
     createdAt: r.created_at,
     fromUserName: r.from_user_name || '同学',
-    fromUserAvatar: r.from_user_avatar || '😊',
+    fromUserAvatar: r.from_user_avatar || '',
   }))
 }
 

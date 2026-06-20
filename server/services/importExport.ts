@@ -151,7 +151,7 @@ export function generateExcelTemplate() {
   const header = ['关卡ID', '年级', '章节', '题目ID', '类型', '知识点', '难度', '题目内容', '选项(每行一个用|分隔)', '答案', '解析', 'XP', '图释']
   const sample = [
     'g1-L1', '1', '5以内加减法', 'g1l1q_new', 'choice', '5以内加法', '1',
-    '1 + 1 = ?', '1|2|3|4', '2', '1+1=2', '10', '🍎',
+    '1 + 1 = ?', '1|2|3|4', '2', '1+1=2', '10', '苹果',
   ]
   return [header, sample].map(row => row.join(',')).join('\n')
 }

@@ -1,0 +1,55 @@
+{
+  "miniprogramRoot": "./",
+  "h5Root": "dist/h5",
+  "projectname": "math-quest-taro",
+  "appid": "wx0ea0a6172fd33",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": true,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": true,
+    "lazyloadPlaceholderEnable": false,
+    "useMultiFrameRuntime": true,
+    "useApiHook": true,
+    "useApiHostProcess": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "useIsolateData": true,
+    "userConfirmedBundleSwitch": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "disableUseStrict": false,
+    "minifyWXML": true,
+    "showES6CompileOption": false,
+    "useCompilerPlugins": false
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.3.2",
+  "srcMiniprogramRoot": "./",
+  "h5": {
+    "publicPath": "/",
+    "staticDirectory": "static",
+    "output": {
+      "path": "dist/h5",
+      "filename": "js/[name].[hash:8].js",
+      "chunkFilename": "js/[name].[hash:8].js"
+    }
+  }
+}

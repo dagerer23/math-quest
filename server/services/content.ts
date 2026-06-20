@@ -397,16 +397,16 @@ export interface AchievementRow {
 export async function listAchievements(): Promise<AchievementRow[]> {
   if (db.useMemory) {
     return [
-      { id: 'first_blood', name: '初出茅庐', description: '完成第 1 关', icon: '⚔️', sortOrder: 1 },
-      { id: 'combo_5', name: '连击新星', description: '达成 5 连击', icon: '⚡', sortOrder: 2 },
-      { id: 'combo_10', name: '连击大师', description: '达成 10 连击', icon: '🔥', sortOrder: 3 },
-      { id: 'streak_3', name: '坚持不懈', description: '连续打卡 3 天', icon: '📅', sortOrder: 4 },
-      { id: 'streak_7', name: '一周学霸', description: '连续打卡 7 天', icon: '🏆', sortOrder: 5 },
-      { id: 'coins_500', name: '小富翁', description: '累计获得 500 金币', icon: '🪙', sortOrder: 6 },
-      { id: 'no_mistake', name: '完美通关', description: '一关内零失误', icon: '💎', sortOrder: 7 },
-      { id: 'boss_killer', name: 'BOSS 杀手', description: '击败 1 个 BOSS 关卡', icon: '🐲', sortOrder: 8 },
-      { id: 'xp_1000', name: '经验大亨', description: '累计获得 1000 XP', icon: '🌟', sortOrder: 9 },
-      { id: 'mistake_master', name: '错题克星', description: '错题本累积 20 题后清空', icon: '📓', sortOrder: 10 },
+      { id: 'first_blood', name: '初出茅庐', description: '完成第 1 关', icon: 'sword', sortOrder: 1 },
+      { id: 'combo_5', name: '连击新星', description: '达成 5 连击', icon: 'lightning', sortOrder: 2 },
+      { id: 'combo_10', name: '连击大师', description: '达成 10 连击', icon: 'fire', sortOrder: 3 },
+      { id: 'streak_3', name: '坚持不懈', description: '连续打卡 3 天', icon: 'calendar', sortOrder: 4 },
+      { id: 'streak_7', name: '一周学霸', description: '连续打卡 7 天', icon: 'trophy', sortOrder: 5 },
+      { id: 'coins_500', name: '小富翁', description: '累计获得 500 金币', icon: 'coin', sortOrder: 6 },
+      { id: 'no_mistake', name: '完美通关', description: '一关内零失误', icon: 'diamond', sortOrder: 7 },
+      { id: 'boss_killer', name: 'BOSS 杀手', description: '击败 1 个 BOSS 关卡', icon: 'ghost', sortOrder: 8 },
+      { id: 'xp_1000', name: '经验大亨', description: '累计获得 1000 XP', icon: 'sparkles', sortOrder: 9 },
+      { id: 'mistake_master', name: '错题克星', description: '错题本累积 20 题后清空', icon: 'memo', sortOrder: 10 },
     ]
   }
   const pool = db.getPool()!
@@ -442,9 +442,9 @@ export interface DailyGoalTemplateRow {
 export async function listDailyGoalTemplates(): Promise<DailyGoalTemplateRow[]> {
   if (db.useMemory) {
     return [
-      { id: 'daily-xp', title: '获得50经验值', description: '今天内通过答题获得50点经验值', icon: '⚡', type: 'xp', target: 50, rewardXp: 30, rewardCoins: 20, sortOrder: 1 },
-      { id: 'daily-questions', title: '完成10道题目', description: '今天内完成10道数学题', icon: '🎯', type: 'questions', target: 10, rewardXp: 40, rewardCoins: 30, sortOrder: 2 },
-      { id: 'daily-streak', title: '保持签到', description: '今日已经完成签到', icon: '🔥', type: 'streak', target: 1, rewardXp: 20, rewardCoins: 15, sortOrder: 3 },
+      { id: 'daily-xp', title: '获得50经验值', description: '今天内通过答题获得50点经验值', icon: 'lightning', type: 'xp', target: 50, rewardXp: 30, rewardCoins: 20, sortOrder: 1 },
+      { id: 'daily-questions', title: '完成10道题目', description: '今天内完成10道数学题', icon: 'goal', type: 'questions', target: 10, rewardXp: 40, rewardCoins: 30, sortOrder: 2 },
+      { id: 'daily-streak', title: '保持签到', description: '今日已经完成签到', icon: 'fire', type: 'streak', target: 1, rewardXp: 20, rewardCoins: 15, sortOrder: 3 },
     ]
   }
   const pool = db.getPool()!

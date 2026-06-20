@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
 import { getQuestionsByIds } from '@/services/content'
-import { Trash2, ChevronDown, ChevronUp, CheckCircle2, ArrowLeft } from 'lucide-react'
+import { Trash2, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react'
+import { Icon } from '@/components/Icon'
 import clsx from 'clsx'
 import { useSessionStore } from '@/store/useSessionStore'
 import type { Question } from '@/types/models'
@@ -170,10 +171,10 @@ export default function Mistakes() {
                 <span>{item.kp}</span>
                 {m > 0 && (
                   <span className={clsx(
-                    'text-[10px] px-1.5 py-0.5 rounded-full font-bold',
+                    'text-[10px] px-1.5 py-0.5 rounded-full font-bold inline-flex items-center gap-0.5',
                     m >= 3 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
                   )}>
-                    ✓{m}/3
+                    <Icon name="check" size={10} />{m}/3
                   </span>
                 )}
               </div>
@@ -208,9 +209,9 @@ export default function Mistakes() {
                   </div>
 
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>📚 来自：{item.levelName}</span>
+                    <span>来自：{item.levelName}</span>
                     {isMastered ? (
-                      <span className="text-primary font-bold">🎉 已掌握</span>
+                      <span className="text-primary font-bold">已掌握</span>
                     ) : m > 0 ? (
                       <span>掌握进度：<span className="text-primary font-bold">{m}/3</span></span>
                     ) : null}
@@ -247,9 +248,6 @@ export default function Mistakes() {
 
       {/* 头部 */}
       <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
-        <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
-          <ArrowLeft size={20} />
-        </button>
         <h1 className="text-lg font-bold text-foreground">错题本</h1>
         <span className="ml-auto text-xs text-muted-foreground">{allItems.length} 题</span>
       </div>

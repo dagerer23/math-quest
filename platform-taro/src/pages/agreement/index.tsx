@@ -1,123 +1,230 @@
-import { View, Text } from '@tarojs/components'
+import { useState } from 'react'
+import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { Button } from '@/components/ui/Controls'
-import { Card, Title, Spacer, Row, Col } from '@/components/ui/Basic'
+import { Icon } from '@/components/Icon'
+import { C, TOKEN } from '@/styles/theme'
 
-const AGREEMENT_TEXT = `用户协议
+const PRIMARY_LIGHT = 'rgba(88,204,2,0.08)'
 
-更新日期：2025年1月1日
+// 协议内容（与 web 端一致，品牌名「算力先锋」）
+const AGREEMENT_CONTENT = `
+## 算力先锋用户协议
 
-欢迎使用数学探险！
+**更新日期：2025年1月1日**
 
-一、服务说明
-数学探险是一款面向小学生的数学学习应用，旨在通过游戏化的方式帮助用户提升数学能力。本应用提供数学题目练习、学习进度跟踪、成就系统等功能。
+### 一、总则
 
-二、用户注册与账号
-1. 用户需通过手机号注册账号，确保提供的信息真实有效。
-2. 用户应妥善保管账号信息，因账号保管不善造成的损失由用户自行承担。
+欢迎使用算力先锋（以下简称"本应用"）。本协议是您与算力先锋之间关于使用本应用所订立的协议。请您仔细阅读本协议，在确认充分理解并同意后再开始使用。
+
+### 二、服务内容
+
+1. 本应用为用户提供小学数学学习辅导服务，包括但不限于：数学题目练习、知识点测评、学习进度跟踪、排行榜等功能。
+2. 本应用通过游戏化的方式帮助用户提升数学能力，所有题目内容均基于国家课程标准设计。
+3. 我们将不断优化服务内容，为用户提供更好的学习体验。
+
+### 三、用户账号
+
+1. 用户需通过手机号注册账号，并设置个人信息后即可使用本应用的完整功能。
+2. 用户应妥善保管账号信息，因用户个人原因导致账号泄露所引起的损失由用户自行承担。
 3. 用户不得将账号转让、出售或出借给他人使用。
 
-三、用户行为规范
-1. 用户应遵守法律法规，不得利用本应用从事违法违规活动。
-2. 用户不得通过非正常手段获取应用内虚拟物品或数据。
-3. 用户不得对本应用进行反编译、反汇编或其他逆向工程。
+### 四、用户行为规范
 
-四、隐私保护
-1. 我们重视用户隐私保护，将按照隐私政策收集、使用和保护用户信息。
-2. 未经用户同意，我们不会向第三方披露用户个人信息，但法律法规另有规定的除外。
-3. 我们采用安全技术和程序保护用户信息不被未经授权的访问、使用或泄露。
+1. 用户应遵守中华人民共和国相关法律法规，不得利用本应用从事任何违法违规活动。
+2. 用户不得通过任何方式破坏或试图破坏本应用的正常运行。
+3. 用户不得使用任何自动化工具或脚本访问本应用。
 
-五、虚拟物品
-1. 应用内的金币、钻石、经验值等虚拟物品归本应用所有，用户仅获得使用权。
-2. 虚拟物品不可兑换现金或实物，也不可在用户之间转让。
-3. 因用户违规操作导致的虚拟物品损失，本应用不承担赔偿责任。
+### 五、知识产权
 
-六、免责声明
-1. 本应用按"现状"提供服务，不对服务的及时性、安全性、准确性作保证。
-2. 因不可抗力导致的服务中断，本应用不承担责任。
-3. 用户因使用本应用而产生的任何直接或间接损失，本应用不承担赔偿责任。
+1. 本应用的所有内容，包括但不限于文字、图片、音频、视频、软件、界面设计等，均受知识产权法律保护。
+2. 未经书面授权，任何人不得复制、修改、传播本应用的任何内容。
 
-七、协议修改
-我们有权随时修改本协议，修改后的协议将在应用内公示。用户继续使用本应用即视为同意修改后的协议。
+### 六、免责声明
 
-八、联系方式
-如有任何问题或建议，请通过应用内反馈功能与我们联系。`
+1. 本应用仅供学习参考使用，不构成任何形式的教育承诺或保证。
+2. 因不可抗力导致的服务中断，本应用不承担任何责任。
 
-const PRIVACY_TEXT = `隐私政策
+### 七、协议修改
 
-更新日期：2025年1月1日
+我们有权根据需要修改本协议条款，修改后的协议将在应用内公示。继续使用本应用即视为同意修改后的协议。
 
-数学探险（以下简称"我们"）深知个人信息对您的重要性，我们将按照法律法规的规定，保护您的个人信息及隐私安全。
+### 八、联系方式
 
-一、我们收集的信息
-1. 注册信息：手机号码，用于账号注册和登录验证。
-2. 学习数据：答题记录、学习进度、成绩数据等，用于提供个性化学习服务。
-3. 设备信息：设备型号、操作系统版本等，用于应用优化和故障排查。
+如有任何问题，请通过应用内反馈功能与我们联系。
+`.trim()
 
-二、我们如何使用信息
-1. 为您提供数学学习服务，包括题目推荐、进度跟踪等。
-2. 改进我们的产品和服务质量。
-3. 保障应用安全，防止欺诈等违法行为。
-4. 遵守法律法规的要求。
+const PRIVACY_CONTENT = `
+## 算力先锋隐私政策
 
-三、信息存储
-1. 您的信息存储在中华人民共和国境内的服务器上。
-2. 我们采用加密等安全措施保护您的信息。
-3. 在您注销账号后，我们将在合理期限内删除您的个人信息。
+**更新日期：2025年1月1日**
 
-四、信息共享
-我们不会与其他公司、组织和个人共享您的个人信息，但以下情况除外：
-1. 获得您的明确同意后。
-2. 根据法律法规或政府主管部门的强制性要求。
-3. 与关联公司共享：仅为共享目的而使用。
+### 一、我们收集的信息
 
-五、您的权利
-1. 您有权访问、更正您的个人信息。
-2. 您有权删除您的账号及相关信息。
-3. 您有权撤回之前给予的同意。
-4. 您有权获取您的个人信息副本。
+1. **注册信息**：手机号码（用于账号注册和登录验证）。
+2. **个人信息**：昵称、头像、学习阶段、学习目标、年级等（由用户自愿提供）。
+3. **学习数据**：答题记录、测评结果、学习进度、错题记录、成就数据等。
+4. **设备信息**：设备型号、操作系统版本等（用于优化应用体验）。
 
-六、未成年人保护
-1. 我们高度重视对未成年人个人信息的保护。
-2. 若您是未满14周岁的未成年人，我们要求您的监护人仔细阅读本政策，并在取得监护人对本政策同意后使用我们的服务。
-3. 我们只会在法律允许、监护人明确同意或保护未成年人所必要的情况下收集、使用、共享或披露未成年人的个人信息。
+### 二、我们如何使用信息
 
-七、本政策更新
-我们可能会适时对本政策进行修订。当政策条款发生变更时，我们会在应用内以推送通知、弹窗等方式向您展示变更后的内容。`
+1. 提供、维护和改进我们的服务。
+2. 个性化推荐学习内容和题目难度。
+3. 生成学习报告和统计数据。
+4. 防止欺诈和保障应用安全。
+
+### 三、信息存储与安全
+
+1. 我们采用业界通用的安全技术保护您的个人信息。
+2. 您的数据存储在安全的服务器上，采取加密传输和存储措施。
+3. 我们制定了严格的数据访问权限控制，仅授权人员可访问用户数据。
+
+### 四、信息共享
+
+1. 我们不会将您的个人信息出售给任何第三方。
+2. 以下情况除外：
+   - 获得您的明确同意；
+   - 根据法律法规或政府主管部门的强制性要求；
+   - 为维护应用及用户的合法权益。
+
+### 五、您的权利
+
+1. 您有权访问、更正、删除您的个人信息。
+2. 您有权撤回授权同意。
+3. 您有权注销账号，账号注销后我们将删除您的个人信息。
+
+### 六、未成年人保护
+
+1. 我们高度重视未成年人个人信息保护。
+2. 对于不满14周岁的未成年人，我们会在其监护人同意的前提下收集和使用信息。
+3. 我们不会将未成年人信息用于任何商业推广目的。
+
+### 七、隐私政策更新
+
+我们可能会不时更新本隐私政策。更新后的政策将在应用内公示，继续使用即表示同意更新后的政策。
+
+### 八、联系我们
+
+如您对本隐私政策有任何疑问，请通过应用内反馈功能与我们联系。
+`.trim()
+
+const TABS = [
+  { key: 'agreement' as const, label: '用户协议' },
+  { key: 'privacy' as const, label: '隐私政策' },
+]
+
+// 简易 Markdown 渲染器（Taro 端，用 View+Text 替代 HTML 标签）
+function MarkdownRenderer({ content }: { content: string }) {
+  const lines = content.split('\n')
+  return (
+    <View style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {lines.map((line, i) => {
+        if (line.startsWith('## ')) {
+          return (
+            <Text key={i} style={{ fontSize: 18, fontWeight: 700, color: C.semantic.foreground, marginTop: i === 0 ? 0 : 16 }}>
+              {line.slice(3)}
+            </Text>
+          )
+        }
+        if (line.startsWith('### ')) {
+          return (
+            <Text key={i} style={{ fontSize: 15, fontWeight: 700, color: C.semantic.foreground, marginTop: 12 }}>
+              {line.slice(4)}
+            </Text>
+          )
+        }
+        if (line.startsWith('**') && line.endsWith('**')) {
+          return (
+            <Text key={i} style={{ fontSize: 13, fontWeight: 700, color: C.semantic.mutedForeground }}>
+              {line.slice(2, -2)}
+            </Text>
+          )
+        }
+        // numbered list with bold: "1. **text**: rest"
+        const boldMatch = line.match(/^(\d+\.\s)\*\*(.+?)\*\*(.*)$/)
+        if (boldMatch) {
+          return (
+            <Text key={i} style={{ fontSize: 13, color: C.semantic.mutedForeground, lineHeight: 1.8, paddingLeft: 8 }}>
+              <Text>{boldMatch[1]}</Text>
+              <Text style={{ fontWeight: 700 }}>{boldMatch[2]}</Text>
+              <Text>{boldMatch[3]}</Text>
+            </Text>
+          )
+        }
+        if (/^\d+\.\s/.test(line)) {
+          return (
+            <Text key={i} style={{ fontSize: 13, color: C.semantic.mutedForeground, lineHeight: 1.8, paddingLeft: 8 }}>
+              {line}
+            </Text>
+          )
+        }
+        if (line.startsWith('   - ') || line.startsWith('- ')) {
+          return (
+            <Text key={i} style={{ fontSize: 13, color: C.semantic.mutedForeground, lineHeight: 1.8, paddingLeft: 24 }}>
+              • {line.replace(/^[\s-]+\s/, '')}
+            </Text>
+          )
+        }
+        if (line.trim() === '') {
+          return <View key={i} style={{ height: 4 }} />
+        }
+        return (
+          <Text key={i} style={{ fontSize: 13, color: C.semantic.mutedForeground, lineHeight: 1.8 }}>
+            {line}
+          </Text>
+        )
+      })}
+    </View>
+  )
+}
 
 export default function AgreementPage() {
-  const goBack = () => {
-    Taro.navigateBack()
-  }
+  const [activeTab, setActiveTab] = useState<'agreement' | 'privacy'>('agreement')
 
   return (
-    <View style={{ minHeight: '100vh', background: '#F8FAF5', padding: 16 }}>
-      <View style={{ padding: 16, paddingTop: 32 }}>
-        <Row justify="space-between" align="center">
-          <Title size={22}>用户协议与隐私政策</Title>
-          <Button variant="ghost" size="sm" onClick={goBack}>← 返回</Button>
-        </Row>
+    <View style={{ minHeight: '100vh', background: C.pageBg, display: 'flex', flexDirection: 'column' }}>
+      {/* 顶部渐变条 */}
+      <View style={{ height: 3, background: `linear-gradient(to right, ${C.semantic.primary}, ${C.semantic.secondary}, ${C.semantic.primary})` }} />
+
+      {/* 返回按钮 */}
+      <View style={{ padding: '12px 16px' }}>
+        <View
+          onClick={() => Taro.navigateBack()}
+          style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}
+        >
+          <Icon name="arrowLeft" size={16} color={C.semantic.mutedForeground} />
+          <Text style={{ fontSize: 14, color: C.semantic.mutedForeground }}>返回</Text>
+        </View>
       </View>
 
-      <Spacer size={8} />
+      {/* Tab 切换 */}
+      <View style={{ display: 'flex', flexDirection: 'row', gap: 8, padding: '0 24px 16px' }}>
+        {TABS.map(tab => (
+          <View
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            style={{
+              paddingTop: 8, paddingBottom: 8, paddingLeft: 16, paddingRight: 16, borderRadius: 12,
+              background: activeTab === tab.key ? C.semantic.primary : C.icon.iconGrayBg,
+            }}
+          >
+            <Text style={{
+              fontSize: 14, fontWeight: 700,
+              color: activeTab === tab.key ? '#fff' : C.semantic.mutedForeground,
+            }}>
+              {tab.label}
+            </Text>
+          </View>
+        ))}
+      </View>
 
-      <Card padding={20} style={{ margin: 8 }}>
-        <Col gap={16}>
-          <Title size={16}>用户协议</Title>
-          <Text style={{ fontSize: 14, color: '#4b5563', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-            {AGREEMENT_TEXT}
-          </Text>
-
-          <Spacer size={16} />
-
-          <Title size={16}>隐私政策</Title>
-          <Text style={{ fontSize: 14, color: '#4b5563', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-            {PRIVACY_TEXT}
-          </Text>
-        </Col>
-      </Card>
-
-      <Spacer size={40} />
+      {/* 内容 */}
+      <ScrollView scrollY style={{ flex: 1, paddingLeft: 24, paddingRight: 24, paddingBottom: 32 }}>
+        <View style={{ background: C.semantic.card, borderRadius: TOKEN.radius.lg, padding: 24, boxShadow: TOKEN.shadow.md }}>
+          <MarkdownRenderer
+            content={activeTab === 'agreement' ? AGREEMENT_CONTENT : PRIVACY_CONTENT}
+          />
+        </View>
+      </ScrollView>
     </View>
   )
 }

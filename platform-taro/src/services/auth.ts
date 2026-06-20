@@ -36,12 +36,28 @@ export async function loginWithPhone(phone: string, code: string) {
   }
 }
 
+export async function wxLogin(code: string) {
+  try {
+    return await post<{ success: boolean; message: string; user?: BackendUser; token?: string }>(`${API_BASE}/wx-login`, { code })
+  } catch {
+    return { success: false, message: '网络错误，请检查网络连接' }
+  }
+}
+
 export async function tokenLogin(token: string) {
   try {
     return await post<{ success: boolean; message: string; user?: BackendUser }>(`${API_BASE}/token-login`, { token })
   } catch (err) {
     const message = err instanceof Error && err.message.includes('429') ? '请求过于频繁，请稍后再试' : '网络错误'
     return { success: false, message, rateLimited: message.includes('频繁') }
+  }
+}
+
+export async function quickLogin(phone: string) {
+  try {
+    return await post<{ success: boolean; message: string; user?: BackendUser; token?: string }>(`${API_BASE}/quick-login`, { phone })
+  } catch {
+    return { success: false, message: '网络错误，请检查网络连接' }
   }
 }
 
@@ -56,9 +72,32 @@ export async function saveProfile(params: {
   }
 }
 
+export async function saveAssessment(params: {
+  userId: string
+  id?: string
+  completedAt: number
+  score: number
+  recommendedDifficulty: number
+  answers: Array<{ questionId: string; userAnswer: string; isCorrect: boolean }>
+}): Promise<{ success: boolean; message: string }> {
+  try {
+    return await post<{ success: boolean; message: string }>(`${API_BASE}/assessment`, params)
+  } catch {
+    return { success: false, message: '网络错误' }
+  }
+}
+
 export async function fetchAssessment(userId: string) {
   try {
     return await get<{ success: boolean; message: string; assessment?: any }>(`${API_BASE}/assessment?userId=${encodeURIComponent(userId)}`)
+  } catch {
+    return { success: false, message: '网络错误' }
+  }
+}
+
+export async function exportUserData(userId: string): Promise<{ success: boolean; message: string; data?: any }> {
+  try {
+    return await get<{ success: boolean; message: string; data?: any }>(`${API_BASE}/export?userId=${encodeURIComponent(userId)}`)
   } catch {
     return { success: false, message: '网络错误' }
   }

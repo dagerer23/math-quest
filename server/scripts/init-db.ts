@@ -34,7 +34,7 @@ async function initDatabase() {
         id VARCHAR(50) PRIMARY KEY COMMENT '用户ID',
         phone VARCHAR(20) UNIQUE NOT NULL COMMENT '手机号',
         nickname VARCHAR(50) DEFAULT '小先锋' COMMENT '昵称',
-        avatar VARCHAR(20) DEFAULT '🧒' COMMENT '头像',
+        avatar VARCHAR(20) DEFAULT '' COMMENT '头像',
         learning_stage ENUM('primary','middle','high','adult') DEFAULT 'primary' COMMENT '学习阶段',
         learning_goal ENUM('consolidation','improvement','interest','training') DEFAULT 'consolidation' COMMENT '学习目标',
         target_grade TINYINT DEFAULT 2 COMMENT '目标年级',

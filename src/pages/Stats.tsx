@@ -7,7 +7,7 @@ import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/prog
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getAvatarUrl, getAvatarBorderColor, getInitial, getAvatarBgColor, getAvatarTextColor } from '@/utils/avatar'
-import { ArrowLeft, Target, Zap, BookOpen, TrendingUp, Award, Calendar, Flame, Flower2 } from 'lucide-react'
+import { Target, Zap, BookOpen, TrendingUp, Award, Calendar, Flame, Flower2 } from 'lucide-react'
 import { getRankInfo, getRankProgress } from '@/utils/rank'
 import { getEncouragements, type EncouragementItem } from '@/services/classApi'
 
@@ -23,7 +23,6 @@ function formatTime(ts: number): string {
 }
 
 export default function Stats() {
-  const navigate = useNavigate()
   const user = useUserStore()
   const [isLoading, setIsLoading] = useState(true)
   const [encouragements, setEncouragements] = useState<EncouragementItem[]>([])
@@ -83,12 +82,6 @@ export default function Stats() {
 
       {/* 头部 */}
       <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft size={20} />
-        </button>
         <h1 className="text-lg font-bold text-foreground">学习统计</h1>
       </div>
 

@@ -32,9 +32,8 @@ export async function getLevelsByGrade(grade: number): Promise<Level[]> {
       }))
     }
   } catch { /* fallthrough */ }
-  // Local fallback
-  const gradeData = (LEVELS as any)[`g${grade}`]
-  return gradeData?.levels || []
+  // Local fallback：LEVELS 为扁平数组，按年级过滤
+  return LEVELS.filter(l => l.grade === grade).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
 }
 
 export async function getLevelDetail(levelId: string): Promise<Level | null> {
@@ -43,14 +42,7 @@ export async function getLevelDetail(levelId: string): Promise<Level | null> {
     if (data?.success && data.level) return data.level
   } catch { /* fallthrough */ }
   // Local fallback
-  for (const gKey of Object.keys(LEVELS)) {
-    const g = (LEVELS as any)[gKey]
-    if (g?.levels) {
-      const found = g.levels.find((l: any) => l.id === levelId)
-      if (found) return found
-    }
-  }
-  return null
+  return LEVELS.find(l => l.id === levelId) || null
 }
 
 export async function getLeaderboard(limit = 50, grade?: number): Promise<LeaderboardUser[]> {
@@ -93,9 +85,52 @@ export async function generateQuestions(levelId: string, userMastery: Record<str
     if (data?.success && Array.isArray(data.questions)) return data.questions
   } catch { /* fallthrough */ }
   // Local fallback
-  for (const gKey of Object.keys(LEVELS)) {
-    const g = (LEVELS as any)[gKey]
-    if (g?.questions?.[levelId]) return g.questions[levelId]
+  const level = LEVELS.find(l => l.id === levelId)
+  return level?.questions || []
+}
+
+/**
+ * 获取水平测评题目
+ * 调用后端 /api/content/assessment-questions，失败时本地降级抽题
+ */
+export async function getAssessmentQuestions(grade: number, count = 10): Promise<Question[]> {
+  try {
+    const data = await get<{ success: boolean; questions: Question[] }>(`${API_BASE}/assessment-questions?grade=${grade}&count=${count}`)
+    if (data?.success && Array.isArray(data.questions)) return data.questions
+  } catch { /* fallthrough */ }
+  // Local fallback：从 LEVELS 中按年级随机抽题
+  const gradeLevels = LEVELS.filter(l => l.grade === grade)
+  const allQs = gradeLevels.flatMap(l => l.questions || [])
+  const shuffled = [...allQs].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, count)
+}
+
+/**
+ * 更新知识点掌握度
+ * 调用后端 /api/content/update-mastery，失败时本地降级计算
+ */
+export async function updateMastery(
+  knowledgePoint: string,
+  isCorrect: boolean,
+  difficultyScore: number,
+  currentMastery: number,
+  consecutiveCorrect: number,
+): Promise<number> {
+  try {
+    const data = await post<{ success: boolean; mastery: number }>(`${API_BASE}/update-mastery`, {
+      knowledgePoint, isCorrect, difficultyScore, currentMastery, consecutiveCorrect,
+    })
+    if (data?.success && typeof data.mastery === 'number') return data.mastery
+  } catch { /* fallthrough to local */ }
+  // 本地降级计算
+  let delta = 0
+  if (isCorrect) {
+    if (difficultyScore <= 3) delta = 0.05
+    else if (difficultyScore <= 6) delta = 0.08
+    else delta = 0.12
+    if (consecutiveCorrect >= 3) delta += 0.05
+  } else {
+    delta = -0.10
   }
-  return []
+  return Math.max(0, Math.min(1, currentMastery + delta))
 }

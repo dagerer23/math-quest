@@ -1,6 +1,7 @@
 import { Heart, Flame, Gift, Gem, Coins, Clock, ArrowRight, Sparkles, ShoppingBag, Star } from 'lucide-react'
 import { useUserStore } from '@/store/useUserStore'
 import { todayKey } from '@/utils/time'
+import { getAvatarUrl } from '@/utils/avatar'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -50,7 +51,12 @@ export default function StatusBar() {
               boxShadow: '0 2px 6px rgba(88,204,2,0.12)',
             }}
           >
-            {user.profile.avatar || '🧮'}
+            <img
+              src={getAvatarUrl(user.profile.avatar || user.profile.nickname || '用户')}
+              alt=""
+              className="w-full h-full"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
           </div>
           <div className="min-w-0">
             <div className="text-[12px] font-extrabold truncate leading-tight text-foreground">
@@ -74,27 +80,27 @@ export default function StatusBar() {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setPopup('hearts')}
-            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform"
+            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform shadow-sm border border-black/5"
             style={{ background: 'linear-gradient(135deg, #FFF0F0, #FFE8E8)' }}
           >
-            <Heart size={12} fill="#FF4B4B" stroke="#FF4B4B" />
-            <span className="text-[11px] font-extrabold text-red-500 tabular-nums">{user.hearts}</span>
+            <Heart size={14} fill="#FF4B4B" stroke="#FF4B4B" />
+            <span className="text-[12px] font-extrabold text-red-500 tabular-nums">{user.hearts}</span>
           </button>
           <button
             onClick={() => setPopup('coins')}
-            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform"
+            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform shadow-sm border border-black/5"
             style={{ background: 'linear-gradient(135deg, #FFF8EB, #FFEDC8)' }}
           >
-            <Coins size={12} fill="#E5A13B" stroke="#C8891F" />
-            <span className="text-[11px] font-extrabold text-amber-600 tabular-nums">{user.coins}</span>
+            <Coins size={14} fill="#E5A13B" stroke="#C8891F" />
+            <span className="text-[12px] font-extrabold text-amber-600 tabular-nums">{user.coins}</span>
           </button>
           <button
             onClick={() => setPopup('diamonds')}
-            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform"
+            className="flex items-center gap-[3px] px-2 py-1 rounded-lg active:scale-95 transition-transform shadow-sm border border-black/5"
             style={{ background: 'linear-gradient(135deg, #EEF3FF, #DDE8FF)' }}
           >
-            <Gem size={12} fill="#5B8DEF" stroke="#4A7AD4" />
-            <span className="text-[11px] font-extrabold text-blue-500 tabular-nums">{user.diamonds}</span>
+            <Gem size={14} fill="#5B8DEF" stroke="#4A7AD4" />
+            <span className="text-[12px] font-extrabold text-blue-500 tabular-nums">{user.diamonds}</span>
           </button>
 
           {/* 签到按钮 */}

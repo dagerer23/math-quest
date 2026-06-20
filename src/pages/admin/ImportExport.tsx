@@ -94,19 +94,12 @@ export default function ImportExport() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid #ececef' }}>
+      <div className="admin-tabs">
         {tabs.map(({ k, label, Icon }) => (
           <button
             key={k}
             onClick={() => setTab(k as any)}
-            className="admin-tab-btn"
-            style={{
-              padding: '10px 16px', background: 'transparent', border: 'none',
-              borderBottom: tab === k ? '2px solid #58CC02' : '2px solid transparent',
-              color: tab === k ? '#1d1d1f' : '#666',
-              fontWeight: tab === k ? 600 : 500, fontSize: 14, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6,
-            }}
+            className={`admin-tab-btn${tab === k ? ' active' : ''}`}
           >
             <Icon className={iconClass} />
             {label}
@@ -117,7 +110,7 @@ export default function ImportExport() {
       {tab === 'export' && (
         <div className="admin-grid admin-grid-2">
           <div className="admin-card">
-            <h3 className="admin-card-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <h3 className="admin-card-title">
               <Package className={iconClass} />
               导出全量题库
             </h3>
@@ -128,7 +121,6 @@ export default function ImportExport() {
               href={adminImportApi.exportJsonUrl()}
               className="admin-btn admin-btn-primary"
               download
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
               <Download className={iconClass} />
               下载 JSON 备份
@@ -136,7 +128,7 @@ export default function ImportExport() {
           </div>
 
           <div className="admin-card">
-            <h3 className="admin-card-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <h3 className="admin-card-title">
               <FileSpreadsheet className={iconClass} />
               Excel 导入模板
             </h3>
@@ -147,7 +139,6 @@ export default function ImportExport() {
               href={adminImportApi.templateUrl()}
               className="admin-btn admin-btn-secondary"
               download
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
               <Download className={iconClass} />
               下载 CSV 模板
@@ -155,7 +146,7 @@ export default function ImportExport() {
           </div>
 
           <div className="admin-card" style={{ gridColumn: 'span 2' }}>
-            <h3 className="admin-card-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <h3 className="admin-card-title">
               <Lightbulb className={iconClass} />
               导入格式说明
             </h3>
@@ -166,11 +157,7 @@ export default function ImportExport() {
                 <li><b>带版本号的对象</b>：<code style={{ background: '#f0f0f3', padding: '2px 6px', borderRadius: 4 }}>{`{ "version": 1, "levels": [...] }`}</code></li>
               </ol>
               <p style={{ marginTop: 8 }}>每个关卡对象结构：</p>
-              <pre style={{
-                background: '#1a1a2e', color: '#7ED321', padding: 14,
-                borderRadius: 8, fontSize: 12, overflow: 'auto',
-                fontFamily: 'SF Mono, Menlo, monospace',
-              }}>{`{
+              <pre className="admin-code-block">{`{
   "id": "g1-L1",
   "grade": 1,
   "chapter": "5以内加减法",
@@ -196,7 +183,7 @@ export default function ImportExport() {
 
       {tab === 'import' && (
         <div className="admin-card">
-          <h3 className="admin-card-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <h3 className="admin-card-title">
             <Download className={iconClass} />
             批量导入题目
           </h3>
@@ -207,7 +194,7 @@ export default function ImportExport() {
               type="file"
               accept=".json,application/json"
               onChange={handleFileUpload}
-              style={{ fontSize: 13 }}
+              className="admin-file-input"
             />
           </div>
           <div className="admin-form-row">
@@ -218,7 +205,6 @@ export default function ImportExport() {
               value={importContent}
               onChange={e => setImportContent(e.target.value)}
               placeholder='{ "version": 1, "levels": [...] }'
-              style={{ fontSize: 12 }}
             />
             <div className="admin-form-hint">支持 2MB 以内的 JSON。已存在的关卡/题目会被覆盖。</div>
           </div>
@@ -227,7 +213,6 @@ export default function ImportExport() {
               className="admin-btn admin-btn-primary"
               onClick={doImport}
               disabled={importing}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
               {importing ? (
                 <>
@@ -251,7 +236,7 @@ export default function ImportExport() {
 
       {tab === 'history' && (
         <div className="admin-card">
-          <h3 className="admin-card-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h3 className="admin-card-title">
             <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <ScrollText className={iconClass} />
               导入历史
@@ -259,7 +244,6 @@ export default function ImportExport() {
             <button
               className="admin-btn admin-btn-ghost"
               onClick={loadHistory}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
             >
               <RefreshCw className={iconClass} />
               刷新
@@ -286,7 +270,7 @@ export default function ImportExport() {
               <tbody>
                 {history.map(h => (
                   <tr key={h.id}>
-                    <td style={{ fontSize: 12, color: '#666' }}>
+                    <td>
                       {new Date(h.createdAt).toLocaleString('zh-CN')}
                     </td>
                     <td>{h.filename}</td>

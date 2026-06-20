@@ -50,3 +50,114 @@ html, body, #root {
   position: relative;
   overflow: hidden;
 }
+
+/* ============================================================
+ * 工具类（普通 CSS，不依赖 UnoCSS / Tailwind）
+ * 颜色 / 圆角 / 阴影取值与 src/styles/theme.ts 的 TOKEN 保持一致
+ * ============================================================ */
+
+/* 卡片：白底 + 圆角16px + 阴影md + 1px边框 */
+.taro-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E5E7EB;
+}
+
+/* 按钮按压反馈：active 时轻微缩放 */
+.taro-btn-press {
+  transition: transform 150ms ease;
+}
+.taro-btn-press:active {
+  transform: scale(0.98);
+}
+
+/* 答错抖动动画（与 Web 端 .animate-shake 一致） */
+@keyframes taro-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+.taro-shake {
+  animation: taro-shake 0.5s ease-in-out;
+}
+
+/* 分割线 */
+.taro-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #E5E7EB;
+}
+
+/* 淡入动画 */
+@keyframes taro-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.taro-fade-in {
+  animation: taro-fade-in 0.4s ease-out;
+}
+
+/* 弹出动画：scale 0.5→1 + opacity 0→1（与 Web 端 pop-in 一致） */
+@keyframes taro-pop-in {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.taro-pop-in {
+  animation: taro-pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 粒子径向爆发动画（对齐 Web 端 ParticleBurst：translate + scale + fade，0.9s）
+   终点坐标通过 CSS 变量 --tx / --ty 传入，由各粒子内联 style 设置 */
+@keyframes taro-burst {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(0.3); opacity: 0; }
+}
+.taro-burst {
+  animation: taro-burst 0.9s ease-out forwards;
+}
+
+/* 连击数字缩放弹出动画（对齐 Web 端 ComboNumber：scale 0.6→1.3 + y 位移 + fade，0.8s） */
+@keyframes taro-combo-pop {
+  0% { transform: scale(0.6) translateY(0); opacity: 0; }
+  100% { transform: scale(1.3) translateY(-40px); opacity: 1; }
+}
+.taro-combo-pop {
+  animation: taro-combo-pop 0.8s ease-out forwards;
+}
+
+/* 当前关卡脉动光环（对齐 Web 端 LevelNode 双层 motion.div 循环） */
+@keyframes taro-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.35); opacity: 0; }
+}
+.taro-pulse {
+  animation: taro-pulse 2s ease-in-out infinite;
+}
+
+/* 当前关卡上下浮动（对齐 Web 端 motion.div y:[0,-3,0] 循环） */
+@keyframes taro-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.taro-float {
+  animation: taro-float 2.5s ease-in-out infinite;
+}
+
+/* 题目切换右滑入（对齐 Web 端 AnimatePresence x 轴滑入） */
+@keyframes taro-slide-in-right {
+  0% { transform: translateX(40px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.taro-slide-in-right {
+  animation: taro-slide-in-right 0.3s ease-out;
+}
+
+/* 反馈上滑入（对齐 Web 端 AnimatePresence y 轴滑入） */
+@keyframes taro-slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.taro-slide-up {
+  animation: taro-slide-up 0.3s ease-out;
+}

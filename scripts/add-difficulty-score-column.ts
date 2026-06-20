@@ -21,7 +21,7 @@ async function main() {
     }
 
     await conn.query(`ALTER TABLE t_question ADD COLUMN difficulty_score INT DEFAULT NULL AFTER difficulty`)
-    console.log('✅ difficulty_score 列添加成功')
+    console.log('[OK] difficulty_score 列添加成功')
   } finally {
     conn.release()
     await pool.end()

@@ -47,16 +47,31 @@ export async function initDB(): Promise<boolean> {
     await ensureTable('t_user', `
       CREATE TABLE t_user (
         id VARCHAR(50) PRIMARY KEY,
-        phone VARCHAR(20) UNIQUE NOT NULL,
+        phone VARCHAR(20) DEFAULT NULL,
+        openid VARCHAR(64) DEFAULT NULL,
         nickname VARCHAR(50) DEFAULT '小先锋',
-        avatar VARCHAR(20) DEFAULT '🧒',
+        avatar VARCHAR(20) DEFAULT '',
         learning_stage VARCHAR(20) DEFAULT 'primary',
         learning_goal VARCHAR(20) DEFAULT 'consolidation',
         target_grade TINYINT DEFAULT 2,
         created_at BIGINT NOT NULL,
-        last_login_at BIGINT DEFAULT NULL
+        last_login_at BIGINT DEFAULT NULL,
+        UNIQUE KEY uk_phone (phone),
+        UNIQUE KEY uk_openid (openid)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `)
+
+    // 存量数据库兼容：t_user 增加 openid 字段、phone 改为可空（支持纯微信登录用户）
+    try {
+      await conn.query(`ALTER TABLE t_user ADD COLUMN openid VARCHAR(64) DEFAULT NULL`)
+      console.log('[DB] t_user 已新增 openid 列')
+    } catch { /* 列已存在 */ }
+    try {
+      await conn.query(`ALTER TABLE t_user ADD UNIQUE KEY uk_openid (openid)`)
+    } catch { /* 索引已存在 */ }
+    try {
+      await conn.query(`ALTER TABLE t_user MODIFY COLUMN phone VARCHAR(20) DEFAULT NULL`)
+    } catch { /* 修改失败忽略 */ }
 
     await ensureTable('t_verification_code', `
       CREATE TABLE t_verification_code (
@@ -261,7 +276,7 @@ export async function initDB(): Promise<boolean> {
         id VARCHAR(50) PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
         description VARCHAR(255) NOT NULL,
-        icon VARCHAR(50) NOT NULL DEFAULT '🏆',
+        icon VARCHAR(50) NOT NULL DEFAULT 'trophy',
         sort_order INT NOT NULL DEFAULT 0,
         created_at BIGINT NOT NULL DEFAULT (UNIX_TIMESTAMP() * 1000),
         INDEX idx_sort (sort_order)
@@ -274,7 +289,7 @@ export async function initDB(): Promise<boolean> {
         id VARCHAR(50) PRIMARY KEY,
         title VARCHAR(100) NOT NULL,
         description VARCHAR(255) NOT NULL,
-        icon VARCHAR(50) NOT NULL DEFAULT '🎯',
+        icon VARCHAR(50) NOT NULL DEFAULT 'goal',
         type VARCHAR(20) NOT NULL DEFAULT 'xp',
         target INT NOT NULL DEFAULT 0,
         reward_xp INT NOT NULL DEFAULT 0,
@@ -290,16 +305,16 @@ export async function initDB(): Promise<boolean> {
       const [rows] = await conn.query<mysql.RowDataPacket[]>('SELECT COUNT(*) AS cnt FROM t_achievement')
       if (rows[0].cnt === 0) {
         const defaults = [
-          ['first_blood', '初出茅庐', '完成第 1 关', '⚔️', 1],
-          ['combo_5', '连击新星', '达成 5 连击', '⚡', 2],
-          ['combo_10', '连击大师', '达成 10 连击', '🔥', 3],
-          ['streak_3', '坚持不懈', '连续打卡 3 天', '📅', 4],
-          ['streak_7', '一周学霸', '连续打卡 7 天', '🏆', 5],
-          ['coins_500', '小富翁', '累计获得 500 金币', '🪙', 6],
-          ['no_mistake', '完美通关', '一关内零失误', '💎', 7],
-          ['boss_killer', 'BOSS 杀手', '击败 1 个 BOSS 关卡', '🐲', 8],
-          ['xp_1000', '经验大亨', '累计获得 1000 XP', '🌟', 9],
-          ['mistake_master', '错题克星', '错题本累积 20 题后清空', '📓', 10],
+          ['first_blood', '初出茅庐', '完成第 1 关', 'sword', 1],
+          ['combo_5', '连击新星', '达成 5 连击', 'lightning', 2],
+          ['combo_10', '连击大师', '达成 10 连击', 'fire', 3],
+          ['streak_3', '坚持不懈', '连续打卡 3 天', 'calendar', 4],
+          ['streak_7', '一周学霸', '连续打卡 7 天', 'trophy', 5],
+          ['coins_500', '小富翁', '累计获得 500 金币', 'coin', 6],
+          ['no_mistake', '完美通关', '一关内零失误', 'diamond', 7],
+          ['boss_killer', 'BOSS 杀手', '击败 1 个 BOSS 关卡', 'ghost', 8],
+          ['xp_1000', '经验大亨', '累计获得 1000 XP', 'sparkles', 9],
+          ['mistake_master', '错题克星', '错题本累积 20 题后清空', 'memo', 10],
         ] as const
         for (const [id, name, desc, icon, sort] of defaults) {
           await conn.query(
@@ -316,9 +331,9 @@ export async function initDB(): Promise<boolean> {
       const [rows] = await conn.query<mysql.RowDataPacket[]>('SELECT COUNT(*) AS cnt FROM t_daily_goal_template')
       if (rows[0].cnt === 0) {
         const defaults = [
-          ['daily-xp', '获得50经验值', '今天内通过答题获得50点经验值', '⚡', 'xp', 50, 30, 20, 1],
-          ['daily-questions', '完成10道题目', '今天内完成10道数学题', '🎯', 'questions', 10, 40, 30, 2],
-          ['daily-streak', '保持签到', '今日已经完成签到', '🔥', 'streak', 1, 20, 15, 3],
+          ['daily-xp', '获得50经验值', '今天内通过答题获得50点经验值', 'lightning', 'xp', 50, 30, 20, 1],
+          ['daily-questions', '完成10道题目', '今天内完成10道数学题', 'goal', 'questions', 10, 40, 30, 2],
+          ['daily-streak', '保持签到', '今日已经完成签到', 'fire', 'streak', 1, 20, 15, 3],
         ] as const
         for (const [id, title, desc, icon, type, target, rewardXp, rewardCoins, sort] of defaults) {
           await conn.query(

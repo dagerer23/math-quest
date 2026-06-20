@@ -12,6 +12,7 @@ import {
   getAssessment,
   quickLoginByPhone,
   exportUserData,
+  wxLogin,
 } from '../services/auth'
 
 const router = Router()
@@ -57,6 +58,17 @@ router.post('/quick-login', async (req: Request, res: Response) => {
     return
   }
   const result = await quickLoginByPhone(phone)
+  res.json(result)
+})
+
+// 微信小程序登录
+router.post('/wx-login', async (req: Request, res: Response) => {
+  const { code } = req.body
+  if (!code) {
+    res.status(400).json({ success: false, message: '缺少微信登录凭证 code' })
+    return
+  }
+  const result = await wxLogin(code)
   res.json(result)
 })
 

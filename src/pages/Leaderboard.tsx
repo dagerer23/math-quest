@@ -91,7 +91,7 @@ export default function Leaderboard() {
           .map(m => ({
             userId: m.userId,
             nickname: m.nickname || '同学',
-            avatar: m.avatar || '😊',
+            avatar: m.avatar || '',
             targetGrade: m.targetGrade || 0,
             xp: m.xp || 0,
             isMe: m.userId === user.userId,
@@ -113,13 +113,13 @@ export default function Leaderboard() {
   const handleSendFlower = async (toUserId: string, toNickname: string) => {
     if (!user.userId) return
     if (sentFlowers.has(toUserId)) {
-      toast.info('今天已给 TA 送过花啦 🌸')
+      toast.info('今天已给 TA 送过花啦')
       return
     }
     const res = await classApi.sendEncouragement(user.userId, toUserId, '加油！')
     if (res.success) {
       setSentFlowers(prev => new Set(prev).add(toUserId))
-      toast.success(`已给 ${toNickname} 送上一朵花 🌸`)
+      toast.success(`已给 ${toNickname} 送上一朵花`)
     } else {
       toast.error(res.message || '送花失败')
     }
@@ -136,7 +136,7 @@ export default function Leaderboard() {
           rank: rawList.length + 1,
           userId: 'me',
           nickname: myNickname,
-          avatar: user.profile.avatar || '🧒',
+          avatar: user.profile.avatar || '',
           targetGrade: user.profile.targetGrade || 2,
           totalXp: myXp,
           totalSessions: 0,

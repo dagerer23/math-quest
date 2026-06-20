@@ -23,7 +23,7 @@ export interface ThemeConfig {
 // 按阶段配色：小学 / 初中 / 高中 各一套，同阶段年级共享
 export const STAGE_THEMES: Record<LearningStage, ThemeConfig> = {
   primary: {
-    // 🌊 小学（1-6年级）：清新薄荷蓝 + 温暖金色
+    // 小学（1-6年级）：清新薄荷蓝 + 温暖金色
     bg: '#F0F7F5',
     accent: '#4A9E8A',
     accentSoft: '#D8ECE5',
@@ -43,7 +43,7 @@ export const STAGE_THEMES: Record<LearningStage, ThemeConfig> = {
     textMuted: '#AAB2AF',
   },
   middle: {
-    // 🌸 初中（7-9年级）：柔和桃粉 + 暖棕色
+    // 初中（7-9年级）：柔和桃粉 + 暖棕色
     bg: '#FBF4F0',
     accent: '#E0896E',
     accentSoft: '#F8E2D9',
@@ -63,7 +63,7 @@ export const STAGE_THEMES: Record<LearningStage, ThemeConfig> = {
     textMuted: '#BFB0A8',
   },
   high: {
-    // 💜 高中（10-12年级）：薰衣草紫 + 深紫点缀
+    // 高中（10-12年级）：薰衣草紫 + 深紫点缀
     bg: '#F3F0F7',
     accent: '#8B7AB8',
     accentSoft: '#E3DDEF',
@@ -81,6 +81,26 @@ export const STAGE_THEMES: Record<LearningStage, ThemeConfig> = {
     textPrimary: '#3C3452',
     textSecondary: '#7E768C',
     textMuted: '#ABA5B3',
+  },
+  adult: {
+    // 成人：深蓝灰 + 金色点缀，沉稳风格
+    bg: '#F2F4F7',
+    accent: '#5B6B8C',
+    accentSoft: '#DDE3EE',
+    label: '成人',
+    nodeBg: '#FFFFFF',
+    nodeCompletedBg: '#E5EAF2',
+    nodeCurrentBg: '#FFFFFF',
+    nodeBorder: '#E2E6ED',
+    nodeCompletedBorder: '#5B6B8C',
+    nodeCurrentBorder: '#5B6B8C',
+    nodeDisabledBg: '#F0F2F5',
+    nodeDisabledBorder: '#DFE3E9',
+    pathColor: '#D2D8E0',
+    pathActive: '#5B6B8C',
+    textPrimary: '#364056',
+    textSecondary: '#7A8399',
+    textMuted: '#A8AEBD',
   },
 }
 

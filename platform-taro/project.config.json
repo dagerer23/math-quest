@@ -2,7 +2,7 @@
   "miniprogramRoot": "",
   "h5Root": "dist/h5",
   "projectname": "math-quest-taro",
-  "appid": "wx1234567890abcdef",
+  "appid": "wx0ea0a6172fd33",
   "setting": {
     "urlCheck": false,
     "es6": true,
@@ -42,7 +42,7 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.3.2",
-  "srcMiniprogramRoot": "dist/",
+  "srcMiniprogramRoot": "./",
   "h5": {
     "publicPath": "/",
     "staticDirectory": "static",

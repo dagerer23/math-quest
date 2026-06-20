@@ -1,7 +1,9 @@
 import { create } from 'zustand'
 import type { Level, Question, SessionRecord } from '@/types/models'
 import { useUserStore } from '@/store/useUserStore'
+import { updateMastery } from '@/services/content'
 
+// 读取 systemConfigs 的辅助函数
 function cfgNum(key: string, fallback: number): number {
   const store = useUserStore.getState()
   const v = store.systemConfigs?.[key]
@@ -21,10 +23,13 @@ interface SessionState {
   questionStartTime: number
   status: 'idle' | 'playing' | 'finished'
   record: SessionRecord | null
+  // 最后一题完成时的回调
+  onLastQuestionComplete: ((record: SessionRecord) => void) | null
   start: (level: Level, questions: Question[]) => void
   answer: (userAnswer: string, isCorrect: boolean) => void
   finish: () => SessionRecord | null
   abort: () => void
+  setOnLastQuestionComplete: (callback: (record: SessionRecord) => void) => void
 }
 
 export const useSessionStore = create<SessionState>((set, get) => ({
@@ -38,6 +43,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   questionStartTime: 0,
   status: 'idle',
   record: null,
+  onLastQuestionComplete: null,
   start: (level, questions) => {
     const now = Date.now()
     set({
@@ -62,11 +68,12 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     const isLast = nextIndex >= s.questions.length
 
     if (isLast) {
+      // 计算最终记录
       const correct = nextAnswers.filter((a) => a.isCorrect).length
       const total = s.questions.length
-      const star3Cutoff = cfgNum('level.star.3_cutoff', 1.0)
-      const star2Cutoff = cfgNum('level.star.2_cutoff', 0.7)
-      const star1Cutoff = cfgNum('level.star.1_cutoff', 0.4)
+      const star3Cutoff = cfgNum('level.star.3_cutoff', 1.0) // 100%
+      const star2Cutoff = cfgNum('level.star.2_cutoff', 0.7) // 70%
+      const star1Cutoff = cfgNum('level.star.1_cutoff', 0.4) // 40%
       const ratio = total > 0 ? correct / total : 0
       const stars = ratio >= star3Cutoff ? 3 : ratio >= star2Cutoff ? 2 : ratio >= star1Cutoff ? 1 : 0
       const perCorrectScore = cfgNum('level.score.per_correct', 10)
@@ -89,6 +96,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         timestamp: Date.now(),
         answers: nextAnswers,
       }
+
+      // 同时设置 status 和 record
       set({
         answers: nextAnswers,
         combo,
@@ -98,6 +107,31 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         status: 'finished',
         record,
       })
+
+      // 异步更新掌握度
+      const question = s.questions[s.index]
+      const userStore = useUserStore.getState()
+      const currentMastery = userStore.learningStats.knowledgeProgress[question.knowledgePoint] || 0
+      const difficultyScore = (question as any).difficulty_score || (question.difficulty === 1 ? 2 : question.difficulty === 2 ? 5 : 8)
+      const recentAnswers = nextAnswers.slice(-10)
+      const consecutiveCorrect = recentAnswers.filter(a => {
+        const q = s.questions.find(qq => qq.id === a.questionId)
+        return q?.knowledgePoint === question.knowledgePoint && a.isCorrect
+      }).length
+
+      updateMastery(question.knowledgePoint, isCorrect, difficultyScore, currentMastery, consecutiveCorrect).then(newMastery => {
+        const currentProgress = useUserStore.getState().learningStats.knowledgeProgress
+        useUserStore.getState().updateLearningStats({
+          knowledgeProgress: { ...currentProgress, [question.knowledgePoint]: newMastery }
+        })
+      })
+
+      // 触发回调
+      const callback = get().onLastQuestionComplete
+      if (callback) {
+        // 延迟一点触发，确保状态已更新
+        setTimeout(() => callback(record), 50)
+      }
     } else {
       set({
         answers: nextAnswers,
@@ -107,6 +141,24 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         questionStartTime: Date.now(),
         status: 'playing',
         record: null,
+      })
+
+      // 异步更新掌握度
+      const question = s.questions[s.index]
+      const userStore = useUserStore.getState()
+      const currentMastery = userStore.learningStats.knowledgeProgress[question.knowledgePoint] || 0
+      const difficultyScore = (question as any).difficulty_score || (question.difficulty === 1 ? 2 : question.difficulty === 2 ? 5 : 8)
+      const recentAnswers = nextAnswers.slice(-10)
+      const consecutiveCorrect = recentAnswers.filter(a => {
+        const q = s.questions.find(qq => qq.id === a.questionId)
+        return q?.knowledgePoint === question.knowledgePoint && a.isCorrect
+      }).length
+
+      updateMastery(question.knowledgePoint, isCorrect, difficultyScore, currentMastery, consecutiveCorrect).then(newMastery => {
+        const currentProgress = useUserStore.getState().learningStats.knowledgeProgress
+        useUserStore.getState().updateLearningStats({
+          knowledgeProgress: { ...currentProgress, [question.knowledgePoint]: newMastery }
+        })
       })
     }
   },
@@ -146,4 +198,5 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     return record
   },
   abort: () => set({ status: 'idle', level: null, record: null }),
+  setOnLastQuestionComplete: (callback) => set({ onLastQuestionComplete: callback }),
 }))

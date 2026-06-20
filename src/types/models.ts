@@ -14,7 +14,7 @@ export interface Question {
   difficulty_score?: number  // 1-10 精细难度评分，可选，向后兼容
 }
 
-export type LearningStage = 'primary' | 'middle' | 'high'
+export type LearningStage = 'primary' | 'middle' | 'high' | 'adult'
 
 export type LearningGoal = 'consolidation' | 'improvement' | 'interest' | 'training'
 

@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
 import { Card, CardContent } from '@/components/ui/card'
-import { Progress, ProgressTrack } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, Target, Trophy, Calendar, Zap, Flame, ArrowLeft, AlertCircle, Lightbulb } from 'lucide-react'
+import { CheckCircle, Check, Target, Trophy, Calendar, Zap, Flame, AlertCircle, Lightbulb } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getDailyGoalTemplates, type DailyGoalTemplate } from '@/services/content'
 import { toast } from 'sonner'
@@ -53,17 +52,17 @@ export default function DailyGoals() {
     if (templates.length === 0) return
 
     const iconMap: Record<string, React.ReactNode> = {
-      '⚡': (
+      'lightning': (
         <div className="size-11 rounded-xl bg-[#E8F9D8] grid place-items-center flex-shrink-0">
           <Zap size={24} className="text-[#58CC02]" />
         </div>
       ),
-      '🎯': (
+      'goal': (
         <div className="size-11 rounded-xl bg-[#E0F4FF] grid place-items-center flex-shrink-0">
           <Target size={24} className="text-[#1CB0F6]" />
         </div>
       ),
-      '🔥': (
+      'fire': (
         <div className="size-11 rounded-xl bg-[#FFE4E4] grid place-items-center flex-shrink-0">
           <Flame size={24} className="text-[#FF4B4B]" />
         </div>
@@ -117,7 +116,7 @@ export default function DailyGoals() {
         })
       }
 
-      toast.success('🎉 奖励已领取！')
+      toast.success('奖励已领取！')
     }
   }
 
@@ -129,12 +128,6 @@ export default function DailyGoals() {
       {/* 顶部 */}
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/')}
-            className="size-10 rounded-xl bg-muted grid place-items-center"
-          >
-            <ArrowLeft size={18} />
-          </button>
           <h1 className="text-xl font-bold text-foreground">每日目标</h1>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -154,16 +147,14 @@ export default function DailyGoals() {
             <p className="text-sm text-muted-foreground mb-3">完成目标获取丰厚奖励</p>
             <div className="flex items-center gap-3">
               <div className="flex-1">
-                <Progress value={(goals.filter(g => g.getCurrentProgress() >= g.target).length / goals.length) * 100}>
-                  <ProgressTrack className="h-2.5">
-                    <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-duolingo-green to-duolingo-blue"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(goals.filter(g => g.getCurrentProgress() >= g.target).length / goals.length) * 100}%` }}
-                      transition={{ duration: 0.6, ease: 'easeOut' }}
-                    />
-                  </ProgressTrack>
-                </Progress>
+                <div className="relative flex h-2.5 w-full items-center overflow-hidden rounded-full bg-muted">
+                  <motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-duolingo-green to-duolingo-blue"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(goals.filter(g => g.getCurrentProgress() >= g.target).length / goals.length) * 100}%` }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                  />
+                </div>
               </div>
               <div className="font-bold text-primary">
                 {goals.filter(g => g.getCurrentProgress() >= g.target).length}/{goals.length}
@@ -246,17 +237,6 @@ export default function DailyGoals() {
                           +{goal.reward.xp} XP · +{goal.reward.coins} 金币
                         </span>
                       </div>
-
-                      <Progress value={Math.min((progress / goal.target) * 100, 100)}>
-                        <ProgressTrack className="h-2">
-                          <motion.div
-                            className={`h-full rounded-full ${completed ? 'bg-primary' : 'bg-muted-foreground/50'}`}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.min((progress / goal.target) * 100, 100)}%` }}
-                            transition={{ duration: 0.6, ease: 'easeOut' }}
-                          />
-                        </ProgressTrack>
-                      </Progress>
                     </div>
                   </div>
                 </div>
@@ -274,9 +254,21 @@ export default function DailyGoals() {
                 )}
 
                 {alreadyClaimed && (
-                  <div className="mt-3 text-center text-xs text-primary font-medium">
-                    ✓ 已领取奖励
+                  <div className="mt-3 flex items-center justify-center gap-1 text-xs text-primary font-medium">
+                    <Check size={12} />已领取奖励
                   </div>
+                )}
+
+                {!completed && (
+                  <motion.div className="mt-3" whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => navigate('/')}
+                    >
+                      去完成
+                    </Button>
+                  </motion.div>
                 )}
               </Card>
             </motion.div>

@@ -24,10 +24,10 @@ type Admin = AdminAccount
 
 function Modal({ title, onClose, width, children }: { title: string; onClose: () => void; width?: number; children: ReactNode }) {
   return (
-    <div className="admin-modal-mask" onClick={onClose} style={{ zIndex: 1600 }}>
+    <div className="admin-modal-mask" onClick={onClose}>
       <motion.div
         className="admin-modal"
-        style={{ width: '90vw', maxWidth: width ?? 520 }}
+        style={{ maxWidth: width ?? 520 }}
         onClick={e => e.stopPropagation()}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -45,7 +45,7 @@ function Modal({ title, onClose, width, children }: { title: string; onClose: ()
 
 function ModalFooter({ onClose, children }: { onClose: () => void; children: ReactNode }) {
   return (
-    <div className="admin-modal-footer" style={{ margin: '20px -22px -20px -22px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+    <div className="admin-modal-footer">
       <button className="admin-btn admin-btn-ghost" onClick={onClose}>取消</button>
       {children}
     </div>
@@ -187,7 +187,7 @@ export default function AccountManagement() {
           <tbody>
             {admins.map(a => (
               <tr key={a.id}>
-                <td><span style={{ fontFamily: 'monospace' }}>{a.username}</span></td>
+                <td><span className="admin-mono">{a.username}</span></td>
                 <td>{a.nickname}</td>
                 <td>
                   <span className={`admin-tag ${a.role === 'super' ? 'admin-tag-red' : a.role === 'admin' ? 'admin-tag-blue' : 'admin-tag-gray'}`}>
@@ -199,7 +199,7 @@ export default function AccountManagement() {
                     {a.status === 1 ? '正常' : '已禁用'}
                   </span>
                 </td>
-                <td style={{ fontSize: 12, color: '#666' }}>
+                <td>
                   {a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('zh-CN') : '从未登录'}
                 </td>
                 <td>
@@ -213,7 +213,7 @@ export default function AccountManagement() {
                     <button className="admin-btn admin-btn-ghost" onClick={() => toggleStatus(a)}>
                       {a.status === 1 ? <PauseCircle size={14} /> : <PlayCircle size={14} />}
                     </button>
-                    <button className="admin-btn admin-btn-ghost" onClick={() => remove(a)} style={{ color: '#FF4B4B' }}>
+                    <button className="admin-btn admin-btn-ghost danger" onClick={() => remove(a)}>
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -247,9 +247,9 @@ export default function AccountManagement() {
             <tbody>
               {logs.map(l => (
                 <tr key={l.id}>
-                  <td style={{ fontSize: 12, color: '#666' }}>{new Date(l.createdAt).toLocaleString('zh-CN')}</td>
+                  <td>{new Date(l.createdAt).toLocaleString('zh-CN')}</td>
                   <td>{l.username}</td>
-                  <td style={{ fontFamily: 'monospace', color: '#666' }}>{l.ip || '-'}</td>
+                  <td className="admin-mono">{l.ip || '-'}</td>
                 </tr>
               ))}
             </tbody>

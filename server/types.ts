@@ -9,6 +9,7 @@
 export interface User {
   id: string
   phone: string
+  openid?: string
   nickname?: string
   avatar?: string
   learningStage?: 'primary' | 'middle' | 'high'

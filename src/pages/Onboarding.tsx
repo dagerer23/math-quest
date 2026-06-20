@@ -2,33 +2,34 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '@/store/useUserStore'
 import { Check, ChevronRight } from 'lucide-react'
+import { Icon } from '@/components/Icon'
 import clsx from 'clsx'
 import PixelButton from '@/components/PixelButton'
 import type { LearningStage, LearningGoal } from '@/types/models'
 import { saveProfile } from '@/services/auth'
+import { AVATAR_SEEDS, getAvatarUrl } from '@/utils/avatar'
 
-// 年级选项按阶段划分
-const GRADE_MAP: Record<Exclude<LearningStage, 'adult'>, readonly number[]> = {
+// 年级选项按阶段划分（adult 无年级选项）
+const GRADE_MAP: Record<LearningStage, readonly number[]> = {
   primary: [1, 2, 3, 4, 5, 6] as const,
   middle: [7, 8, 9] as const,
   high: [10, 11, 12] as const,
+  adult: [] as const,
 }
 
 const STAGES = [
-  { id: 'primary', name: '小学', emoji: '🎒', desc: '1-6年级学习' },
-  { id: 'middle', name: '初中', emoji: '📚', desc: '7-9年级学习' },
-  { id: 'high', name: '高中', emoji: '📖', desc: '10-12年级学习' },
-  { id: 'adult', name: '成人', emoji: '🧑', desc: '成人学习和思维训练' },
+  { id: 'primary', name: '小学', icon: 'backpack', desc: '1-6年级学习' },
+  { id: 'middle', name: '初中', icon: 'book', desc: '7-9年级学习' },
+  { id: 'high', name: '高中', icon: 'book', desc: '10-12年级学习' },
+  { id: 'adult', name: '成人', icon: 'user', desc: '成人学习和思维训练' },
 ] as const
 
 const GOALS = [
-  { id: 'consolidation', name: '巩固基础', emoji: '💪', desc: '打牢基础，查漏补缺' },
-  { id: 'improvement', name: '提升培优', emoji: '🚀', desc: '拔高训练，冲刺高分' },
-  { id: 'interest', name: '兴趣启蒙', emoji: '🎨', desc: '培养兴趣，快乐学习' },
-  { id: 'training', name: '思维训练', emoji: '🧠', desc: '提升逻辑和思维能力' },
+  { id: 'consolidation', name: '巩固基础', icon: 'muscle', desc: '打牢基础，查漏补缺' },
+  { id: 'improvement', name: '提升培优', icon: 'rocket', desc: '拔高训练，冲刺高分' },
+  { id: 'interest', name: '兴趣启蒙', icon: 'palette', desc: '培养兴趣，快乐学习' },
+  { id: 'training', name: '思维训练', icon: 'brain', desc: '提升逻辑和思维能力' },
 ] as const
-
-const AVATAR_OPTIONS = ['🧒', '👧', '👦', '🧑', '👨', '👩', '🐱', '🐶', '🦊', '🐼', '🦁', '🐯']
 
 // 动态步骤定义
 type StepId = 'stage' | 'goal' | 'grade' | 'profile'
@@ -66,13 +67,13 @@ export default function Onboarding() {
     goal: 'consolidation',
     grade: 1,
     nickname: '',
-    avatar: '🧒',
+    avatar: 'Alice',
   })
   // stepIndex 基于动态 steps 数组
   const [stepIndex, setStepIndex] = useState(0)
   const [submitting, setSubmitting] = useState(false)
 
-  const steps = getSteps()
+  const steps = getSteps(form.stage)
   const currentStep = steps[stepIndex]
   const isLastStep = stepIndex === steps.length - 1
 
@@ -141,10 +142,7 @@ export default function Onboarding() {
   }
 
   // 当前年级选项
-  const currentGradeOptions =
-    form.stage === 'adult'
-      ? []
-      : GRADE_MAP[form.stage as Exclude<LearningStage, 'adult'>]
+  const currentGradeOptions = GRADE_MAP[form.stage]
 
   // 步骤描述文本
   const stepDescriptions: Record<StepId, string> = {
@@ -201,7 +199,7 @@ export default function Onboarding() {
                       : 'border-border hover:border-gray-300 bg-white',
                   )}
                 >
-                  <div className="text-3xl mb-2">{stage.emoji}</div>
+                  <div className="mb-2"><Icon name={stage.icon} size={32} /></div>
                   <div className="font-bold text-foreground">{stage.name}</div>
                   <div className="text-xs text-muted-foreground">{stage.desc}</div>
                 </button>
@@ -223,7 +221,7 @@ export default function Onboarding() {
                       : 'border-border hover:border-gray-300 bg-white',
                   )}
                 >
-                  <div className="text-3xl">{goal.emoji}</div>
+                  <div><Icon name={goal.icon} size={32} /></div>
                   <div className="flex-1">
                     <div className="font-bold text-foreground">{goal.name}</div>
                     <div className="text-xs text-muted-foreground">{goal.desc}</div>
@@ -273,18 +271,18 @@ export default function Onboarding() {
               <div>
                 <label className="block text-sm font-bold text-foreground mb-3">选择头像</label>
                 <div className="flex flex-wrap gap-3">
-                  {AVATAR_OPTIONS.map((avatar) => (
+                  {AVATAR_SEEDS.map((seed) => (
                     <button
-                      key={avatar}
-                      onClick={() => setForm(f => ({ ...f, avatar }))}
+                      key={seed}
+                      onClick={() => setForm(f => ({ ...f, avatar: seed }))}
                       className={clsx(
-                        'w-14 h-14 rounded-2xl border-2 transition-all text-2xl flex items-center justify-center',
-                        form.avatar === avatar
+                        'w-14 h-14 rounded-2xl border-2 overflow-hidden transition-all',
+                        form.avatar === seed
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-gray-300 bg-white',
                       )}
                     >
-                      {avatar}
+                      <img src={getAvatarUrl(seed)} alt={seed} className="w-full h-full" />
                     </button>
                   ))}
                 </div>

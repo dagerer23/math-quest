@@ -9,6 +9,8 @@ import ParticleBurst from '@/components/ParticleBurst'
 import ComboNumber from '@/components/ComboNumber'
 import PixelButton from '@/components/PixelButton'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import { Icon } from '@/components/Icon'
+import { Check, X, Star } from 'lucide-react'
 import { playSound } from '@/utils/sound'
 import { vibrate } from '@/utils/vibrate'
 
@@ -17,7 +19,7 @@ import { vibrate } from '@/utils/vibrate'
 // ═══════════════════════════════════════════════════════════════════
 const ENCOURAGEMENTS = {
   correct: ['太棒了！', '你真厉害！', '完美！', '继续保持！', '厉害厉害！', '优秀！'],
-  combo: ['连击！🔥', '太牛了！', '停不下来！', '无敌！', '连胜！'],
+  combo: ['连击！', '太牛了！', '停不下来！', '无敌！', '连胜！'],
   wrong: ['没关系，下次一定行！', '别灰心，再来一次！', '错题本已收录，下次复仇！', '下一题就是加分题！', '失误而已，稳住！'],
 }
 
@@ -28,6 +30,10 @@ const GRADE_THEMES: Record<number, { bg: string; accent: string; accentSoft: str
   1: { bg: 'from-[#F0F7F5] via-[#E8F4EE] to-[#F5FBF8]', accent: '#4A9E8A', accentSoft: '#D8ECE5', cardBg: '#FFFFFF' },
   2: { bg: 'from-[#FBF4F0] via-[#F8E8E0] to-[#FFF8F5]', accent: '#E0896E', accentSoft: '#F8E2D9', cardBg: '#FFFFFF' },
   3: { bg: 'from-[#F3F0F7] via-[#ECE5F5] to-[#F8F5FB]', accent: '#8B7AB8', accentSoft: '#E3DDEF', cardBg: '#FFFFFF' },
+}
+
+function getBattleThemeByGrade(grade: number) {
+  return GRADE_THEMES[grade] || GRADE_THEMES[1]
 }
 
 export default function Battle() {
@@ -115,7 +121,7 @@ export default function Battle() {
   if (!level) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-muted to-background">
-        <div className="text-6xl mb-4">🔍</div>
+        <Icon name="search" size={64} className="text-gray-400 mb-4" />
         <p className="text-muted-foreground font-medium">关卡不存在</p>
         <PixelButton className="mt-6" onClick={() => navigate('/')}>返回首页</PixelButton>
       </div>
@@ -128,8 +134,10 @@ export default function Battle() {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="text-7xl mb-4"
-        >🔒</motion.div>
+          className="mb-4"
+        >
+          <Icon name="lock" size={24} />
+        </motion.div>
         <p className="text-foreground font-bold mb-2">该关卡尚未解锁</p>
         <p className="text-muted-foreground text-sm mb-6">请先完成前面的关卡</p>
         <PixelButton onClick={() => navigate('/')}>返回首页</PixelButton>
@@ -157,7 +165,7 @@ export default function Battle() {
   if (sessionStatus !== 'playing' || !currentQ) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-muted-foreground">
-        <div className="text-4xl">🎮</div>
+        <Icon name="gamepad" size={40} />
         <p className="font-medium">未找到答题会话</p>
         <button
           onClick={() => navigate('/', { replace: true })}
@@ -326,8 +334,10 @@ export default function Battle() {
           >
             {currentQ.knowledgePoint}
           </motion.span>
-          <span className="text-xs font-medium text-muted-foreground">
-            难度 {'★'.repeat(currentQ.difficulty)}
+          <span className="text-xs font-medium text-muted-foreground flex items-center gap-0.5">
+            难度 {Array.from({ length: currentQ.difficulty }).map((_, i) => (
+              <Star key={i} size={12} className="fill-current" />
+            ))}
           </span>
         </div>
 
@@ -353,15 +363,15 @@ export default function Battle() {
                   : '0 4px 20px rgba(0,0,0,0.08)',
             }}
           >
-            {/* 表情图标 */}
+            {/* 题目图标 */}
             {currentQ.illustration && (
               <motion.div
                 initial={{ scale: 0, rotate: -15 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                className="text-6xl mb-4"
+                className="mb-4"
               >
-                {currentQ.illustration}
+                <Icon name={currentQ.illustration} size={64} />
               </motion.div>
             )}
 
@@ -479,37 +489,37 @@ export default function Battle() {
                     }}
                   >
                     {opt}
-                    {/* ✓ checkmark overlay for correct answer */}
+                    {/* 正确标记 */}
                     {showCorrect && (
                       <motion.span
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold shadow-md"
+                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-md"
                       >
-                        ✓
+                        <Check size={14} />
                       </motion.span>
                     )}
-                    {/* ✗ overlay for wrong answer */}
+                    {/* 错误标记 */}
                     {showWrong && (
                       <motion.span
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-destructive flex items-center justify-center text-destructive-foreground text-sm font-bold shadow-md"
+                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-destructive flex items-center justify-center text-destructive-foreground shadow-md"
                       >
-                        ✗
+                        <X size={14} />
                       </motion.span>
                     )}
-                    {/* ✓ indicator on correct answer when user picked wrong */}
+                    {/* 答错时正确答案标记（延迟出现） */}
                     {showCorrectHighlight && (
                       <motion.span
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.3 }}
-                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold shadow-md"
+                        className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-md"
                       >
-                        ✓
+                        <Check size={14} />
                       </motion.span>
                     )}
                   </motion.button>
@@ -616,13 +626,15 @@ export default function Battle() {
               transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.15 }}
             >
               <motion.div
-                className="text-7xl mb-5"
+                className="mb-5"
                 animate={{ rotate: [0, -12, 12, -6, 6, 0], scale: [1, 1.1, 1] }}
                 transition={{ duration: 1.2, delay: 0.2 }}
-              >💔</motion.div>
+              >
+                <Icon name="heart" size={48} className="text-red-500" />
+              </motion.div>
               <h2 className="text-2xl font-bold mb-2 text-white">心数耗尽！</h2>
               <p className="text-sm text-white/70 mb-4">别灰心，休息一下再来挑战！</p>
-              <p className="text-xs text-white/50">已收集的错题已进入错题本 📓</p>
+              <p className="text-xs text-white/50">已收集的错题已进入错题本</p>
               <motion.div
                 className="mt-6 text-sm font-medium"
                 style={{ color: theme.accent }}
@@ -641,7 +653,7 @@ export default function Battle() {
       {/* ══════════════════════════════════════════════════════════════ */}
       <ConfirmDialog
         isOpen={showExitConfirm}
-        title="⚠️ 确定退出吗？"
+        title="确定退出吗？"
         message="当前答题进度将丢失。"
         confirmText="退出"
         cancelText="继续答题"

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
 import PixelButton from '@/components/PixelButton'
+import { Icon } from '@/components/Icon'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Check, XCircle } from 'lucide-react'
 import clsx from 'clsx'
@@ -121,7 +122,7 @@ export default function Assessment() {
             animate={{ scale: 1, opacity: 1 }}
             className="text-center max-w-md"
           >
-            <div className="text-6xl mb-6">📝</div>
+            <Icon name="memo" size={64} className="text-gray-400 mb-6" />
             <h1 className="text-2xl font-bold text-foreground mb-3">水平测评</h1>
             <p className="text-muted-foreground mb-8">
               为了给你推荐最适合的题目，让我们先做一个简短的测评。
@@ -130,9 +131,9 @@ export default function Assessment() {
             <div className="bg-primary/10 rounded-2xl p-4 mb-8">
               <div className="font-bold text-primary mb-2">测评内容</div>
               <ul className="text-sm text-muted-foreground space-y-1 text-left">
-                <li>📊 共10道题</li>
-                <li>⏱️ 不计时，无需压力</li>
-                <li>🎯 完成后推荐合适难度</li>
+                <li>共10道题</li>
+                <li>不计时，无需压力</li>
+                <li>完成后推荐合适难度</li>
               </ul>
             </div>
             <PixelButton variant="green" size="lg" className="w-full" onClick={startQuiz}>
@@ -154,7 +155,7 @@ export default function Assessment() {
 
       {stage === 'quiz' && !hasQuestions && (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-          <div className="text-6xl mb-4">🚧</div>
+          <Icon name="construction" size={64} className="text-gray-400 mb-4" />
           <h2 className="text-xl font-bold text-foreground mb-2">该年级内容筹备中</h2>
           <p className="text-muted-foreground mb-6 text-center">
             我们正在准备这一年级的测评题目，请返回选择其他年级体验。
@@ -196,7 +197,9 @@ export default function Assessment() {
                   className="pixel-card p-6 mb-6"
                 >
                   {currentQuestion.illustration && (
-                    <div className="text-4xl text-center mb-4">{currentQuestion.illustration}</div>
+                    <div className="flex justify-center mb-4">
+                      <Icon name={currentQuestion.illustration} size={48} />
+                    </div>
                   )}
                   <div className="text-xl font-bold text-foreground text-center leading-relaxed">
                     {currentQuestion.prompt}

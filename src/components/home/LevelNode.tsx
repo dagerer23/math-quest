@@ -228,7 +228,7 @@ export function LevelNode({
         <div className="text-[10px] font-medium leading-tight mt-0.5" style={{ color: subtitleColor }}>
           {isCompleted
             ? stars > 0
-              ? `${stars} ★ 通关`
+              ? `${stars} 通关`
               : '已完成'
             : isCurrent
               ? mastery > 0

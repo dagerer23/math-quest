@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '@/store/useUserStore'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, ArrowRight } from 'lucide-react'
 import { quickLogin, TOKEN_KEY, sendVerificationCode } from '@/services/auth'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -104,8 +104,8 @@ function OneClickLoginCard({
       {loading ? (
         <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       ) : (
-        <div className="w-9 h-9 rounded-full bg-primary text-white grid place-items-center text-sm font-bold shadow-sm">
-          →
+        <div className="w-9 h-9 rounded-full bg-primary text-white grid place-items-center shadow-sm">
+          <ArrowRight size={16} />
         </div>
       )}
     </motion.button>
@@ -242,7 +242,7 @@ export default function Login() {
     setLoggedIn(true)
     setProfile({
       nickname: '数学爱好者',
-      avatar: '🤓',
+      avatar: '',
       learningStage: 'primary',
       learningGoal: 'consolidation',
       targetGrade: 2,

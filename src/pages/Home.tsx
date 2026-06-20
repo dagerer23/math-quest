@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Coins, Sparkles } from 'lucide-react'
 import { useUserStore } from '@/store/useUserStore'
 import { getLevelsByGrade, getLevelDetail, generateQuestions } from '@/services/content'
 import { useSessionStore } from '@/store/useSessionStore'
@@ -11,6 +10,7 @@ import { getLevelMastery, getZigzagPositions } from '@/components/home/helpers'
 import { THEMES } from '@/components/home/themes'
 import { PathConnector } from '@/components/home/PathConnector'
 import { LevelNode } from '@/components/home/LevelNode'
+import { Icon } from '@/components/Icon'
 
 
 // ═══════════════════════════════════════════════════════════════════
@@ -120,24 +120,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col w-full relative" style={{ minHeight: '100vh', backgroundColor: theme.bg }}>
-      {/* 顶部资源栏 */}
-      <div className="flex items-center justify-between px-4 py-2">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF4B4B"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            <span className="text-sm font-bold text-foreground">{user.hearts}/{user.maxHearts}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Coins size={16} className="text-[#FFC800]" />
-            <span className="text-sm font-bold text-foreground">{user.coins}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Sparkles size={16} className="text-[#1CB0F6]" />
-            <span className="text-sm font-bold text-foreground">{user.diamonds}</span>
-          </div>
-        </div>
-      </div>
-
       {/* 心数耗尽提示弹窗 */}
       <AnimatePresence>
         {showNoHearts && (
@@ -159,7 +141,9 @@ export default function Home() {
               style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="text-5xl mb-3">💔</div>
+              <div className="mb-3 flex justify-center">
+                <Icon name="heart" size={48} className="text-[#FF4B4B]" />
+              </div>
               <h3 className="text-lg font-bold mb-1.5" style={{ color: theme.textPrimary }}>
                 心数用完了
               </h3>
@@ -192,7 +176,7 @@ export default function Home() {
                     color: theme.accent,
                   }}
                 >
-                  立即恢复 {user.maxHearts} ❤
+                  立即恢复 {user.maxHearts} <Icon name="heart" size={12} className="inline" />
                 </motion.button>
               </div>
             </motion.div>
@@ -240,7 +224,9 @@ export default function Home() {
             {visibleLevels.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center px-6">
                 <div className="text-center max-w-xs">
-                  <div className="text-6xl mb-4">🚧</div>
+                  <div className="mb-4 flex justify-center">
+                    <Icon name="construction" size={64} className="text-gray-400" />
+                  </div>
                   <h3 className="text-lg font-bold mb-2" style={{ color: theme.textPrimary }}>
                     该年级内容筹备中
                   </h3>

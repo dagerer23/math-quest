@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronDown, ChevronRight, Plus, RefreshCw, Search, Crown,
   FileText, Pencil, Trash2, X, BookOpen, Tag, Sliders,
-  ListOrdered, List as ListIcon, Star, Info
+  ListOrdered, List as ListIcon, Star, Info, Loader2
 } from 'lucide-react'
 import { adminContentApi } from '@/services/adminApi'
 import { useToast } from '@/components/AdminLayout'
@@ -47,25 +47,14 @@ function RadioPillGroup<T extends string>({
   onChange: (v: T) => void
 }) {
   return (
-    <div style={{ display: 'inline-flex', gap: 4, padding: 3, background: '#f2f2f5', borderRadius: 8 }}>
+    <div className="admin-pill-group">
       {options.map(o => {
         const active = value === o.value
         return (
           <button
             key={o.value}
             onClick={() => onChange(o.value)}
-            style={{
-              padding: '6px 12px',
-              fontSize: 12,
-              borderRadius: 6,
-              background: active ? '#fff' : 'transparent',
-              color: active ? '#1d1d1f' : '#666',
-              fontWeight: active ? 600 : 500,
-              border: 'none',
-              cursor: 'pointer',
-              boxShadow: active ? '0 1px 3px rgba(0,0,0,0.06)' : 'none',
-              transition: 'all .15s',
-            }}
+            className={`admin-pill-btn ${active ? 'active' : ''}`}
           >
             {o.label}
           </button>
@@ -87,7 +76,7 @@ function ConfirmDialog({
     <div className="admin-modal-mask" onClick={onCancel} style={{ zIndex: 2000 }}>
       <motion.div
         className="admin-modal"
-        style={{ width: 380 }}
+        style={{ maxWidth: 380 }}
         onClick={e => e.stopPropagation()}
         initial={{ opacity: 0, scale: 0.92, y: 6 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -98,10 +87,10 @@ function ConfirmDialog({
         </div>
         <div className="admin-modal-body">
           <div style={{ fontSize: 14, color: '#555', lineHeight: 1.6 }}>{message}</div>
-          <div className="admin-modal-footer" style={{ margin: '20px -22px -20px -22px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <button className="admin-btn admin-btn-secondary" onClick={onCancel}>取消</button>
-            <button className="admin-btn admin-btn-danger" onClick={onConfirm}>确认删除</button>
-          </div>
+        </div>
+        <div className="admin-modal-footer">
+          <button className="admin-btn admin-btn-secondary" onClick={onCancel}>取消</button>
+          <button className="admin-btn admin-btn-danger" onClick={onConfirm}>确认删除</button>
         </div>
       </motion.div>
     </div>
@@ -152,15 +141,11 @@ function QuestionForm({
 
   return (
     <motion.div
+      className="admin-form-inline"
       initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-      style={{
-        marginTop: 12, padding: 14,
-        background: '#f8f8fa', borderRadius: 12,
-        border: '1px solid #ececef',
-      }}
     >
-      <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span>{initial.id ? '✏️ 编辑题目' : '➕ 新增题目'}</span>
+      <div className="admin-card-title" style={{ margin: '0 0 12px', padding: 0, border: 'none' }}>
+        <span>{initial.id ? '编辑题目' : '新增题目'}</span>
         <button onClick={onClose} className="admin-btn admin-btn-ghost"><X size={14} /></button>
       </div>
 
@@ -250,7 +235,7 @@ function QuestionForm({
         </div>
         <div className="admin-form-row">
           <label className="admin-form-label">表情/图释（可选）</label>
-          <input className="admin-input" value={form.illustration || ''} onChange={e => update('illustration', e.target.value)} placeholder="如：🍎" />
+          <input className="admin-input" value={form.illustration || ''} onChange={e => update('illustration', e.target.value)} placeholder="如：apple" />
         </div>
       </div>
 
@@ -328,7 +313,13 @@ function QuestionPanel({
   }, [questions, fType, fDiff, fKp, fSearch, fExp])
 
   const typeLabel: Record<string, string> = { choice: '选择题', input: '填空题', drag: '拖拽题' }
-  const diffStars = (d: 1 | 2 | 3) => '★'.repeat(d) + '☆'.repeat(3 - d)
+  const diffStars = (d: 1 | 2 | 3) => (
+    <span className="inline-flex items-center gap-0.5">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Star key={i} size={10} className={i < d ? 'fill-current' : 'opacity-30'} />
+      ))}
+    </span>
+  )
 
   function makeNewQuestion(): QuestionItem {
     return {
@@ -356,21 +347,9 @@ function QuestionPanel({
       className="admin-sidepanel"
       initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      style={{
-        position: 'fixed', right: 0, top: 0, bottom: 0,
-        width: 'min(720px, 92vw)',
-        background: '#fff', borderLeft: '1px solid #ececef',
-        boxShadow: '-16px 0 48px rgba(0,0,0,0.12)',
-        display: 'flex', flexDirection: 'column',
-        zIndex: 1500, overflow: 'hidden',
-      }}
     >
       {/* Header */}
-      <div style={{
-        padding: '16px 20px', borderBottom: '1px solid #ececef',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-        background: 'linear-gradient(180deg, #fff 0%, #fafafb 100%)',
-      }}>
+      <div className="admin-sidepanel-header">
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span className="admin-tag admin-tag-blue">{level.grade} 年级</span>
@@ -380,7 +359,7 @@ function QuestionPanel({
           <div style={{ fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {level.chapter}
           </div>
-          <div style={{ fontSize: 11, fontFamily: 'monospace', color: '#999', marginTop: 2 }}>
+          <div className="admin-mono" style={{ fontSize: 11, color: '#999', marginTop: 2 }}>
             {level.id} · 共 {level.questionCount} 题
           </div>
         </div>
@@ -391,15 +370,11 @@ function QuestionPanel({
       </div>
 
       {/* Filters */}
-      <div style={{
-        padding: '10px 20px', borderBottom: '1px solid #ececef',
-        display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center',
-        background: '#fafafb',
-      }}>
+      <div className="admin-sidepanel-filters">
         <div style={{ position: 'relative', minWidth: 180 }}>
           <Search size={12} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
           <input
-            className="admin-input" style={{ paddingLeft: 28, paddingTop: 6, paddingBottom: 6, fontSize: 12 }}
+            className="admin-input admin-search-input" style={{ paddingTop: 6, paddingBottom: 6, fontSize: 12 }}
             placeholder="搜索题目/选项/答案..."
             value={fSearch} onChange={e => setFSearch(e.target.value)}
           />
@@ -448,7 +423,10 @@ function QuestionPanel({
       {/* Body */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
         {loading ? (
-          <div style={{ textAlign: 'center', color: '#999', fontSize: 13, padding: 40 }}>加载中...</div>
+          <div className="admin-empty">
+            <div className="admin-empty-icon"><Loader2 size={24} className="animate-spin" /></div>
+            <div className="admin-empty-text">加载中...</div>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="admin-empty">
             <div className="admin-empty-icon"><FileText size={40} /></div>
@@ -487,7 +465,7 @@ function QuestionPanel({
                     </div>
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
                       <button className="admin-btn admin-btn-ghost" onClick={() => setEditing(q)}><Pencil size={14} /></button>
-                      <button className="admin-btn admin-btn-ghost" style={{ color: '#FF4B4B' }} onClick={() => setConfirmDel(q)}><Trash2 size={14} /></button>
+                      <button className="admin-btn admin-btn-ghost danger" onClick={() => setConfirmDel(q)}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>
@@ -564,10 +542,9 @@ function LevelForm({
   }
 
   return (
-    <div className="admin-modal-mask" onClick={onClose} style={{ zIndex: 1600 }}>
+    <div className="admin-modal-mask" onClick={onClose}>
       <motion.div
         className="admin-modal"
-        style={{ width: '90vw', maxWidth: 520 }}
         onClick={e => e.stopPropagation()}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -607,10 +584,10 @@ function LevelForm({
             <input type="checkbox" checked={isBoss} onChange={e => setIsBoss(e.target.checked)} />
             标记为 BOSS 关卡
           </label>
-          <div className="admin-modal-footer" style={{ margin: '20px -22px -20px -22px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-            <button className="admin-btn admin-btn-secondary" onClick={onClose}>取消</button>
-            <button className="admin-btn admin-btn-primary" onClick={submit}><FileText size={14} /> 保存</button>
-          </div>
+        </div>
+        <div className="admin-modal-footer">
+          <button className="admin-btn admin-btn-secondary" onClick={onClose}>取消</button>
+          <button className="admin-btn admin-btn-primary" onClick={submit}><FileText size={14} /> 保存</button>
         </div>
       </motion.div>
     </div>
@@ -725,12 +702,7 @@ export default function QuestionBank() {
       </div>
 
       {/* Filter Bar */}
-      <div style={{
-        padding: 14, background: '#fafafb',
-        border: '1px solid #ececef', borderRadius: 12,
-        marginBottom: 16, display: 'flex', flexWrap: 'wrap',
-        gap: 10, alignItems: 'center',
-      }}>
+      <div className="admin-filter-bar">
         <Sliders size={14} style={{ color: '#888' }} />
         <select
           className="admin-select" style={{ paddingTop: 7, paddingBottom: 7, fontSize: 13 }}
@@ -766,8 +738,8 @@ export default function QuestionBank() {
         <div style={{ position: 'relative', flex: 1, minWidth: 180 }}>
           <Search size={12} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
           <input
-            className="admin-input"
-            style={{ paddingLeft: 28, paddingTop: 7, paddingBottom: 7, fontSize: 13 }}
+            className="admin-input admin-search-input"
+            style={{ paddingTop: 7, paddingBottom: 7, fontSize: 13 }}
             placeholder="搜索章节/ID/知识点..."
             value={fSearch} onChange={e => setFSearch(e.target.value)}
           />
@@ -776,7 +748,10 @@ export default function QuestionBank() {
 
       {/* Content: Tree outline by grade */}
       {loading ? (
-        <div style={{ textAlign: 'center', color: '#999', fontSize: 13, padding: 40 }}>加载中...</div>
+        <div className="admin-empty">
+          <div className="admin-empty-icon"><Loader2 size={24} className="animate-spin" /></div>
+          <div className="admin-empty-text">加载中...</div>
+        </div>
       ) : grouped.grades.length === 0 ? (
         <div className="admin-empty">
           <div className="admin-empty-icon"><BookOpen size={40} /></div>
@@ -790,22 +765,14 @@ export default function QuestionBank() {
             return (
               <motion.div
                 key={g}
+                className="admin-grade-card"
                 initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                style={{
-                  background: '#fff', border: '1px solid #ececef', borderRadius: 12,
-                  overflow: 'hidden',
-                }}
               >
                 {/* Grade header */}
                 <button
                   onClick={() => setCollapsed(prev => ({ ...prev, [g]: !isCollapsed }))}
-                  style={{
-                    width: '100%', padding: '12px 16px',
-                    background: 'linear-gradient(180deg, #fff 0%, #fafafb 100%)',
-                    border: 'none', cursor: 'pointer', textAlign: 'left',
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    borderBottom: isCollapsed ? 'none' : '1px solid #ececef',
-                  }}
+                  className="admin-grade-header"
+                  style={{ borderBottom: isCollapsed ? 'none' : '1px solid #e2e8f0' }}
                 >
                   {isCollapsed ? <ChevronRight size={16} color="#666" /> : <ChevronDown size={16} color="#666" />}
                   <BookOpen size={16} color="#58CC02" />
@@ -819,42 +786,20 @@ export default function QuestionBank() {
                 {/* Levels in grade */}
                 {!isCollapsed && (
                   <div style={{ padding: '4px 16px 12px 48px' }}>
-                    {list.map((lv, idx) => {
+                    {list.map((lv) => {
                       const isActive = activeLevel?.id === lv.id
                       return (
                         <div
                           key={lv.id}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 12,
-                            padding: '10px 14px',
-                            marginTop: idx === 0 ? 8 : 4,
-                            background: isActive ? 'rgba(88, 204, 2, 0.05)' : '#fafafa',
-                            border: isActive ? '1px solid rgba(88, 204, 2, 0.3)' : '1px solid transparent',
-                            borderRadius: 10,
-                            transition: 'all .15s',
-                          }}
-                          onMouseEnter={e => {
-                            if (!isActive) e.currentTarget.style.background = '#f2f2f5'
-                          }}
-                          onMouseLeave={e => {
-                            if (!isActive) e.currentTarget.style.background = '#fafafa'
-                          }}
+                          className={`admin-level-row ${isActive ? 'active' : ''}`}
                         >
-                          <div style={{
-                            width: 34, height: 34, borderRadius: 8,
-                            background: lv.isBoss
-                              ? 'linear-gradient(135deg, #FF4B4B 0%, #FF7B7B 100%)'
-                              : 'linear-gradient(135deg, #58CC02 0%, #7ED321 100%)',
-                            color: '#fff', fontSize: 14, fontWeight: 700,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            flexShrink: 0,
-                          }}>
+                          <div className={`admin-level-icon ${lv.isBoss ? 'boss' : ''}`}>
                             {lv.isBoss ? <Crown size={16} /> : lv.grade}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 13, fontWeight: 600, color: '#1d1d1f' }}>{lv.chapter}</div>
-                            <div style={{
-                              fontSize: 11, color: '#999', fontFamily: 'monospace',
+                            <div className="admin-mono" style={{
+                              fontSize: 11, color: '#999',
                               marginTop: 2, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap',
                             }}>
                               <Tag size={10} /> {lv.id}
@@ -866,10 +811,7 @@ export default function QuestionBank() {
                             {lv.knowledgePoints && lv.knowledgePoints.length > 0 && (
                               <div style={{ marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                                 {lv.knowledgePoints.slice(0, 5).map(kp => (
-                                  <span key={kp} style={{
-                                    fontSize: 10, padding: '1px 6px', borderRadius: 6,
-                                    background: 'rgba(88,204,2,0.08)', color: '#46A302',
-                                  }}>{kp}</span>
+                                  <span key={kp} className="admin-tag admin-tag-green" style={{ fontSize: 10, padding: '1px 6px' }}>{kp}</span>
                                 ))}
                                 {lv.knowledgePoints.length > 5 && (
                                   <span style={{ fontSize: 10, color: '#999' }}>
@@ -881,8 +823,7 @@ export default function QuestionBank() {
                           </div>
                           <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
                             <button
-                              className="admin-btn admin-btn-secondary"
-                              style={isActive ? { background: '#58CC02', color: '#fff', borderColor: '#58CC02' } : undefined}
+                              className={`admin-btn ${isActive ? 'admin-btn-primary' : 'admin-btn-secondary'}`}
                               onClick={() => setActiveLevel(lv)}
                             >
                               <FileText size={14} /> 题目
@@ -892,7 +833,7 @@ export default function QuestionBank() {
                             }}>
                               <Pencil size={14} /> 编辑
                             </button>
-                            <button className="admin-btn admin-btn-ghost" style={{ color: '#FF4B4B' }} onClick={() => setConfirmDel(lv)}>
+                            <button className="admin-btn admin-btn-ghost danger" onClick={() => setConfirmDel(lv)}>
                               <Trash2 size={14} />
                             </button>
                           </div>
@@ -940,11 +881,7 @@ export default function QuestionBank() {
       </AnimatePresence>
 
       {/* Hint */}
-      <div style={{
-        marginTop: 24, padding: 12, borderRadius: 10,
-        background: 'rgba(88, 204, 2, 0.06)', border: '1px solid rgba(88, 204, 2, 0.15)',
-        display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: '#555',
-      }}>
+      <div className="admin-hint-box">
         <Info size={14} color="#58CC02" style={{ flexShrink: 0 }} />
         <div>
           小提示：关卡在年级内按 <b>sortOrder</b> 从小到大显示，可在关卡表单中修改该值调整位置。点击「题目」管理该关卡的全部题目。

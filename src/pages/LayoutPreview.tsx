@@ -5,7 +5,8 @@ import { useUserStore } from '@/store/useUserStore'
 import { getLevelsByGrade } from '@/services/content'
 import StarRow from '@/components/StarRow'
 import PixelButton from '@/components/PixelButton'
-import { Lock, Crown, Trophy, BookOpen, Calendar, Flame, Zap, Book, School, Check, ChevronDown, ChevronUp, Home, Target, Award } from 'lucide-react'
+import { Icon } from '@/components/Icon'
+import { Lock, Crown, Trophy, BookOpen, Calendar, Flame, Zap, Book, School, Check, ChevronDown, ChevronUp, Home, Target, Award, ArrowRight } from 'lucide-react'
 import clsx from 'clsx'
 
 const learningStageLabels: Record<string, string> = {
@@ -121,8 +122,8 @@ function LayoutOne({ levels, loading }: { levels: any[]; loading: boolean }) {
   const today = new Date().toDateString()
   const hasCheckedIn = user.lastCheckInDate === today
 
-  // 关卡图标的 emoji
-  const levelIcons = ['🧮', '➕', '➖', '✖️', '➗', '📐', '📊', '🔢', '📏', '🎯']
+  // 关卡图标
+  const levelIcons = ['chart', 'plus', 'minus', 'x', 'divide', 'triangle', 'chart', 'hash', 'ruler', 'goal']
 
   return (
     <div className="space-y-4">
@@ -210,9 +211,9 @@ function LayoutOne({ levels, loading }: { levels: any[]; loading: boolean }) {
           <div className="relative">
             {/* 装饰元素 */}
             <div className="absolute top-0 left-0 right-0 h-full overflow-hidden pointer-events-none">
-              <div className="absolute top-2 right-4 text-2xl animate-bounce">⭐</div>
-              <div className="absolute top-10 left-2 text-xl opacity-60">☁️</div>
-              <div className="absolute bottom-8 right-8 text-xl opacity-60">☁️</div>
+              <div className="absolute top-2 right-4 animate-bounce"><Icon name="star" size={20} className="text-yellow-400" /></div>
+              <div className="absolute top-10 left-2"><Icon name="cloud" size={20} className="opacity-60" /></div>
+              <div className="absolute bottom-8 right-8"><Icon name="cloud" size={20} className="opacity-60" /></div>
             </div>
 
             {/* 关卡列表 */}
@@ -248,7 +249,7 @@ function LayoutOne({ levels, loading }: { levels: any[]; loading: boolean }) {
                       'bg-gray-200'
                     )}>
                       <span className={isUnlocked ? '' : 'grayscale'}>
-                        {isCompleted ? '⭐' : levelIcons[i % levelIcons.length]}
+                        <Icon name={isCompleted ? 'star' : levelIcons[i % levelIcons.length]} size={20} />
                       </span>
                       {isCurrent && (
                         <div className="absolute -top-1 -right-1 bg-duolingo-red text-white text-xs px-1.5 py-0.5 rounded-full font-bold animate-bounce">
@@ -279,13 +280,12 @@ function LayoutOne({ levels, loading }: { levels: any[]; loading: boolean }) {
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="text-2xl"
                         >
-                          ✅
+                          <Icon name="checkCircle" size={16} className="text-green-500" />
                         </motion.div>
                       ) : isCurrent ? (
                         <div className="w-8 h-8 bg-duolingo-green rounded-full grid place-items-center animate-pulse">
-                          <span className="text-white text-sm font-bold">→</span>
+                          <ArrowRight size={14} className="text-white" />
                         </div>
                       ) : isUnlocked ? (
                         <div className="w-8 h-8 bg-gray-100 rounded-full grid place-items-center">
@@ -318,8 +318,8 @@ function LayoutOne({ levels, loading }: { levels: any[]; loading: boolean }) {
             </div>
 
             {visibleLevels.length > 6 && (
-              <div className="text-center text-sm text-gray-500 py-3 mt-2 bg-gray-50 rounded-xl">
-                还有 {visibleLevels.length - 6} 个神秘关卡等你解锁 🔒
+              <div className="text-center text-sm text-gray-500 py-3 mt-2 bg-gray-50 rounded-xl flex items-center justify-center gap-1">
+                还有 {visibleLevels.length - 6} 个神秘关卡等你解锁 <Icon name="lock" size={16} className="inline" />
               </div>
             )}
           </div>
@@ -443,10 +443,10 @@ function LayoutTwo({ levels, loading }: { levels: any[]; loading: boolean }) {
               <div className="grid grid-cols-5 gap-2">
                 {Array(10).fill(0).map((_, i) => (
                   <div key={i} className={clsx(
-                    'w-full aspect-square rounded-xl grid place-items-center text-xl',
+                    'w-full aspect-square rounded-xl grid place-items-center',
                     i < user.achievements.length ? 'bg-duolingo-gold/10' : 'bg-gray-100'
                   )}>
-                    {i < user.achievements.length ? '🏆' : '🔒'}
+                    <Icon name={i < user.achievements.length ? 'trophy' : 'lock'} size={20} />
                   </div>
                 ))}
               </div>
@@ -479,7 +479,7 @@ function LayoutThree({ levels, loading }: { levels: any[]; loading?: boolean }) 
           </div>
         </div>
         <PixelButton variant={hasCheckedIn ? 'gray' : 'green'} size="sm">
-          {hasCheckedIn ? '✓ 已签' : '签到'}
+          {hasCheckedIn ? <><Icon name="check" size={12} className="inline" /> 已签</> : '签到'}
         </PixelButton>
       </div>
 
@@ -494,15 +494,15 @@ function LayoutThree({ levels, loading }: { levels: any[]; loading?: boolean }) 
         </div>
         <div className="flex justify-around">
           <div className="text-center">
-            <div className="text-lg font-bold text-duolingo-red">🔥{user.streak}</div>
+            <div className="text-lg font-bold text-duolingo-red flex items-center justify-center gap-0.5"><Icon name="fire" size={12} className="inline" />{user.streak}</div>
             <div className="text-xs text-gray-500">连签</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-duolingo-gold">📚{user.mistakeIds.length}</div>
+            <div className="text-lg font-bold text-duolingo-gold flex items-center justify-center gap-0.5"><Icon name="book" size={12} className="inline" />{user.mistakeIds.length}</div>
             <div className="text-xs text-gray-500">错题</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-duolingo-green">🏆{user.achievements.length}</div>
+            <div className="text-lg font-bold text-duolingo-green flex items-center justify-center gap-0.5"><Icon name="trophy" size={12} className="inline" />{user.achievements.length}</div>
             <div className="text-xs text-gray-500">成就</div>
           </div>
         </div>

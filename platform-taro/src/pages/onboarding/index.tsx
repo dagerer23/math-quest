@@ -1,185 +1,448 @@
 import { useState } from 'react'
-import { View, Text } from '@tarojs/components'
+import { View, Text, Input, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { Icon } from '@/components/Icon'
 import { useUserStore } from '@/store/useUserStore'
-import { Button, Input } from '@/components/ui/Controls'
-import { Card, Title, Subtitle, Spacer, Row, Col } from '@/components/ui/Basic'
 import { saveProfile } from '@/services/auth'
+import type { LearningStage, LearningGoal } from '@/types/models'
+import { C, TOKEN, btnShadow } from '@/styles/theme'
+import { AVATAR_SEEDS, getAvatarUrl } from '@/utils/avatar'
 
-const GOALS = [
-  { key: 'consolidation' as const, label: '巩固提高', desc: '夯实基础，稳步提升', icon: '📖' },
-  { key: 'extension' as const, label: '拓展拔高', desc: '挑战难题，突破自我', icon: '🚀' },
-  { key: 'foundation' as const, label: '基础补强', desc: '查漏补缺，打牢根基', icon: '💪' },
+const primaryLight = 'rgba(88,204,2,0.08)'
+
+// hex -> rgba，用于半透明背景
+function hexA(hex: string, a: number): string {
+  const h = (hex || '#000000').replace('#', '')
+  const r = parseInt(h.slice(0, 2), 16) || 0
+  const g = parseInt(h.slice(2, 4), 16) || 0
+  const b = parseInt(h.slice(4, 6), 16) || 0
+  return `rgba(${r},${g},${b},${a})`
+}
+
+// 学习阶段选项（含成人）
+const STAGES: { id: LearningStage; name: string; icon: string; desc: string }[] = [
+  { id: 'primary', name: '小学', icon: 'backpack', desc: '1-6年级学习' },
+  { id: 'middle', name: '初中', icon: 'book', desc: '7-9年级学习' },
+  { id: 'high', name: '高中', icon: 'book', desc: '10-12年级学习' },
+  { id: 'adult', name: '成人', icon: 'user', desc: '成人学习和思维训练' },
 ]
 
-export default function OnboardingPage() {
-  const [step, setStep] = useState(0)
-  const [nickname, setNickname] = useState('')
-  const [grade, setGrade] = useState(0)
-  const [goal, setGoal] = useState<'consolidation' | 'extension' | 'foundation'>('consolidation')
-  const [loading, setLoading] = useState(false)
-  const userStore = useUserStore()
+// 学习目标选项（对齐 web 端四种）
+const GOALS: { id: LearningGoal; name: string; icon: string; desc: string }[] = [
+  { id: 'consolidation', name: '巩固基础', icon: 'muscle', desc: '打牢基础，查漏补缺' },
+  { id: 'improvement', name: '提升培优', icon: 'rocket', desc: '拔高训练，冲刺高分' },
+  { id: 'interest', name: '兴趣启蒙', icon: 'palette', desc: '培养兴趣，快乐学习' },
+  { id: 'training', name: '思维训练', icon: 'brain', desc: '提升逻辑和思维能力' },
+]
 
-  const handleComplete = async () => {
-    setLoading(true)
-    try {
-      const userId = userStore.userId
-      if (userId) {
-        await saveProfile({ userId, nickname, targetGrade: grade, learningStage: 'primary', learningGoal: goal })
-      }
-    } catch { /* continue even if API fails */ }
-    userStore.setNickname(nickname)
-    userStore.setGrade(grade)
-    userStore.setProfile({ learningStage: 'primary', learningGoal: goal })
-    userStore.completeOnboarding()
-    setLoading(false)
-    Taro.switchTab({ url: '/pages/home/index' })
+// 年级选项按阶段划分
+const GRADE_MAP: Record<Exclude<LearningStage, 'adult'>, number[]> = {
+  primary: [1, 2, 3, 4, 5, 6],
+  middle: [7, 8, 9],
+  high: [10, 11, 12],
+}
+
+// 步骤定义
+type StepId = 'stage' | 'goal' | 'grade' | 'profile'
+interface StepDef { id: StepId; title: string; desc: string }
+
+// 根据学习阶段生成动态步骤（成人跳过年级步骤）
+function getSteps(stage: LearningStage): StepDef[] {
+  const steps: StepDef[] = [
+    { id: 'stage', title: '选择学习阶段', desc: '告诉我们你在哪个学习阶段' },
+    { id: 'goal', title: '设定学习目标', desc: '你的学习目标是什么' },
+  ]
+  if (stage !== 'adult') {
+    steps.push({ id: 'grade', title: '选择年级', desc: '选择你当前的年级' })
+  }
+  steps.push({ id: 'profile', title: '设置个人信息', desc: '最后，设置你的个人信息' })
+  return steps
+}
+
+interface FormState {
+  stage: LearningStage
+  goal: LearningGoal
+  grade: number
+  nickname: string
+  avatar: string
+}
+
+export default function OnboardingPage() {
+  const userStore = useUserStore()
+  const [form, setForm] = useState<FormState>({
+    stage: 'primary',
+    goal: 'consolidation',
+    grade: 1,
+    nickname: '',
+    avatar: 'Alice',
+  })
+  const [stepIndex, setStepIndex] = useState(0)
+  const [submitting, setSubmitting] = useState(false)
+
+  // 动态步骤（成人 3 步，其余 4 步）
+  const steps = getSteps(form.stage)
+  const currentStep = steps[stepIndex]
+  const isLastStep = stepIndex === steps.length - 1
+  const isFirstStep = stepIndex === 0
+
+  // 切换学习阶段时重置年级为该阶段首个
+  const handleStageChange = (stage: LearningStage) => {
+    const grades = stage === 'adult' ? [] : GRADE_MAP[stage]
+    const defaultGrade = grades[0] ?? 0
+    setForm(f => ({ ...f, stage, grade: defaultGrade }))
   }
 
-  const canNext = () => {
-    if (step === 0) return nickname.trim().length > 0
-    if (step === 1) return grade > 0
+  // 当前阶段的年级选项
+  const currentGradeOptions = form.stage === 'adult' ? [] : GRADE_MAP[form.stage]
+
+  // 判断是否可以进入下一步
+  const canProceed = () => {
+    if (currentStep?.id === 'profile') {
+      return form.nickname.trim().length >= 2
+    }
+    if (currentStep?.id === 'grade') {
+      return form.grade > 0
+    }
     return true
   }
 
-  const handleNext = () => {
-    if (step < 2) setStep(step + 1)
-    else handleComplete()
+  // 完成引导：保存后端 + 更新本地状态 + 跳转
+  const handleComplete = () => {
+    setSubmitting(true)
+    const targetGrade = form.stage === 'adult' ? 0 : form.grade
+    const nickname = form.nickname.trim()
+
+    // 更新本地 store
+    userStore.setProfile({
+      learningStage: form.stage,
+      learningGoal: form.goal,
+      targetGrade,
+      nickname,
+      avatar: form.avatar,
+    })
+    // 成人没有年级，不调 setGrade（setGrade 内部对 grade<1 会直接 return）
+    if (form.stage !== 'adult') {
+      userStore.setGrade(form.grade)
+    }
+    userStore.completeOnboarding()
+
+    // 保存到后端
+    const userId = Taro.getStorageSync('userId')
+    if (userId) {
+      saveProfile({
+        userId,
+        nickname,
+        avatar: form.avatar,
+        learningStage: form.stage,
+        learningGoal: form.goal,
+        targetGrade,
+      }).finally(() => {
+        setSubmitting(false)
+        // 新用户跳测评页
+        Taro.redirectTo({ url: '/pages/assessment/index' })
+      })
+    } else {
+      setSubmitting(false)
+      // 无 userId 也跳测评页
+      Taro.redirectTo({ url: '/pages/assessment/index' })
+    }
   }
 
+  // 下一步 / 完成
+  const handleNext = () => {
+    if (isLastStep) {
+      handleComplete()
+    } else {
+      const nextStep = steps[stepIndex + 1]
+      // 进入年级步骤时，重置年级为当前阶段首个（对齐 Web 端 handleEnterGradeStep）
+      if (nextStep?.id === 'grade' && form.stage !== 'adult') {
+        const defaultGrade = GRADE_MAP[form.stage][0] ?? 0
+        setForm(f => ({ ...f, grade: defaultGrade }))
+      }
+      setStepIndex(s => s + 1)
+    }
+  }
+
+  // 上一步
+  const handlePrev = () => {
+    if (!isFirstStep) {
+      setStepIndex(s => s - 1)
+    }
+  }
+
+  // 按钮文案
+  const nextButtonText = submitting ? '保存中...' : isLastStep ? '开始测评' : '下一步'
+  const nextDisabled = !canProceed() || submitting
+
   return (
-    <View style={{ minHeight: '100vh', background: '#F8FAF5', padding: 16 }}>
-      <View style={{ padding: 16, paddingTop: 48, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-        <Text style={{ fontSize: 48 }}>🧙</Text>
-        <Spacer size={16} />
-        <Title size={24}>欢迎来到数学探险</Title>
-        <Spacer size={8} />
-        <Subtitle size={15}>让我们先了解一下你吧</Subtitle>
+    <View style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column' }}>
+      {/* 顶部进度条 */}
+      <View style={{ padding: '16px 24px', paddingTop: 48, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ width: 36 }} />
+        <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+          {steps.map((s, i) => {
+            const isCompleted = i < stepIndex
+            const isCurrent = i === stepIndex
+            return (
+              <View
+                key={s.id}
+                style={{
+                  height: 6,
+                  borderRadius: 3,
+                  background: isCompleted || isCurrent ? C.semantic.primary : C.semantic.border,
+                  flex: isCurrent ? 0 : 1,
+                  width: isCurrent ? 32 : 0,
+                  marginLeft: i === 0 ? 0 : 6,
+                }}
+              />
+            )
+          })}
+        </View>
+        <View style={{ width: 36, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>{stepIndex + 1}/{steps.length}</Text>
+        </View>
       </View>
 
-      <Spacer size={16} />
+      {/* 主内容区 */}
+      <View style={{ flex: 1, padding: '24px 24px 24px 24px' }}>
+        {/* 标题 + 描述 */}
+        <View style={{ marginBottom: 24 }}>
+          <View>
+            <Text style={{ fontSize: 24, fontWeight: 800, color: C.semantic.foreground }}>{currentStep?.title}</Text>
+          </View>
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ fontSize: 14, color: C.semantic.mutedForeground }}>{currentStep?.desc}</Text>
+          </View>
+        </View>
 
-      {/* 步骤指示器 */}
-      <Row justify="center" gap={8} style={{ marginBottom: 24 }}>
-        {[0, 1, 2].map((s) => (
-          <View
-            key={s}
-            style={{
-              width: s === step ? 24 : 8,
-              height: 8,
-              borderRadius: 4,
-              background: s === step ? '#58CC02' : '#E5E7EB',
-              transition: 'all 0.3s',
-            }}
-          />
-        ))}
-      </Row>
-
-      {/* Step 0: 输入昵称 */}
-      {step === 0 && (
-        <Card padding={24}>
-          <Col gap={16}>
-            <Title size={18}>你叫什么名字？</Title>
-            <Subtitle>给自己取一个响亮的昵称吧</Subtitle>
-            <Spacer size={8} />
-            <Input
-              value={nickname}
-              placeholder="输入昵称"
-              onChange={setNickname}
-              maxLength={12}
-            />
-            <Spacer size={8} />
-            <Button block size="lg" onClick={handleNext} disabled={!canNext()}>
-              下一步
-            </Button>
-          </Col>
-        </Card>
-      )}
-
-      {/* Step 1: 选择年级 */}
-      {step === 1 && (
-        <Card padding={24}>
-          <Col gap={16}>
-            <Title size={18}>你读几年级？</Title>
-            <Subtitle>选择你当前的年级</Subtitle>
-            <Spacer size={8} />
-            <Row gap={8} style={{ flexWrap: 'wrap' }}>
-              {[1, 2, 3, 4, 5, 6].map((g) => (
+        {/* 步骤1：选择学习阶段 */}
+        {currentStep?.id === 'stage' && (
+          <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+            {STAGES.map(stage => {
+              const selected = form.stage === stage.id
+              return (
                 <View
-                  key={g}
-                  onClick={() => setGrade(g)}
+                  key={stage.id}
+                  onClick={() => handleStageChange(stage.id)}
+                  className="taro-btn-press"
                   style={{
-                    width: 80,
-                    height: 64,
-                    borderRadius: 16,
-                    background: grade === g ? '#58CC02' : '#F3F4F6',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                    border: grade === g ? '2px solid #58CC02' : '2px solid transparent',
+                    width: '48%',
+                    marginBottom: 12,
+                    padding: 16,
+                    borderRadius: TOKEN.radius.lg,
+                    borderWidth: 2,
+                    borderStyle: 'solid',
+                    borderColor: selected ? C.semantic.primary : C.semantic.border,
+                    background: selected ? primaryLight : C.semantic.card,
+                    boxShadow: TOKEN.shadow.md,
                   }}
                 >
-                  <Text style={{ fontSize: 20, fontWeight: 700, color: grade === g ? '#FFFFFF' : '#1a1a1a' }}>
-                    {g}
-                  </Text>
-                  <Text style={{ fontSize: 11, color: grade === g ? '#FFFFFF' : '#6b7280', marginTop: 2 }}>
-                    年级
-                  </Text>
+                  <View><Icon name={stage.icon} size={32} /></View>
+                  <View style={{ marginTop: 8 }}>
+                    <Text style={{ fontSize: 16, fontWeight: 700, color: C.semantic.foreground }}>{stage.name}</Text>
+                  </View>
+                  <View style={{ marginTop: 4 }}>
+                    <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>{stage.desc}</Text>
+                  </View>
                 </View>
-              ))}
-            </Row>
-            <Spacer size={8} />
-            <Button block size="lg" onClick={handleNext} disabled={!canNext()}>
-              下一步
-            </Button>
-          </Col>
-        </Card>
-      )}
+              )
+            })}
+          </View>
+        )}
 
-      {/* Step 2: 选择学习目标 */}
-      {step === 2 && (
-        <Card padding={24}>
-          <Col gap={16}>
-            <Title size={18}>你的学习目标是什么？</Title>
-            <Subtitle>选择最符合你的目标</Subtitle>
-            <Spacer size={8} />
-            {GOALS.map((g) => (
-              <View
-                key={g.key}
-                onClick={() => setGoal(g.key)}
-                style={{
-                  padding: 16,
-                  borderRadius: 16,
-                  background: goal === g.key ? '#ECFDF5' : '#FFFFFF',
-                  border: goal === g.key ? '2px solid #58CC02' : '2px solid #E5E7EB',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 12,
-                }}
-              >
-                <Text style={{ fontSize: 32 }}>{g.icon}</Text>
-                <Col gap={2} flex={1}>
-                  <Text style={{ fontSize: 16, fontWeight: 700, color: goal === g.key ? '#58CC02' : '#1a1a1a' }}>
-                    {g.label}
-                  </Text>
-                  <Text style={{ fontSize: 13, color: '#6b7280' }}>{g.desc}</Text>
-                </Col>
-                {goal === g.key && (
-                  <Text style={{ fontSize: 20, color: '#58CC02' }}>✓</Text>
-                )}
+        {/* 步骤2：设定学习目标 */}
+        {currentStep?.id === 'goal' && (
+          <View style={{ display: 'flex', flexDirection: 'column' }}>
+            {GOALS.map(goal => {
+              const selected = form.goal === goal.id
+              return (
+                <View
+                  key={goal.id}
+                  onClick={() => setForm(f => ({ ...f, goal: goal.id }))}
+                  className="taro-btn-press"
+                  style={{
+                    marginBottom: 12,
+                    padding: 16,
+                    borderRadius: TOKEN.radius.lg,
+                    borderWidth: 2,
+                    borderStyle: 'solid',
+                    borderColor: selected ? C.semantic.primary : C.semantic.border,
+                    background: selected ? primaryLight : C.semantic.card,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    boxShadow: TOKEN.shadow.md,
+                  }}
+                >
+                  <View><Icon name={goal.icon} size={32} /></View>
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <Text style={{ fontSize: 16, fontWeight: 700, color: C.semantic.foreground }}>{goal.name}</Text>
+                    <View style={{ marginTop: 2 }}>
+                      <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>{goal.desc}</Text>
+                    </View>
+                  </View>
+                  {selected && <Icon name="check" size={20} color={C.semantic.primary} />}
+                </View>
+              )
+            })}
+          </View>
+        )}
+
+        {/* 步骤3：选择年级（成人跳过此步） */}
+        {currentStep?.id === 'grade' && (
+          <View>
+            <View style={{ marginBottom: 16 }}>
+              <Text style={{ fontSize: 13, color: C.semantic.mutedForeground }}>
+                当前阶段：{STAGES.find(s => s.id === form.stage)?.name}
+              </Text>
+            </View>
+            <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+              {currentGradeOptions.map(grade => {
+                const selected = form.grade === grade
+                return (
+                  <View
+                    key={grade}
+                    onClick={() => setForm(f => ({ ...f, grade }))}
+                    className="taro-btn-press"
+                    style={{
+                      width: '31%',
+                      marginBottom: 12,
+                      height: 80,
+                      borderRadius: TOKEN.radius.lg,
+                      borderWidth: 2,
+                      borderStyle: 'solid',
+                      borderColor: selected ? C.semantic.primary : C.semantic.border,
+                      background: selected ? primaryLight : C.semantic.card,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: TOKEN.shadow.md,
+                    }}
+                  >
+                    <Text style={{ fontSize: 18, fontWeight: 700, color: selected ? C.semantic.primary : C.semantic.mutedForeground }}>
+                      {grade}年级
+                    </Text>
+                  </View>
+                )
+              })}
+            </View>
+          </View>
+        )}
+
+        {/* 步骤4：设置个人信息 */}
+        {currentStep?.id === 'profile' && (
+          <View style={{ display: 'flex', flexDirection: 'column' }}>
+            {/* 头像选择 */}
+            <View style={{ marginBottom: 24 }}>
+              <View style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>选择头像</Text>
               </View>
-            ))}
-            <Spacer size={8} />
-            <Button block size="lg" onClick={handleNext} disabled={loading}>
-              {loading ? '保存中...' : '开始学习 🎉'}
-            </Button>
-          </Col>
-        </Card>
-      )}
+              <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                {AVATAR_SEEDS.map(seed => {
+                  const selected = form.avatar === seed
+                  return (
+                    <View
+                      key={seed}
+                      onClick={() => setForm(f => ({ ...f, avatar: seed }))}
+                      className="taro-btn-press"
+                      style={{
+                        width: '14%',
+                        marginBottom: 12,
+                        height: 56,
+                        borderRadius: TOKEN.radius.lg,
+                        borderWidth: 2,
+                        borderStyle: 'solid',
+                        borderColor: selected ? C.semantic.primary : C.semantic.border,
+                        background: selected ? primaryLight : C.semantic.card,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Image src={getAvatarUrl(seed)} mode="aspectFill" style={{ width: '100%', height: '100%' }} />
+                    </View>
+                  )
+                })}
+              </View>
+            </View>
+            {/* 昵称输入 */}
+            <View>
+              <View style={{ marginBottom: 8 }}>
+                <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>昵称</Text>
+              </View>
+              <View style={{
+                height: 56,
+                borderRadius: TOKEN.radius.lg,
+                borderWidth: 2,
+                borderStyle: 'solid',
+                borderColor: C.semantic.border,
+                background: C.semantic.card,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingLeft: 16,
+                paddingRight: 16,
+              }}>
+                <Input
+                  type="text"
+                  value={form.nickname}
+                  onInput={(e) => setForm(f => ({ ...f, nickname: e.detail.value }))}
+                  placeholder="输入2-10个字的昵称"
+                  placeholderStyle={{ color: hexA(C.semantic.mutedForeground, 0.5) }}
+                  maxlength={10}
+                  style={{ flex: 1, height: '100%', fontSize: 16, fontWeight: 500, color: C.semantic.foreground }}
+                />
+              </View>
+              {form.nickname.trim().length > 0 && form.nickname.trim().length < 2 && (
+                <View style={{ marginTop: 8 }}>
+                  <Text style={{ fontSize: 12, color: C.semantic.destructive }}>昵称至少需要2个字</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+      </View>
 
-      <Spacer size={40} />
+      {/* 底部按钮区 */}
+      <View style={{ padding: 24, paddingBottom: 40, borderTop: `1px solid ${C.semantic.border}`, background: '#fff' }}>
+        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+          {/* 上一步按钮（非首步显示） */}
+          {!isFirstStep && (
+            <View
+              onClick={handlePrev}
+              className="taro-btn-press"
+              style={{
+                width: 100,
+                height: 52,
+                borderRadius: TOKEN.radius.lg,
+                background: C.icon.iconGrayBg,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: 12,
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: 600, color: C.semantic.foreground }}>上一步</Text>
+            </View>
+          )}
+          {/* 下一步 / 开始学习 */}
+          <View
+            onClick={nextDisabled ? undefined : handleNext}
+            className="taro-btn-press"
+            style={{
+              flex: 1,
+              height: 52,
+              borderRadius: TOKEN.radius.lg,
+              background: nextDisabled ? C.semantic.border : C.semantic.primary,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: nextDisabled ? 0.6 : 1,
+              boxShadow: nextDisabled ? 'none' : btnShadow(C.duolingo.greenDark),
+            }}
+          >
+            <Text style={{ fontSize: 16, fontWeight: 600, color: '#fff' }}>{nextButtonText}</Text>
+          </View>
+        </View>
+      </View>
     </View>
   )
 }

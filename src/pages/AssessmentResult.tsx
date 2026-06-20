@@ -4,6 +4,7 @@ import { useUserStore } from '@/store/useUserStore'
 import { useSessionStore } from '@/store/useSessionStore'
 import { getLevelsByGrade, getLevelDetail, getQuestionsByIds } from '@/services/content'
 import PixelButton from '@/components/PixelButton'
+import { Icon } from '@/components/Icon'
 import { Trophy, Home, Check, XCircle } from 'lucide-react'
 import { useState, useCallback, useEffect } from 'react'
 
@@ -12,6 +13,7 @@ export default function AssessmentResult() {
   const user = useUserStore()
   const startSession = useSessionStore(s => s.start)
   const [loading, setLoading] = useState(false)
+  const [emptyHint, setEmptyHint] = useState('')
 
   const assessment = user.assessment
 
@@ -19,7 +21,7 @@ export default function AssessmentResult() {
     return (
       <div className="space-y-3 pt-3 pb-6 px-4 min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md">
-          <div className="text-6xl mb-4">😅</div>
+          <Icon name="frown" size={64} className="text-gray-400 mb-4" />
           <h2 className="text-xl font-bold text-foreground mb-2">测评数据不存在</h2>
           <p className="text-muted-foreground mb-6">请重新进行水平测评</p>
           <PixelButton variant="green" size="lg" onClick={() => navigate('/assessment')}>
@@ -110,9 +112,11 @@ export default function AssessmentResult() {
           }}
           className="inline-block"
         >
-          <div className="text-6xl mb-3">
-            {accuracy >= excellentThreshold ? '🏆' : accuracy >= goodThreshold ? '🎉' : '💪'}
-          </div>
+          <Icon
+            name={accuracy >= excellentThreshold ? 'trophy' : accuracy >= goodThreshold ? 'party' : 'muscle'}
+            size={64}
+            className="mb-3"
+          />
         </motion.div>
         
         <h1 className="text-xl font-bold text-foreground mb-2">测评完成！</h1>
@@ -146,7 +150,7 @@ export default function AssessmentResult() {
         className="pixel-card p-4"
       >
         <div className="flex items-center gap-2.5 mb-2.5">
-          <div className="text-xl">📊</div>
+          <Icon name="chart" size={20} />
           <div>
             <div className="font-bold text-foreground text-sm">推荐难度</div>
             <div className="text-xs text-muted-foreground">为你推荐最适合的题目难度</div>
@@ -240,7 +244,7 @@ export default function AssessmentResult() {
       >
         {emptyHint && (
           <div className="pixel-card p-3 text-center text-sm text-amber-600 bg-amber-50">
-            🚧 {emptyHint}
+            <Icon name="construction" size={20} className="inline" /> {emptyHint}
           </div>
         )}
         <PixelButton

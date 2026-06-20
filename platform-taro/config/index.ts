@@ -11,7 +11,7 @@ const config = {
     375: 2 / 1
   },
   sourceRoot: 'src',
-  outputRoot: path.resolve(__dirname, '../../dist-weapp'),
+  outputRoot: path.resolve(__dirname, '../../dist-webapp'),
   alias: {
     '@': path.resolve(__dirname, '../src')
   },

@@ -60,27 +60,27 @@ function makeQuestions(): QuestionInput[] {
     { levelId: LEVELS.L1, type: 'input', knowledgePoint: '比较大小', difficulty: 1, prompt: '比 2 大 1 的数是？', answer: 3, explanation: '2 + 1 = 3', xp: 10 },
 
     // 认识数字 - 简单 (1)
-    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '认识数字', difficulty: 1, prompt: '★★★ 表示数字几？', answer: 3, explanation: '三颗星表示数字 3', xp: 10, options: ['1', '2', '3', '4'], illustration: '⭐' },
-    { levelId: LEVELS.L1, type: 'input', knowledgePoint: '认识数字', difficulty: 1, prompt: '数一数：🍎 🍎 🍎 🍎 🍎 有几个苹果？', answer: 5, explanation: '5个苹果', xp: 10 },
-    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '认识数字', difficulty: 1, prompt: '下面哪个代表数字 2？', answer: '●●', explanation: '●● 表示 2', xp: 10, options: ['●', '●●', '●●●', '●●●●'] },
-    { levelId: LEVELS.L1, type: 'input', knowledgePoint: '认识数字', difficulty: 1, prompt: '★ ★ ★ ★ 表示数字几？', answer: 4, explanation: '4颗星', xp: 10 },
+    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '认识数字', difficulty: 1, prompt: '3 颗星 表示数字几？', answer: 3, explanation: '三颗星表示数字 3', xp: 10, options: ['1', '2', '3', '4'], illustration: 'star' },
+    { levelId: LEVELS.L1, type: 'input', knowledgePoint: '认识数字', difficulty: 1, prompt: '数一数：5 个苹果有几个？', answer: 5, explanation: '5个苹果', xp: 10 },
+    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '认识数字', difficulty: 1, prompt: '下面哪个数字是 2？', answer: '2', explanation: '数字 2 表示 2', xp: 10, options: ['1', '2', '3', '4'] },
+    { levelId: LEVELS.L1, type: 'input', knowledgePoint: '认识数字', difficulty: 1, prompt: '4 颗星 表示数字几？', answer: 4, explanation: '4颗星', xp: 10 },
 
     // 凑十法 - 中等 (2)
     { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内加法', difficulty: 2, prompt: '2 + ( ) = 5', answer: 3, explanation: '5 - 2 = 3，所以填 3', xp: 15, options: ['2', '3', '4', '5'] },
     { levelId: LEVELS.L1, type: 'input', knowledgePoint: '5以内减法', difficulty: 2, prompt: '( ) - 2 = 2', answer: 4, explanation: '2 + 2 = 4', xp: 15 },
 
     // 应用题 - 中等 (2)
-    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '小明有 2 支铅笔，小红有 3 支铅笔，一共几支？', answer: 5, explanation: '2 + 3 = 5', xp: 15, options: ['4', '5', '6', '7'], illustration: '✏️' },
+    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '小明有 2 支铅笔，小红有 3 支铅笔，一共几支？', answer: 5, explanation: '2 + 3 = 5', xp: 15, options: ['4', '5', '6', '7'], illustration: 'pencil' },
     { levelId: LEVELS.L1, type: 'input', knowledgePoint: '5以内应用', difficulty: 2, prompt: '树上有 5 只小鸟，飞走了 2 只，还剩几只？', answer: 3, explanation: '5 - 2 = 3', xp: 15 },
     { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '盒子里有 3 个球，又放进去 1 个，现在有几个？', answer: 4, explanation: '3 + 1 = 4', xp: 15, options: ['3', '4', '5', '2'] },
     { levelId: LEVELS.L1, type: 'input', knowledgePoint: '5以内应用', difficulty: 2, prompt: '小华吃了 4 颗糖，还剩 1 颗，原来有几颗？', answer: 5, explanation: '4 + 1 = 5', xp: 15 },
-    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '鱼缸里有 5 条鱼，捞走 3 条，还剩几条？', answer: 2, explanation: '5 - 3 = 2', xp: 15, options: ['1', '2', '3', '4'], illustration: '🐟' },
+    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '鱼缸里有 5 条鱼，捞走 3 条，还剩几条？', answer: 2, explanation: '5 - 3 = 2', xp: 15, options: ['1', '2', '3', '4'] },
     { levelId: LEVELS.L1, type: 'input', knowledgePoint: '5以内应用', difficulty: 2, prompt: '玲玲折了 2 只纸鹤，妈妈又帮她折了 2 只，一共几只？', answer: 4, explanation: '2 + 2 = 4', xp: 15 },
-    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '停车场有 4 辆车，开走 1 辆，还剩几辆？', answer: 3, explanation: '4 - 1 = 3', xp: 15, options: ['2', '3', '4', '5'], illustration: '🚗' },
+    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '停车场有 4 辆车，开走 1 辆，还剩几辆？', answer: 3, explanation: '4 - 1 = 3', xp: 15, options: ['2', '3', '4', '5'], illustration: 'car' },
     { levelId: LEVELS.L1, type: 'input', knowledgePoint: '5以内应用', difficulty: 2, prompt: '妈妈买了 3 个苹果，爸爸买了 2 个苹果，一共买了几个？', answer: 5, explanation: '3 + 2 = 5', xp: 15 },
     { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '有 5 个小朋友在玩，走了 2 个，还剩几个？', answer: 3, explanation: '5 - 2 = 3', xp: 15, options: ['2', '3', '4', '5'] },
     { levelId: LEVELS.L1, type: 'input', knowledgePoint: '5以内应用', difficulty: 2, prompt: '你有 1 张卡片，朋友送你 3 张，现在有几张？', answer: 4, explanation: '1 + 3 = 4', xp: 15 },
-    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '篮子里有 4 个鸡蛋，打了 1 个，还剩几个？', answer: 3, explanation: '4 - 1 = 3', xp: 15, options: ['2', '3', '4', '5'], illustration: '🥚' },
+    { levelId: LEVELS.L1, type: 'choice', knowledgePoint: '5以内应用', difficulty: 2, prompt: '篮子里有 4 个鸡蛋，打了 1 个，还剩几个？', answer: 3, explanation: '4 - 1 = 3', xp: 15, options: ['2', '3', '4', '5'] },
     { levelId: LEVELS.L1, type: 'input', knowledgePoint: '5以内应用', difficulty: 2, prompt: '池塘里有 2 只鸭子，又来了 3 只，现在一共几只？', answer: 5, explanation: '2 + 3 = 5', xp: 15 },
   ])
 
@@ -109,11 +109,11 @@ function makeQuestions(): QuestionInput[] {
     { levelId: LEVELS.L2, type: 'input', knowledgePoint: '10以内加减混合', difficulty: 2, prompt: '7 - 4 + 5 = ?', answer: 8, explanation: '7 - 4 = 3，3 + 5 = 8', xp: 15 },
 
     // 10以内应用题
-    { levelId: LEVELS.L2, type: 'choice', knowledgePoint: '10以内应用', difficulty: 2, prompt: '书架上有 7 本书，又放了 3 本，现在一共有几本？', answer: 10, explanation: '7 + 3 = 10', xp: 15, options: ['8', '9', '10', '11'], illustration: '📚' },
+    { levelId: LEVELS.L2, type: 'choice', knowledgePoint: '10以内应用', difficulty: 2, prompt: '书架上有 7 本书，又放了 3 本，现在一共有几本？', answer: 10, explanation: '7 + 3 = 10', xp: 15, options: ['8', '9', '10', '11'], illustration: 'book' },
     { levelId: LEVELS.L2, type: 'input', knowledgePoint: '10以内应用', difficulty: 2, prompt: '花坛里有 8 朵花，摘了 4 朵，还剩几朵？', answer: 4, explanation: '8 - 4 = 4', xp: 15 },
-    { levelId: LEVELS.L2, type: 'choice', knowledgePoint: '10以内应用', difficulty: 2, prompt: '一盒笔有 6 支，又买来 4 支，一共有几支？', answer: 10, explanation: '6 + 4 = 10', xp: 15, options: ['8', '9', '10', '12'], illustration: '🖊️' },
+    { levelId: LEVELS.L2, type: 'choice', knowledgePoint: '10以内应用', difficulty: 2, prompt: '一盒笔有 6 支，又买来 4 支，一共有几支？', answer: 10, explanation: '6 + 4 = 10', xp: 15, options: ['8', '9', '10', '12'], illustration: 'pencil' },
     { levelId: LEVELS.L2, type: 'input', knowledgePoint: '10以内应用', difficulty: 2, prompt: '小明有 10 元钱，买文具用了 5 元，还剩多少元？', answer: 5, explanation: '10 - 5 = 5', xp: 15 },
-    { levelId: LEVELS.L2, type: 'choice', knowledgePoint: '10以内应用', difficulty: 2, prompt: '动物园里有 3 只猴子，又来了 4 只，现在有几只？', answer: 7, explanation: '3 + 4 = 7', xp: 15, options: ['6', '7', '8', '9'], illustration: '🐒' },
+    { levelId: LEVELS.L2, type: 'choice', knowledgePoint: '10以内应用', difficulty: 2, prompt: '动物园里有 3 只猴子，又来了 4 只，现在有几只？', answer: 7, explanation: '3 + 4 = 7', xp: 15, options: ['6', '7', '8', '9'] },
     { levelId: LEVELS.L2, type: 'input', knowledgePoint: '10以内应用', difficulty: 2, prompt: '盘子里有 10 个饺子，吃了 6 个，还剩几个？', answer: 4, explanation: '10 - 6 = 4', xp: 15 },
 
     // 认识序数
@@ -166,9 +166,9 @@ function makeQuestions(): QuestionInput[] {
     // 20以内应用题
     { levelId: LEVELS.L3, type: 'choice', knowledgePoint: '20以内应用', difficulty: 3, prompt: '一年级有 8 个男生和 9 个女生，一共多少人？', answer: 17, explanation: '8 + 9 = 17', xp: 15, options: ['15', '16', '17', '18'] },
     { levelId: LEVELS.L3, type: 'input', knowledgePoint: '20以内应用', difficulty: 3, prompt: '小芳有 16 张贴纸，送给同学 7 张，还剩几张？', answer: 9, explanation: '16 - 7 = 9', xp: 15 },
-    { levelId: LEVELS.L3, type: 'choice', knowledgePoint: '20以内应用', difficulty: 3, prompt: '操场上有 7 人在跑步，又来了 5 人，现在有多少人？', answer: 12, explanation: '7 + 5 = 12', xp: 15, options: ['11', '12', '13', '14'], illustration: '🏃' },
+    { levelId: LEVELS.L3, type: 'choice', knowledgePoint: '20以内应用', difficulty: 3, prompt: '操场上有 7 人在跑步，又来了 5 人，现在有多少人？', answer: 12, explanation: '7 + 5 = 12', xp: 15, options: ['11', '12', '13', '14'] },
     { levelId: LEVELS.L3, type: 'input', knowledgePoint: '20以内应用', difficulty: 3, prompt: '公共汽车上有 18 人，到站下了 9 人，车上还剩几人？', answer: 9, explanation: '18 - 9 = 9', xp: 15 },
-    { levelId: LEVELS.L3, type: 'choice', knowledgePoint: '20以内应用', difficulty: 3, prompt: '水果店上午卖出 9 个西瓜，下午卖出 8 个，一天卖出几个？', answer: 17, explanation: '9 + 8 = 17', xp: 15, options: ['15', '16', '17', '18'], illustration: '🍉' },
+    { levelId: LEVELS.L3, type: 'choice', knowledgePoint: '20以内应用', difficulty: 3, prompt: '水果店上午卖出 9 个西瓜，下午卖出 8 个，一天卖出几个？', answer: 17, explanation: '9 + 8 = 17', xp: 15, options: ['15', '16', '17', '18'] },
     { levelId: LEVELS.L3, type: 'input', knowledgePoint: '20以内应用', difficulty: 3, prompt: '小红有 20 元，买了一本书花 8 元，再买一支笔花 3 元，还剩多少？', answer: 9, explanation: '20 - 8 - 3 = 9', xp: 20 },
     { levelId: LEVELS.L3, type: 'choice', knowledgePoint: '20以内应用', difficulty: 3, prompt: '从 1 数到 20，数字 1 出现几次？', answer: 3, explanation: '1, 10, 11~19中十位都是1，共3次在个位/十位', xp: 20, options: ['2', '3', '4', '5'] },
     { levelId: LEVELS.L3, type: 'input', knowledgePoint: '20以内应用', difficulty: 3, prompt: '比 15 少 7 的数是？', answer: 8, explanation: '15 - 7 = 8', xp: 15 },
@@ -209,11 +209,11 @@ function makeQuestions(): QuestionInput[] {
     { levelId: LEVELS.L4, type: 'input', knowledgePoint: '找规律', difficulty: 3, prompt: '按规律：2, 4, 6, __, 10', answer: 8, explanation: '每次加2', xp: 15 },
     { levelId: LEVELS.L4, type: 'choice', knowledgePoint: '找规律', difficulty: 3, prompt: '按规律：10, 8, 6, __, 2', answer: 4, explanation: '每次减2', xp: 15, options: ['3', '4', '5', '6'] },
     { levelId: LEVELS.L4, type: 'input', knowledgePoint: '找规律', difficulty: 3, prompt: '按规律：1, 4, 7, 10, __', answer: 13, explanation: '每次加3', xp: 15 },
-    { levelId: LEVELS.L4, type: 'choice', knowledgePoint: '找规律', difficulty: 3, prompt: '⭕❌⭕❌⭕__ 下一个是？', answer: '❌', explanation: '⭕❌交替', xp: 15, options: ['⭕', '❌', '⭐', '❤️'] },
+    { levelId: LEVELS.L4, type: 'choice', knowledgePoint: '找规律', difficulty: 3, prompt: '圆圈 叉号 圆圈 叉号 圆圈 __ 下一个是？', answer: '叉号', explanation: '圆圈、叉号交替', xp: 15, options: ['圆圈', '叉号', '星形', '心形'] },
     { levelId: LEVELS.L4, type: 'input', knowledgePoint: '找规律', difficulty: 3, prompt: '5, 10, 15, __, 25', answer: 20, explanation: '每次加5', xp: 15 },
 
     // 分类与整理
-    { levelId: LEVELS.L4, type: 'choice', knowledgePoint: '分类与整理', difficulty: 2, prompt: '🍎🍌🍎🍌🍎 — 香蕉有几个？', answer: 2, explanation: '🍌出现2次', xp: 10, options: ['1', '2', '3', '4'] },
+    { levelId: LEVELS.L4, type: 'choice', knowledgePoint: '分类与整理', difficulty: 2, prompt: '苹果、香蕉、苹果、香蕉、苹果 — 香蕉有几个？', answer: 2, explanation: '香蕉出现2次', xp: 10, options: ['1', '2', '3', '4'] },
     { levelId: LEVELS.L4, type: 'input', knowledgePoint: '分类与整理', difficulty: 2, prompt: '红红蓝蓝红红蓝 — 红色有几个？', answer: 3, explanation: '红出现3次', xp: 10 },
   ])
 
@@ -222,7 +222,7 @@ function makeQuestions(): QuestionInput[] {
     // 20以内综合
     { levelId: LEVELS.L5, type: 'choice', knowledgePoint: '20以内综合', difficulty: 3, prompt: '13 + 5 - 7 = ?', answer: 11, explanation: '13 + 5 = 18，18 - 7 = 11', xp: 15, options: ['10', '11', '12', '13'] },
     { levelId: LEVELS.L5, type: 'input', knowledgePoint: '20以内综合', difficulty: 3, prompt: '16 - 8 + 6 = ?', answer: 14, explanation: '16 - 8 = 8，8 + 6 = 14', xp: 15 },
-    { levelId: LEVELS.L5, type: 'choice', knowledgePoint: '20以内综合', difficulty: 3, prompt: '小明有 11 颗糖，吃了 3 颗，又买了 6 颗，现在有几颗？', answer: 14, explanation: '11 - 3 + 6 = 14', xp: 20, options: ['13', '14', '15', '16'], illustration: '🍬' },
+    { levelId: LEVELS.L5, type: 'choice', knowledgePoint: '20以内综合', difficulty: 3, prompt: '小明有 11 颗糖，吃了 3 颗，又买了 6 颗，现在有几颗？', answer: 14, explanation: '11 - 3 + 6 = 14', xp: 20, options: ['13', '14', '15', '16'], illustration: 'candy' },
     { levelId: LEVELS.L5, type: 'input', knowledgePoint: '20以内综合', difficulty: 3, prompt: '一个数加 8 等于 17，这个数是几？', answer: 9, explanation: '17 - 8 = 9', xp: 20 },
     { levelId: LEVELS.L5, type: 'choice', knowledgePoint: '20以内综合', difficulty: 3, prompt: '比 18 少 9 的数比 5 多几？', answer: 4, explanation: '18 - 9 = 9，9 - 5 = 4', xp: 20, options: ['3', '4', '5', '6'] },
     { levelId: LEVELS.L5, type: 'input', knowledgePoint: '20以内综合', difficulty: 3, prompt: '草地上有 7 只白兔，5 只灰兔，白兔比灰兔多几只？', answer: 2, explanation: '7 - 5 = 2', xp: 20 },
@@ -244,11 +244,11 @@ function makeQuestions(): QuestionInput[] {
     { levelId: LEVELS.L5, type: 'input', knowledgePoint: '20以内综合', difficulty: 3, prompt: '小明做了8道题，小红做了12道题，小红比小明多做几道？', answer: 4, explanation: '12 - 8 = 4', xp: 20 },
 
     // 20以内综合应用
-    { levelId: LEVELS.L5, type: 'choice', knowledgePoint: '20以内综合', difficulty: 3, prompt: '妈妈买了 15 个鸡蛋，用了 7 个，又买了 4 个，现在有几个？', answer: 12, explanation: '15 - 7 + 4 = 12', xp: 20, options: ['11', '12', '13', '14'], illustration: '🥚' },
+    { levelId: LEVELS.L5, type: 'choice', knowledgePoint: '20以内综合', difficulty: 3, prompt: '妈妈买了 15 个鸡蛋，用了 7 个，又买了 4 个，现在有几个？', answer: 12, explanation: '15 - 7 + 4 = 12', xp: 20, options: ['11', '12', '13', '14'] },
     { levelId: LEVELS.L5, type: 'input', knowledgePoint: '20以内综合', difficulty: 3, prompt: '姐姐有 14 张贴纸，给妹妹 6 张，两人一样多，妹妹原来有几张？', answer: 2, explanation: '14 - 6 = 8，8 - 6 = 2', xp: 25 },
     { levelId: LEVELS.L5, type: 'choice', knowledgePoint: '20以内综合', difficulty: 3, prompt: '最大的一位数和最小的两位数相加是多少？', answer: 19, explanation: '9 + 10 = 19', xp: 20, options: ['17', '18', '19', '20'] },
     { levelId: LEVELS.L5, type: 'input', knowledgePoint: '20以内综合', difficulty: 3, prompt: '一个两位数，十位是1，个位比十位大3，这个数是几？', answer: 14, explanation: '十位1，个位1+3=4，所以是14', xp: 20 },
-    { levelId: LEVELS.L5, type: 'choice', knowledgePoint: '20以内综合', difficulty: 3, prompt: '停车场有 17 辆车，开走一些后剩 9 辆，开走了几辆？', answer: 8, explanation: '17 - 9 = 8', xp: 20, options: ['7', '8', '9', '10'], illustration: '🚗' },
+    { levelId: LEVELS.L5, type: 'choice', knowledgePoint: '20以内综合', difficulty: 3, prompt: '停车场有 17 辆车，开走一些后剩 9 辆，开走了几辆？', answer: 8, explanation: '17 - 9 = 8', xp: 20, options: ['7', '8', '9', '10'], illustration: 'car' },
     { levelId: LEVELS.L5, type: 'input', knowledgePoint: '20以内综合', difficulty: 3, prompt: '用 3, 5, 8 组成最大的两位数是多少？', answer: 85, explanation: '高位用最大的数，85', xp: 20 },
   ])
 
@@ -256,7 +256,7 @@ function makeQuestions(): QuestionInput[] {
   all([
     { levelId: LEVELS.BOSS, type: 'choice', knowledgePoint: '一年级综合', difficulty: 3, prompt: '8 + 7 - 5 = ?', answer: 10, explanation: '8 + 7 = 15，15 - 5 = 10', xp: 20, options: ['9', '10', '11', '12'] },
     { levelId: LEVELS.BOSS, type: 'input', knowledgePoint: '一年级综合', difficulty: 3, prompt: '19 - 8 + 3 = ?', answer: 14, explanation: '19 - 8 = 11，11 + 3 = 14', xp: 20 },
-    { levelId: LEVELS.BOSS, type: 'choice', knowledgePoint: '一年级综合', difficulty: 3, prompt: '小华有 12 本故事书，小丽比小华多 5 本，两人一共有多少本？', answer: 29, explanation: '小丽：12 + 5 = 17，一共：12 + 17 = 29', xp: 20, options: ['27', '28', '29', '30'], illustration: '📚' },
+    { levelId: LEVELS.BOSS, type: 'choice', knowledgePoint: '一年级综合', difficulty: 3, prompt: '小华有 12 本故事书，小丽比小华多 5 本，两人一共有多少本？', answer: 29, explanation: '小丽：12 + 5 = 17，一共：12 + 17 = 29', xp: 20, options: ['27', '28', '29', '30'], illustration: 'book' },
     { levelId: LEVELS.BOSS, type: 'input', knowledgePoint: '一年级综合', difficulty: 3, prompt: '从 20 里连续减去 3，减 5 次后还剩多少？', answer: 5, explanation: '20 - 3 × 5 = 20 - 15 = 5', xp: 20 },
     { levelId: LEVELS.BOSS, type: 'choice', knowledgePoint: '一年级综合', difficulty: 3, prompt: '一张桌子配 4 把椅子，3 张桌子配几把椅子？', answer: 12, explanation: '4 × 3 = 12', xp: 20, options: ['10', '11', '12', '14'] },
     { levelId: LEVELS.BOSS, type: 'input', knowledgePoint: '一年级综合', difficulty: 3, prompt: '教室里有 6 排桌子，每排 3 张，一共有多少张桌子？', answer: 18, explanation: '6 × 3 = 18', xp: 20 },
@@ -276,7 +276,7 @@ function makeQuestions(): QuestionInput[] {
     { levelId: LEVELS.BOSS, type: 'choice', knowledgePoint: '一年级综合', difficulty: 3, prompt: '妈妈今年 30 岁，小明今年 6 岁，妈妈比小明大几岁？', answer: 24, explanation: '30 - 6 = 24', xp: 20, options: ['22', '23', '24', '25'] },
     { levelId: LEVELS.BOSS, type: 'input', knowledgePoint: '一年级综合', difficulty: 3, prompt: '树上有 16 只鸟，飞走一半，还剩几只？', answer: 8, explanation: '16 ÷ 2 = 8', xp: 20 },
 
-    { levelId: LEVELS.BOSS, type: 'choice', knowledgePoint: '一年级综合', difficulty: 3, prompt: '一盒巧克力有 10 块，3 盒巧克力有多少块？', answer: 30, explanation: '10 × 3 = 30', xp: 20, options: ['20', '25', '30', '35'], illustration: '🍫' },
+    { levelId: LEVELS.BOSS, type: 'choice', knowledgePoint: '一年级综合', difficulty: 3, prompt: '一盒巧克力有 10 块，3 盒巧克力有多少块？', answer: 30, explanation: '10 × 3 = 30', xp: 20, options: ['20', '25', '30', '35'] },
     { levelId: LEVELS.BOSS, type: 'input', knowledgePoint: '一年级综合', difficulty: 3, prompt: '把 18 个苹果平均分给 3 个小朋友，每人分几个？', answer: 6, explanation: '18 ÷ 3 = 6', xp: 25 },
 
     { levelId: LEVELS.BOSS, type: 'choice', knowledgePoint: '一年级综合', difficulty: 3, prompt: '一本故事书每天看 4 页，5 天可以看多少页？', answer: 20, explanation: '4 × 5 = 20', xp: 20, options: ['16', '18', '20', '24'] },
@@ -313,7 +313,7 @@ function makeQuestions(): QuestionInput[] {
     // 20以内补充
     { levelId: LEVELS.L3, type: 'choice', knowledgePoint: '20以内进位加法', difficulty: 3, prompt: '4 + 9 = ?', answer: 13, explanation: '凑十法：4 + 6 = 10，10 + 3 = 13', xp: 15, options: ['12', '13', '14', '15'] },
     { levelId: LEVELS.L3, type: 'input', knowledgePoint: '20以内退位减法', difficulty: 3, prompt: '16 - 9 = ?', answer: 7, explanation: '16 - 9 = 7', xp: 15 },
-    { levelId: LEVELS.L3, type: 'choice', knowledgePoint: '20以内应用', difficulty: 3, prompt: '有12个气球，飞走5个，又买来4个，现在有几个？', answer: 11, explanation: '12 - 5 + 4 = 11', xp: 20, options: ['10', '11', '12', '13'], illustration: '🎈' },
+    { levelId: LEVELS.L3, type: 'choice', knowledgePoint: '20以内应用', difficulty: 3, prompt: '有12个气球，飞走5个，又买来4个，现在有几个？', answer: 11, explanation: '12 - 5 + 4 = 11', xp: 20, options: ['10', '11', '12', '13'] },
     { levelId: LEVELS.L3, type: 'input', knowledgePoint: '20以内应用', difficulty: 3, prompt: '小明看一本书，第一天看了8页，第二天看了7页，两天一共看了多少页？', answer: 15, explanation: '8 + 7 = 15', xp: 15 },
 
     // 认识钟表补充
@@ -358,10 +358,10 @@ async function main() {
   // 初始化数据库连接
   const dbReady = await initDB()
   if (!dbReady) {
-    console.error('❌ 数据库连接失败，请确保 MySQL 已启动')
+    console.error('[错误] 数据库连接失败，请确保 MySQL 已启动')
     process.exit(1)
   }
-  console.log('✅ 数据库连接成功\n')
+  console.log('[OK] 数据库连接成功\n')
 
   const questions = makeQuestions()
   // 去重（按 levelId + prompt）
@@ -405,7 +405,7 @@ async function main() {
     }
   }
 
-  console.log(`\n✅ 导入完成！`)
+  console.log(`\n[OK] 导入完成！`)
   console.log(`   成功: ${success} 道`)
   if (fail > 0) console.log(`   失败: ${fail} 道`)
   console.log(`   总计: ${unique.length} 道`)
@@ -418,12 +418,12 @@ async function main() {
     levelCount[q.levelId] = (levelCount[q.levelId] || 0) + 1
   }
 
-  console.log('\n📊 难度分布:')
+  console.log('\n[统计] 难度分布:')
   console.log(`   简单(1): ${diffCount[1]} 道`)
   console.log(`   中等(2): ${diffCount[2]} 道`)
   console.log(`   困难(3): ${diffCount[3]} 道`)
 
-  console.log('\n📊 关卡分布:')
+  console.log('\n[统计] 关卡分布:')
   for (const [level, count] of Object.entries(levelCount)) {
     console.log(`   ${level}: ${count} 道`)
   }
