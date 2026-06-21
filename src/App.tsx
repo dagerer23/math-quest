@@ -14,6 +14,7 @@ const Assessment = lazy(() => import('@/pages/Assessment'))
 const AssessmentResult = lazy(() => import('@/pages/AssessmentResult'))
 const Agreement = lazy(() => import('@/pages/Agreement'))
 const LayoutPreview = lazy(() => import('@/pages/LayoutPreview'))
+const MapPreview = lazy(() => import('@/pages/MapPreview'))
 const Home = lazy(() => import('@/pages/Home'))
 const Battle = lazy(() => import('@/pages/Battle'))
 const Result = lazy(() => import('@/pages/Result'))
@@ -83,6 +84,7 @@ function AppRoutes() {
           <Route path="/assessment-result" element={<AssessmentResult />} />
           <Route path="/agreement" element={<Agreement />} />
           <Route path="/layout-preview" element={<LayoutPreview />} />
+          <Route path="/map-preview" element={<MapPreview />} />
           {/* 其他页面需要完成 onboarding + 测评，否则强制重定向 */}
           {hasCompletedOnboarding ? (
             <Route element={<Layout />}>
