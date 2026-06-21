@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { MAP, COLORS } from '@/components/map-preview/constants'
-import { getWindingPositions } from '@/components/map-preview/windingPath'
+import { getWindingPositions } from '@/components/map-preview/layout'
 import { WindingPath } from '@/components/map-preview/WindingPath'
 import { MapLevelNode } from '@/components/map-preview/MapLevelNode'
 import { MapStarRow } from '@/components/map-preview/MapStarRow'

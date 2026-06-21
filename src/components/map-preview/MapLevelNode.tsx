@@ -1,6 +1,6 @@
 import { MAP, COLORS } from './constants'
 import type { LevelStatus } from './constants'
-import type { NodePos } from './windingPath'
+import type { NodePos } from './layout'
 
 interface MapLevelNodeProps {
   node: NodePos

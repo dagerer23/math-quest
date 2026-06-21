@@ -1,5 +1,5 @@
-import { segmentPath } from './windingPath'
-import type { PathSegment } from './windingPath'
+import { segmentPath } from './layout'
+import type { PathSegment } from './layout'
 import { COLORS } from './constants'
 
 interface WindingPathProps {
