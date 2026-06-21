@@ -4,11 +4,11 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import { useUserStore } from '@/store/useUserStore'
 import { useSessionStore } from '@/store/useSessionStore'
 import { getLevelsByGrade, getLevelDetail, generateQuestions } from '@/services/content'
-import { getZigzagPositions, getLevelMastery } from '@/components/home/helpers'
+import { getLevelMastery } from '@/components/home/helpers'
 import { getThemeByGrade } from '@/components/home/themes'
 import { todayKey } from '@/utils/time'
-import { LevelNode } from '@/components/home/LevelNode'
-import { PathConnector } from '@/components/home/PathConnector'
+import { GameMap } from '@/components/map/GameMap'
+import { COLORS as MAP_COLORS } from '@/components/map/constants'
 import { C, TOKEN, btnShadow } from '@/styles/theme'
 import { Icon } from '@/components/Icon'
 import { getAvatarUrl } from '@/utils/avatar'
@@ -48,7 +48,7 @@ export default function HomePage() {
   const selectedGrade = Math.max(1, Math.min(9, user.grade || user.profile.targetGrade || 1))
   const theme = getThemeByGrade(selectedGrade)
   // 心形恢复时间（分钟），用于心数耗尽弹窗文案
-  const heartRecoverMinutes = Number(user.systemConfigs?.['heart.recover_minutes']) || 30
+  const heartRecoverMinutes = Number(user.systemConfigs?.['heart.recoverMinutes']) || 30
 
   const [visibleLevels, setVisibleLevels] = useState<Level[]>([])
   const [loadingLevels, setLoadingLevels] = useState(true)
@@ -81,24 +81,16 @@ export default function HomePage() {
     return () => { cancelled = true }
   }, [selectedGrade])
 
-  // 蛇形布局坐标
-  const containerWidth = Math.max(280, winWidth - 32)
-  const containerHeight = Math.max(560, visibleLevels.length * 110)
-  const NODE_POSITIONS = useMemo(
-    () => getZigzagPositions(visibleLevels.length, containerWidth, containerHeight),
-    [visibleLevels.length, containerWidth, containerHeight],
-  )
-
   // 关卡状态
   const getLevelStatus = useCallback((levelId: string, index: number) => {
     const isUnlocked = user.unlockedLevels.includes(levelId)
-      // 兜底：若没有任何解锁记录，默认第一关可玩
+      // 兜底:若没有任何解锁记录,默认第一关可玩
       || (index === 0 && user.unlockedLevels.length === 0)
     const isCompleted = !!user.completedLevels[levelId]
     return { isUnlocked, isCompleted }
   }, [user.unlockedLevels, user.completedLevels])
 
-  // 当前关卡（第一个已解锁且未通关）
+  // 当前关（第一个已解锁且未通关）
   const currentLevelIndex = useMemo(() => {
     return visibleLevels.findIndex((l, i) => {
       const { isUnlocked, isCompleted } = getLevelStatus(l.id, i)
@@ -106,7 +98,7 @@ export default function HomePage() {
     })
   }, [visibleLevels, getLevelStatus])
 
-  // 进入当前关卡时自动滚动定位
+  // 进入当前关时自动滚动定位
   useEffect(() => {
     if (currentLevelIndex < 0 || loadingLevels) return
     const timer = setTimeout(() => setScrollIntoView(`ln-${currentLevelIndex}`), 350)
@@ -114,34 +106,34 @@ export default function HomePage() {
   }, [currentLevelIndex, loadingLevels, selectedGrade])
 
   // 点击进入关卡
-  const enterLevel = useCallback(async (levelId: string) => {
+  const enterLevel = useCallback(async (level: Level) => {
     if (navigating) return
-    // 心数检查：没有心数时弹出心数耗尽弹窗
+    // 心数检查:没有心数时弹出心数耗尽弹窗
     if (user.hearts <= 0) {
       setShowNoHearts(true)
       return
     }
 
     setNavigating(true)
-    setNavigatingLevelId(levelId)
+    setNavigatingLevelId(level.id)
     try {
       // 拉取关卡详情
-      const level = await getLevelDetail(levelId)
-      if (!level) {
+      const levelDetail = await getLevelDetail(level.id)
+      if (!levelDetail) {
         Taro.showToast({ title: '关卡加载失败', icon: 'none' })
         return
       }
       // 基于掌握度动态生成题目
       const userMastery = user.learningStats.knowledgeProgress || {}
       const recentIds = user.mistakeIds
-      const questions = await generateQuestions(levelId, userMastery, recentIds)
+      const questions = await generateQuestions(level.id, userMastery, recentIds)
       if (!questions || questions.length === 0) {
         Taro.showToast({ title: '题目生成失败', icon: 'none' })
         return
       }
       // 存入会话 store，跳转答题页
-      startSession(level, questions)
-      Taro.navigateTo({ url: `/pages/battle/index?levelId=${levelId}&grade=${selectedGrade}` })
+      startSession(levelDetail, questions)
+      Taro.navigateTo({ url: `/pages/battle/index?levelId=${level.id}&grade=${selectedGrade}` })
     } catch {
       Taro.showToast({ title: '网络异常，请稍后重试', icon: 'none' })
     } finally {
@@ -162,6 +154,32 @@ export default function HomePage() {
 
   // 顶部信息栏高度（用于 ScrollView 高度计算）
   const scrollViewHeight = Math.max(320, winHeight - 96)
+
+  // 准备 GameMap 需要的 props
+  const gameMapProps = useMemo(() => {
+    // 星数映射
+    const starsByLevelId: Record<string, number> = {}
+    Object.entries(user.completedLevels).forEach(([id, data]) => {
+      starsByLevelId[id] = data.stars || 0
+    })
+    // 已解锁集合
+    const unlockedSet = new Set(user.unlockedLevels)
+    // 已完成集合
+    const completedSet = new Set(Object.keys(user.completedLevels))
+    // 锚点 id
+    const scrollAnchorId = `ln-${currentLevelIndex}`
+
+    return {
+      levels: visibleLevels,
+      starsByLevelId,
+      unlockedSet,
+      completedSet,
+      currentLevelIndex,
+      navigatingLevelId,
+      onLevelClick: enterLevel,
+      scrollAnchorId,
+    }
+  }, [visibleLevels, user.completedLevels, user.unlockedLevels, currentLevelIndex, navigatingLevelId, enterLevel])
 
   return (
     <View style={{ minHeight: '100vh', backgroundColor: theme.bg, display: 'flex', flexDirection: 'column' }}>
@@ -230,7 +248,7 @@ export default function HomePage() {
         scrollIntoView={scrollIntoView}
         style={{
           height: scrollViewHeight,
-          background: `linear-gradient(180deg, ${theme.bg} 0%, ${theme.bg} 40%, ${theme.bg} 100%)`,
+          background: MAP_COLORS.bgBot,
         }}
       >
         {loadingLevels && (
@@ -252,59 +270,7 @@ export default function HomePage() {
         )}
 
         {!loadingLevels && visibleLevels.length > 0 && (
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              paddingTop: 0,
-              paddingBottom: 24,
-            }}
-          >
-            <View style={{ position: 'relative', width: containerWidth, height: containerHeight }}>
-              {/* 连接线（View 组件，避免 Canvas 原生层级导致压盖与滚动跟随） */}
-              {visibleLevels.map((level, i) => {
-                if (i >= visibleLevels.length - 1) return null
-                const { isCompleted } = getLevelStatus(level.id, i)
-                return (
-                  <PathConnector
-                    key={`path-${i}`}
-                    from={NODE_POSITIONS[i]}
-                    to={NODE_POSITIONS[i + 1]}
-                    isCompleted={isCompleted}
-                    pathColor={theme.pathColor}
-                    pathActive={theme.pathActive}
-                  />
-                )
-              })}
-
-              {/* 关卡节点 */}
-              {visibleLevels.map((level, i) => {
-                const { isUnlocked, isCompleted } = getLevelStatus(level.id, i)
-                const isCurrent = i === currentLevelIndex
-                const stars = user.completedLevels[level.id]?.stars || 0
-                const mastery = getLevelMastery(level.knowledgePoints || [], user.learningStats.knowledgeProgress || {})
-                return (
-                  <LevelNode
-                    key={level.id}
-                    index={i}
-                    level={level}
-                    pos={NODE_POSITIONS[i]}
-                    isUnlocked={isUnlocked}
-                    isCompleted={isCompleted}
-                    isCurrent={isCurrent}
-                    stars={stars}
-                    mastery={mastery}
-                    theme={theme}
-                    navigatingLevelId={navigatingLevelId}
-                    onClick={() => {
-                      if (isUnlocked) enterLevel(level.id)
-                    }}
-                  />
-                )
-              })}
-            </View>
-          </View>
+          <GameMap {...gameMapProps} />
         )}
       </ScrollView>
 
