@@ -73,6 +73,7 @@ function AppRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/verify-code" element={<VerifyCode />} />
           <Route path="/agreement" element={<Agreement />} />
+          <Route path="/map-preview" element={<MapPreview />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       ) : (
