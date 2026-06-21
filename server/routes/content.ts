@@ -12,12 +12,15 @@ import {
   upsertLevel,
   deleteLevel,
   seedFromFallbackIfEmpty,
+  syncLevelsFromQuestions,
   listAchievements,
   listDailyGoalTemplates,
   generateAssessmentQuestions,
   listQuestionsByIds,
   generateQuestions,
   updateMastery,
+  recordMistake,
+  correctMistake,
 } from '../services/content'
 import { getUserRanking } from '../services/stats'
 import { getAllConfigs } from '../services/config'
@@ -99,7 +102,7 @@ router.post('/questions-by-ids', async (req: Request, res: Response) => {
 
 // 根据掌握度动态生成题目
 router.post('/generate-questions', async (req: Request, res: Response) => {
-  const { levelId, userMastery, recentQuestionIds } = req.body
+  const { levelId, userMastery, recentQuestionIds, lastCombo, userId } = req.body
   if (!levelId || typeof levelId !== 'string') {
     res.status(400).json({ success: false, message: 'levelId 必填' })
     return
@@ -112,6 +115,8 @@ router.post('/generate-questions', async (req: Request, res: Response) => {
     levelId,
     userMastery as Record<string, number>,
     Array.isArray(recentQuestionIds) ? recentQuestionIds : [],
+    typeof lastCombo === 'number' ? lastCombo : 0,
+    typeof userId === 'string' ? userId : undefined,
   )
   res.json({ success: true, questions })
 })
@@ -139,6 +144,34 @@ router.post('/update-mastery', async (req: Request, res: Response) => {
     Number(consecutiveCorrect) || 0,
   )
   res.json({ success: true, newMastery })
+})
+
+// 记录错题（答错时调用）
+router.post('/on-mistake', async (req: Request, res: Response) => {
+  const { userId, questionId, userAnswer, correctAnswer, currentLevelSortOrder } = req.body
+  if (!userId || !questionId) {
+    res.status(400).json({ success: false, message: 'userId 和 questionId 必填' })
+    return
+  }
+  await recordMistake(
+    String(userId),
+    String(questionId),
+    String(userAnswer || ''),
+    String(correctAnswer || ''),
+    typeof currentLevelSortOrder === 'number' ? currentLevelSortOrder : 0,
+  )
+  res.json({ success: true })
+})
+
+// 答对错题（累计答对次数，达阈值移出）
+router.post('/on-correct-mistake', async (req: Request, res: Response) => {
+  const { userId, questionId } = req.body
+  if (!userId || !questionId) {
+    res.status(400).json({ success: false, message: 'userId 和 questionId 必填' })
+    return
+  }
+  const result = await correctMistake(String(userId), String(questionId))
+  res.json({ success: true, ...result })
 })
 
 // ===== 排行榜（C 端）=====
@@ -222,6 +255,12 @@ router.delete('/admin/questions/:id', requireAdminAuth, async (req: Request, res
 router.post('/admin/seed', requireAdminAuth, async (_req: Request, res: Response) => {
   const seeded = await seedFromFallbackIfEmpty()
   res.json({ success: true, seeded })
+})
+
+// 手动触发关卡自动同步（按知识点动态生成关卡）
+router.post('/admin/sync-levels', requireAdminAuth, async (_req: Request, res: Response) => {
+  const result = await syncLevelsFromQuestions()
+  res.json({ success: true, ...result })
 })
 
 export default router

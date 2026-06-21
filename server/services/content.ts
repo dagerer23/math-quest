@@ -7,6 +7,7 @@ import db from '../db'
 import type { Question, Level } from '../../src/types/models'
 import { LEVELS as FALLBACK_LEVELS } from '../../src/data/questionBank'
 import { cacheGet, cacheSet, cacheDel } from './cache'
+import { getConfig } from './config'
 
 // --- 查询 ---
 
@@ -383,6 +384,110 @@ export async function seedFromFallbackIfEmpty() {
   return true
 }
 
+/**
+ * 关卡自动同步：按题库中 (grade, knowledge_point) 动态生成关卡
+ * 每个知识点一关 + 每年级一个 BOSS 关
+ * 触发时机：后端启动时 / 管理后台新增导入题目后 / 手动调接口
+ */
+export async function syncLevelsFromQuestions(): Promise<{ synced: number; bosses: number }> {
+  if (db.useMemory) return { synced: 0, bosses: 0 }
+  const pool = db.getPool()!
+
+  // 1. 扫描 t_question，按 (grade, knowledge_point) 分组，算 avg(difficulty_score)
+  // grade 从 level_id 前缀提取（如 g1-L1 → 1）
+  const [groups] = await pool.query(`
+    SELECT
+      CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(level_id, '-', 1), 'g', -1) AS UNSIGNED) AS grade,
+      knowledge_point,
+      AVG(COALESCE(difficulty_score, CASE difficulty WHEN 1 THEN 2 WHEN 2 THEN 5 WHEN 3 THEN 8 ELSE 5 END)) AS avg_ds,
+      COUNT(*) AS qcnt
+    FROM t_question
+    WHERE level_id REGEXP '^g[0-9]+-'
+    GROUP BY grade, knowledge_point
+    ORDER BY grade ASC, avg_ds ASC, knowledge_point ASC
+  `) as any
+
+  const grouped = groups as any[]
+  if (grouped.length === 0) {
+    console.log('[content] syncLevels: 题库无数据，跳过')
+    return { synced: 0, bosses: 0 }
+  }
+
+  // 2. 按年级分组，赋 sort_order
+  const byGrade = new Map<number, any[]>()
+  for (const row of grouped) {
+    const g = Number(row.grade)
+    if (!byGrade.has(g)) byGrade.set(g, [])
+    byGrade.get(g)!.push(row)
+  }
+
+  let synced = 0
+  let bosses = 0
+  const now = Date.now()
+
+  for (const [grade, kps] of byGrade) {
+    // 3. 为每个知识点 upsert t_level，更新 t_question.level_id
+    kps.forEach((kp, idx) => {
+      kp.sortOrder = idx + 1
+      kp.newLevelId = `g${grade}-L${idx + 1}`
+    })
+
+    for (const kp of kps) {
+      // upsert 关卡
+      await pool.query(
+        `INSERT INTO t_level (id, grade, chapter, sort_order, is_boss, unit_id, created_at)
+         VALUES (?, ?, ?, ?, 0, ?, ?)
+         ON DUPLICATE KEY UPDATE chapter=VALUES(chapter), sort_order=VALUES(sort_order), is_boss=0`,
+        [kp.newLevelId, grade, kp.knowledge_point, kp.sortOrder, `unit-${grade}-default`, now],
+      )
+      // 更新该知识点的题目 level_id
+      await pool.query(
+        `UPDATE t_question SET level_id = ? WHERE knowledge_point = ? AND level_id REGEXP ?`,
+        [kp.newLevelId, kp.knowledge_point, `^g${grade}-`],
+      )
+      synced++
+    }
+
+    // 4. upsert BOSS 关
+    const bossId = `g${grade}-BOSS`
+    await pool.query(
+      `INSERT INTO t_level (id, grade, chapter, sort_order, is_boss, unit_id, created_at)
+       VALUES (?, ?, ?, 999, 1, ?, ?)
+       ON DUPLICATE KEY UPDATE is_boss=1, sort_order=999`,
+      [bossId, grade, '综合BOSS', `unit-${grade}-default`, now],
+    )
+    // 迁移旧 BOSS 关（g{grade}-L6_BOSS）的题目到新 BOSS 关
+    await pool.query(
+      `UPDATE t_question SET level_id = ? WHERE level_id = ?`,
+      [bossId, `g${grade}-L6_BOSS`],
+    )
+    // 删除旧 BOSS 关
+    await pool.query(
+      `DELETE FROM t_level WHERE id = ?`,
+      [`g${grade}-L6_BOSS`],
+    )
+    bosses++
+  }
+
+  // 5. 清除旧的无题关卡（sort_order 已被新关卡覆盖的旧 id）
+  await pool.query(`
+    DELETE FROM t_level
+    WHERE id REGEXP '^g[0-9]+-L[0-9]+$'
+      AND id NOT IN (
+        SELECT DISTINCT level_id FROM t_question WHERE level_id REGEXP '^g[0-9]+-L[0-9]+$'
+      )
+      AND is_boss = 0
+  `)
+
+  // 6. 清 Redis 缓存
+  for (const grade of byGrade.keys()) {
+    await cacheDel(`content:grade:${grade}`)
+  }
+
+  console.log(`[content] syncLevels: 同步 ${synced} 个知识点关 + ${bosses} 个 BOSS 关`)
+  return { synced, bosses }
+}
+
 // --- 成就 ---
 
 export interface AchievementRow {
@@ -597,11 +702,84 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-/** 根据用户掌握度动态生成题目 */
+/** 读取配置数值（带默认值） */
+async function cfgNum(key: string, def: number): Promise<number> {
+  const v = await getConfig(key)
+  const n = Number(v)
+  return isNaN(n) ? def : n
+}
+
+/** 判定出题档位：长期掌握度 + 上一关连击即时信号 */
+function determineTier(mastery: number, lastCombo: number): 'struggle' | 'normal' | 'master' {
+  // 长期信号
+  const longTier = mastery < 0.3 ? 'struggle' : mastery < 0.7 ? 'normal' : 'master'
+  // 即时信号（上一关连击）
+  let instantTier: 'struggle' | 'normal' | 'master' = longTier
+  if (lastCombo >= 5) instantTier = 'master'
+  else if (lastCombo <= 1 && mastery < 0.7) instantTier = 'struggle'
+  return instantTier
+}
+
+/** 从数组中按数量随机抽取 */
+function sample<T>(arr: T[], n: number): T[] {
+  return shuffle(arr).slice(0, n)
+}
+
+/** 查询到期错题并追加到已选题目 */
+async function insertDueMistakes(
+  selected: Question[],
+  userId: string | undefined,
+  currentSortOrder: number,
+): Promise<Question[]> {
+  if (!userId || db.useMemory) return selected
+  const pool = db.getPool()!
+  const maxInsert = await cfgNum('mistake.max_per_level', 2)
+  if (maxInsert <= 0) return selected
+
+  const selectedIds = selected.map(q => q.id)
+  const [dueRows] = await pool.query(
+    `SELECT m.question_id AS id FROM t_mistake m
+     WHERE m.user_id = ? AND m.due_level_offset <= ?
+       AND m.question_id NOT IN (?)
+     ORDER BY m.due_level_offset ASC
+     LIMIT ?`,
+    [userId, currentSortOrder, selectedIds.length > 0 ? selectedIds : ['__none__'], maxInsert],
+  ) as any
+
+  const dueIds = (dueRows as any[]).map(r => r.id)
+  if (dueIds.length === 0) return selected
+
+  // 拉取到期错题的完整数据
+  const [qRows] = await pool.query(
+    `SELECT * FROM t_question WHERE id IN (?)`,
+    [dueIds],
+  ) as any
+  const dueQuestions: Question[] = (qRows as any[]).map(q => ({
+    id: q.id,
+    type: q.type as Question['type'],
+    knowledgePoint: q.knowledge_point,
+    difficulty: q.difficulty as 1 | 2 | 3,
+    prompt: q.prompt,
+    answer: q.answer,
+    explanation: q.explanation || '',
+    xp: Number(q.xp) || 10,
+    options: q.options ? String(q.options).split('||').filter(Boolean) : undefined,
+    illustration: q.illustration || undefined,
+    difficulty_score: q.difficulty_score != null ? Number(q.difficulty_score) : deriveDifficultyScore({
+      difficulty: q.difficulty as 1 | 2 | 3,
+    } as Question),
+  }))
+
+  return [...selected, ...dueQuestions]
+}
+
+/** 根据用户掌握度 + 上一关连击动态生成题目（三档加权 + 错题插入） */
 export async function generateQuestions(
   levelId: string,
   userMastery: Record<string, number>,
   recentQuestionIds: string[] = [],
+  lastCombo: number = 0,
+  userId?: string,
 ): Promise<Question[]> {
   // 1. 获取关卡信息
   const level = await getLevelDetail(levelId)
@@ -639,19 +817,15 @@ export async function generateQuestions(
 
   if (allQuestions.length === 0) return []
 
-  const knowledgePoints = level.knowledgePoints
   const recentSet = new Set(recentQuestionIds)
 
-  // 3. Boss 关卡特殊处理：混合所有知识点，偏好高难度
+  // 3. Boss 关卡特殊处理：混合所有知识点，偏好高难度（逻辑不变）
   if (level.isBoss) {
-    // 过滤掉最近做过的题目
     let candidates = allQuestions.filter(q => !recentSet.has(q.id))
-    if (candidates.length === 0) candidates = allQuestions // 全部做过则重置
+    if (candidates.length === 0) candidates = allQuestions
 
-    // 按难度分数降序排序，优先选高难度题
     candidates.sort((a, b) => (b.difficulty_score ?? 5) - (a.difficulty_score ?? 5))
 
-    // 取前 8-10 题（优先高难度，但随机化同难度内的顺序）
     const total = Math.min(Math.max(8, Math.floor(candidates.length * 0.6)), 10, candidates.length)
     const grouped = new Map<number, Question[]>()
     for (const q of candidates) {
@@ -659,86 +833,152 @@ export async function generateQuestions(
       if (!grouped.has(ds)) grouped.set(ds, [])
       grouped.get(ds)!.push(q)
     }
-    // 每个难度组内打乱
-    for (const [, qs] of grouped) {
-      shuffle(qs)
-    }
-    // 重新组装（保持高难度优先）
+    for (const [, qs] of grouped) shuffle(qs)
     const shuffled = [...grouped.entries()]
       .sort((a, b) => b[0] - a[0])
       .flatMap(([, qs]) => qs)
 
-    return shuffle(shuffled.slice(0, total))
+    const bossSelected = shuffle(shuffled.slice(0, total))
+    // BOSS 关也插入到期错题
+    return insertDueMistakes(bossSelected, userId, level.sortOrder ?? 999)
   }
 
-  // 4. 普通关卡：按知识点权重分配
-  // 计算每个知识点的权重
-  const kpWeights: Record<string, number> = {}
-  for (const kp of knowledgePoints) {
-    const mastery = userMastery[kp] ?? 0
-    if (mastery < 0.3) {
-      kpWeights[kp] = 3  // 未掌握，重点出题
-    } else if (mastery < 0.7) {
-      kpWeights[kp] = 2  // 学习中
-    } else {
-      kpWeights[kp] = 1  // 已掌握，复习
+  // 4. 普通关卡（单知识点）：三档加权出题
+  const kp = level.knowledgePoints[0] || allQuestions[0]?.knowledgePoint || ''
+  const mastery = userMastery[kp] ?? 0
+  const tier = determineTier(mastery, lastCombo)
+
+  // 读取权重配置
+  const wEasy = await cfgNum(`question.weight.${tier}.easy`, tier === 'struggle' ? 5 : tier === 'normal' ? 2 : 1)
+  const wMid = await cfgNum(`question.weight.${tier}.mid`, tier === 'struggle' ? 3 : tier === 'normal' ? 5 : 3)
+  const wHard = await cfgNum(`question.weight.${tier}.hard`, tier === 'struggle' ? 1 : tier === 'normal' ? 3 : 5)
+  const minQ = await cfgNum('question.total.min', 8)
+  const maxQ = await cfgNum('question.total.max', 10)
+
+  // 按难度分桶
+  const easy = allQuestions.filter(q => (q.difficulty_score ?? 5) <= 3)
+  const mid = allQuestions.filter(q => {
+    const ds = q.difficulty_score ?? 5
+    return ds >= 4 && ds <= 7
+  })
+  const hard = allQuestions.filter(q => (q.difficulty_score ?? 5) >= 8)
+
+  // 总题数
+  const total = Math.min(Math.max(minQ, Math.min(allQuestions.length, maxQ)), maxQ)
+  const sumW = wEasy + wMid + wHard
+
+  // 按权重分配题数
+  let nEasy = Math.round((total * wEasy) / sumW)
+  let nMid = Math.round((total * wMid) / sumW)
+  let nHard = total - nEasy - nMid
+  // 确保不超过各桶实际题数
+  nEasy = Math.min(nEasy, easy.length)
+  nMid = Math.min(nMid, mid.length)
+  nHard = Math.min(nHard, hard.length)
+  // 如果某桶不足，剩余配额分给其他桶
+  let allocated = nEasy + nMid + nHard
+  if (allocated < total) {
+    const deficit = total - allocated
+    // 优先补给题最多的桶
+    const buckets = [
+      { name: 'easy', arr: easy, n: nEasy },
+      { name: 'mid', arr: mid, n: nMid },
+      { name: 'hard', arr: hard, n: nHard },
+    ].sort((a, b) => b.arr.length - b.n - (a.arr.length - a.n))
+    let remaining = deficit
+    for (const b of buckets) {
+      if (remaining <= 0) break
+      const avail = b.arr.length - b.n
+      const add = Math.min(avail, remaining)
+      if (b.name === 'easy') nEasy += add
+      else if (b.name === 'mid') nMid += add
+      else nHard += add
+      remaining -= add
     }
   }
 
-  const totalWeight = Object.values(kpWeights).reduce((a, b) => a + b, 0)
-  const totalQuestions = Math.min(Math.max(8, allQuestions.length), 10)
+  // 各桶内过滤 recentQuestionIds 后随机抽取
+  const selected: Question[] = []
+  const easyCandidates = easy.filter(q => !recentSet.has(q.id))
+  const midCandidates = mid.filter(q => !recentSet.has(q.id))
+  const hardCandidates = hard.filter(q => !recentSet.has(q.id))
+  // 如果过滤后不足，回退到不过滤
+  selected.push(...sample(easyCandidates.length >= nEasy ? easyCandidates : easy, nEasy))
+  selected.push(...sample(midCandidates.length >= nMid ? midCandidates : mid, nMid))
+  selected.push(...sample(hardCandidates.length >= nHard ? hardCandidates : hard, nHard))
 
-  // 按权重分配每个知识点的题目数
-  const kpQuestionCounts: Record<string, number> = {}
-  let allocated = 0
-  for (const kp of knowledgePoints) {
-    const count = Math.round((kpWeights[kp] / totalWeight) * totalQuestions)
-    kpQuestionCounts[kp] = count
-    allocated += count
+  // 5. 插入到期错题
+  const withMistakes = await insertDueMistakes(selected, userId, level.sortOrder ?? 0)
+
+  // 6. 打乱最终结果
+  return shuffle(withMistakes)
+}
+
+/** 记录错题（做错时调用）：计算递增间隔到期偏移 */
+export async function recordMistake(
+  userId: string,
+  questionId: string,
+  userAnswer: string,
+  correctAnswer: string,
+  currentLevelSortOrder: number,
+): Promise<void> {
+  if (db.useMemory) return
+  const pool = db.getPool()!
+
+  // 查是否已有错题记录
+  const [existing] = await pool.query(
+    'SELECT id, repetition FROM t_mistake WHERE user_id = ? AND question_id = ?',
+    [userId, questionId],
+  ) as any
+  const existingRow = (existing as any[])[0]
+
+  const repetition = existingRow ? Number(existingRow.repetition) + 1 : 0
+  const intervalKey = `mistake.interval.r${Math.min(repetition, 3)}`
+  const interval = await cfgNum(intervalKey, repetition === 0 ? 2 : repetition === 1 ? 5 : repetition === 2 ? 10 : 15)
+  const dueLevelOffset = currentLevelSortOrder + interval
+  const now = Date.now()
+
+  if (existingRow) {
+    await pool.query(
+      `UPDATE t_mistake SET repetition = ?, due_level_offset = ?, last_level_sort = ?, correct_count = 0, user_answer = ?, created_at = ?
+       WHERE id = ?`,
+      [repetition, dueLevelOffset, currentLevelSortOrder, userAnswer, now, existingRow.id],
+    )
+  } else {
+    const id = `m_${userId}_${questionId}_${now}`
+    await pool.query(
+      `INSERT INTO t_mistake (id, user_id, question_id, user_answer, correct_answer, created_at, due_level_offset, repetition, last_level_sort, correct_count)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+      [id, userId, questionId, userAnswer, correctAnswer, now, dueLevelOffset, repetition, currentLevelSortOrder],
+    )
   }
-  // 修正舍入误差
-  if (allocated !== totalQuestions && knowledgePoints.length > 0) {
-    // 给权重最高的知识点补差
-    const maxKp = knowledgePoints.reduce((a, b) => kpWeights[a] >= kpWeights[b] ? a : b)
-    kpQuestionCounts[maxKp] += totalQuestions - allocated
+}
+
+/** 答对错题时调用：累计答对次数，达阈值移出错题本 */
+export async function correctMistake(
+  userId: string,
+  questionId: string,
+): Promise<{ removed: boolean; correctCount: number }> {
+  if (db.useMemory) return { removed: false, correctCount: 0 }
+  const pool = db.getPool()!
+
+  const [rows] = await pool.query(
+    'SELECT id, correct_count FROM t_mistake WHERE user_id = ? AND question_id = ?',
+    [userId, questionId],
+  ) as any
+  const row = (rows as any[])[0]
+  if (!row) return { removed: false, correctCount: 0 }
+
+  const correctCount = Number(row.correct_count) + 1
+  const threshold = await cfgNum('mistake.correct_to_remove', 2)
+
+  if (correctCount >= threshold) {
+    await pool.query('DELETE FROM t_mistake WHERE id = ?', [row.id])
+    return { removed: true, correctCount }
+  } else {
+    await pool.query('UPDATE t_mistake SET correct_count = ? WHERE id = ?', [correctCount, row.id])
+    return { removed: false, correctCount }
   }
-
-  // 5. 每个知识点内，根据掌握度选择合适难度的题目
-  const selectedQuestions: Question[] = []
-  for (const kp of knowledgePoints) {
-    const kpQuestions = allQuestions.filter(q => q.knowledgePoint === kp)
-    if (kpQuestions.length === 0) continue
-
-    const mastery = userMastery[kp] ?? 0
-    const targetCount = kpQuestionCounts[kp] || 1
-
-    // 过滤掉最近做过的题目
-    let candidates = kpQuestions.filter(q => !recentSet.has(q.id))
-    if (candidates.length === 0) candidates = kpQuestions
-
-    // 根据掌握度偏好选择难度
-    // 低掌握度 → 偏好低难度；高掌握度 → 偏好高难度
-    const preferredDifficultyRange = mastery < 0.3
-      ? { min: 1, max: 4 }   // 简单题
-      : mastery < 0.7
-        ? { min: 3, max: 7 } // 中等题
-        : { min: 6, max: 10 } // 困难题
-
-    // 按偏好难度排序（距离偏好范围中心越近越优先）
-    const center = (preferredDifficultyRange.min + preferredDifficultyRange.max) / 2
-    candidates.sort((a, b) => {
-      const distA = Math.abs((a.difficulty_score ?? 5) - center)
-      const distB = Math.abs((b.difficulty_score ?? 5) - center)
-      return distA - distB
-    })
-
-    // 取所需数量，但同距离内随机化
-    const taken = candidates.slice(0, targetCount)
-    selectedQuestions.push(...taken)
-  }
-
-  // 6. 打乱最终结果，避免可预测模式
-  return shuffle(selectedQuestions)
 }
 
 /** 更新知识点掌握度 */

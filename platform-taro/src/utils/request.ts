@@ -5,7 +5,9 @@ import Taro from '@tarojs/taro'
 
 // 后端服务地址
 // 小程序运行时无 process 对象，直接硬编码；生产部署时修改此处
-const BASE_URL = 'http://localhost:3001'
+// 注意：必须用 127.0.0.1 而非 localhost，否则微信小程序中 localhost 可能解析到
+// IPv6(::1) 导致连接失败，触发 "Error: timeout"
+const BASE_URL = 'http://127.0.0.1:3001'
 
 export const TOKEN_KEY = 'mq_token'
 

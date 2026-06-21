@@ -72,10 +72,12 @@ export default function Home() {
         playSound('wrong', user.settings.sound)
         return
       }
-      // 基于掌握度动态生成题目
+      // 基于掌握度 + 上一关连击动态生成题目
       const userMastery = user.learningStats.knowledgeProgress || {}
       const recentIds = user.mistakeIds
-      const questions = await generateQuestions(levelId, userMastery, recentIds)
+      const lastCombo = user.comboMax || 0
+      const userId = user.userId || undefined
+      const questions = await generateQuestions(levelId, userMastery, recentIds, lastCombo, userId)
       if (!questions || questions.length === 0) {
         setNavigating(false)
         setNavigatingLevelId(null)

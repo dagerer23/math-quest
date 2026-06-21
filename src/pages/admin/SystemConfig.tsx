@@ -32,6 +32,7 @@ const GROUP_MAP: Record<string, { label: string; icon: React.ReactNode }> = {
   'heart.': { label: '心形系统', icon: <Heart size={iconSize} /> },
   'daily.': { label: '每日任务', icon: <Target size={iconSize} /> },
   'mistake.': { label: '错题策略', icon: <XCircle size={iconSize} /> },
+  'question.': { label: '出题策略', icon: <Puzzle size={iconSize} /> },
   'boss.': { label: 'BOSS 关卡', icon: <Crown size={iconSize} /> },
   'coin.': { label: '货币经济', icon: <Coins size={iconSize} /> },
   'rate_limit.': { label: '限流配置', icon: <Gauge size={iconSize} /> },

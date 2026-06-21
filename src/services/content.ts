@@ -259,11 +259,13 @@ export async function getQuestionsByIds(ids: string[]): Promise<Question[]> {
   return result
 }
 
-/** 基于掌握度动态生成题目 */
+/** 基于掌握度 + 上一关连击动态生成题目（三档加权 + 错题插入） */
 export async function generateQuestions(
   levelId: string,
   userMastery: Record<string, number>,
   recentQuestionIds?: string[],
+  lastCombo?: number,
+  userId?: string,
 ): Promise<Question[]> {
   const hasServer = await probeServer()
   if (hasServer) {
@@ -271,7 +273,7 @@ export async function generateQuestions(
       const res = await fetchWithRetry(`${API_BASE}/generate-questions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ levelId, userMastery, recentQuestionIds }),
+        body: JSON.stringify({ levelId, userMastery, recentQuestionIds, lastCombo: lastCombo ?? 0, userId }),
       })
       const data = await safeJson<ApiQuestionsResponse>(res)
     if (data?.success && Array.isArray(data.questions)) return data.questions
@@ -283,6 +285,41 @@ export async function generateQuestions(
   const count = Math.min(level.questions.length, 8 + Math.floor(Math.random() * 3)) // 8-10
   const shuffled = [...level.questions].sort(() => Math.random() - 0.5)
   return shuffled.slice(0, count)
+}
+
+/** 记录错题（答错时调用） */
+export async function recordMistakeApi(
+  userId: string,
+  questionId: string,
+  userAnswer: string,
+  correctAnswer: string,
+  currentLevelSortOrder: number,
+): Promise<void> {
+  const hasServer = await probeServer()
+  if (!hasServer) return
+  try {
+    await fetchWithRetry(`${API_BASE}/on-mistake`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, questionId, userAnswer, correctAnswer, currentLevelSortOrder }),
+    })
+  } catch { /* 静默失败 */ }
+}
+
+/** 答对错题（累计答对次数，达阈值移出） */
+export async function correctMistakeApi(
+  userId: string,
+  questionId: string,
+): Promise<void> {
+  const hasServer = await probeServer()
+  if (!hasServer) return
+  try {
+    await fetchWithRetry(`${API_BASE}/on-correct-mistake`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, questionId }),
+    })
+  } catch { /* 静默失败 */ }
 }
 
 /** 更新知识点掌握度 */

@@ -86,16 +86,19 @@ export function LevelNode({
       ? theme.textSecondary
       : theme.textMuted
 
+  // 题数文案：无题时显示“挑战”，避免“0题”
+  const countLabel = questionCount > 0 ? `${questionCount}题` : '挑战'
+
   // 副标题文案
   let subtitle: string
   if (isCompleted) {
     subtitle = stars > 0 ? `${stars} 通关` : '已完成'
   } else if (isCurrent) {
-    subtitle = mastery > 0 ? `进行中 · ${Math.round(mastery * 100)}%` : `进行中 · ${questionCount}题`
+    subtitle = mastery > 0 ? `进行中 · ${Math.round(mastery * 100)}%` : `进行中 · ${countLabel}`
   } else if (isUnlocked) {
-    subtitle = mastery > 0 ? `${Math.round(mastery * 100)}%` : `${questionCount}题`
+    subtitle = mastery > 0 ? `${Math.round(mastery * 100)}%` : countLabel
   } else {
-    subtitle = `${questionCount}题`
+    subtitle = countLabel
   }
 
   return (
@@ -236,8 +239,23 @@ export function LevelNode({
         </View>
       )}
 
-      {/* 关卡标题信息 */}
-      <View style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 96 }}>
+      {/* 关卡标题信息：加背景遮罩避免与路径线重叠，并提升层级 */}
+      <View
+        style={{
+          marginTop: 6,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          maxWidth: 108,
+          paddingLeft: 6,
+          paddingRight: 6,
+          paddingTop: 2,
+          paddingBottom: 2,
+          borderRadius: 8,
+          backgroundColor: theme.bg,
+          zIndex: 5,
+        }}
+      >
         <Text
           style={{
             fontSize: 11,

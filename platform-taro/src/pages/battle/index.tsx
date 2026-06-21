@@ -1,12 +1,16 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useSessionStore } from '@/store/useSessionStore'
 import { useUserStore } from '@/store/useUserStore'
+import { getLevelDetail, generateQuestions } from '@/services/content'
+import type { Level } from '@/types/models'
 import Keypad from '@/components/Keypad'
 import ParticleBurst from '@/components/ParticleBurst'
 import ComboNumber from '@/components/ComboNumber'
 import { Icon } from '@/components/Icon'
+import { ChoiceOptions } from '@/components/ChoiceOptions'
+import { QuestionCard } from '@/components/QuestionCard'
 import { C, TOKEN, btnShadow } from '@/styles/theme'
 
 // 鼓励文案
@@ -159,7 +163,6 @@ export default function BattlePage() {
     const levelId = params?.levelId
     if (levelId) {
       setInitializing(true)
-      const grade = Number(params?.grade) || 1
       Promise.all([getLevelDetail(levelId), generateQuestions(levelId, {}, [])])
         .then(([lvl, qs]) => {
           if (lvl && qs && qs.length > 0) {
@@ -251,12 +254,23 @@ export default function BattlePage() {
 
   const total = sessionQuestions.length
   const isDecimal = String(currentQ.answer).includes('.')
+  const allowSign = String(currentQ.answer).startsWith('-')
   const progressPercent = ((sessionIndex + 1) / total) * 100
 
+  // 底部安全区高度（iPhone 刘海/手势条、Android 导航条）
+  const safeAreaBottom = useMemo(() => {
+    try {
+      const info = Taro.getSystemInfoSync()
+      return info.safeArea ? Math.max(0, info.screenHeight - info.safeArea.bottom) : 0
+    } catch {
+      return 0
+    }
+  }, [])
+
   return (
-    <View style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: `linear-gradient(to bottom, ${theme.bg}, ${theme.bg})` }}>
+    <View style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: `linear-gradient(to bottom, ${theme.bg}, ${theme.bg})` }}>
       {/* 顶部状态栏 */}
-      <View style={{ paddingLeft: 20, paddingRight: 20, paddingTop: 20, paddingBottom: 12 }}>
+      <View style={{ paddingLeft: 20, paddingRight: 20, paddingTop: 20, paddingBottom: 12, flexShrink: 0 }}>
         <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 16 }}>
           {/* 退出按钮 */}
           <View
@@ -308,8 +322,9 @@ export default function BattlePage() {
       </View>
 
       {/* 题目卡片 */}
-      <View style={{ flex: 1, paddingLeft: 20, paddingRight: 20, display: 'flex', flexDirection: 'column' }}>
-        {/* 知识点标签 */}
+      <View style={{ flex: 1, paddingLeft: 20, paddingRight: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <View style={{ flex: 1, overflowY: 'auto' }}>
+          {/* 知识点标签 */}
         <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <View style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12, borderRadius: 999, background: theme.accentSoft }}>
             <Text style={{ fontSize: 12, fontWeight: 600, color: theme.accent }}>{currentQ.knowledgePoint}</Text>
@@ -323,33 +338,16 @@ export default function BattlePage() {
         </View>
 
         {/* 题目内容 */}
-        <View
+        <QuestionCard
           className={feedback === 'wrong' ? 'taro-shake' : ''}
-          style={{
-            position: 'relative',
-            borderRadius: TOKEN.radius.lg, paddingTop: 24, paddingBottom: 24, paddingLeft: 24, paddingRight: 24,
-            minHeight: 180,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: theme.cardBg,
-            borderWidth: 2, borderStyle: 'solid',
-            borderColor: feedback === 'correct' ? C.semantic.primary : feedback === 'wrong' ? C.semantic.destructive : theme.accentSoft,
-            boxShadow: feedback === 'correct'
-              ? '0 8px 32px rgba(88,204,2,0.2)'
-              : feedback === 'wrong'
-                ? '0 8px 32px rgba(255,75,75,0.2)'
-                : '0 4px 20px rgba(0,0,0,0.08)',
-          }}>
-          {currentQ.illustration && (
-            <Icon name={currentQ.illustration} size={48} style={{ marginBottom: 16 }} />
-          )}
-          <Text style={{ fontSize: 20, fontWeight: 700, color: '#1d1d1f', textAlign: 'center', lineHeight: 1.6 }}>
-            {currentQ.prompt}
-          </Text>
-
-          {/* 粒子效果 + 连击数字 */}
+          prompt={currentQ.prompt}
+          illustration={currentQ.illustration}
+          feedback={feedback}
+          themeAccentSoft={theme.accentSoft}
+        >
           <ParticleBurst trigger={showParticle} color={theme.accent} />
           <ComboNumber value={sessionCombo} show={feedback === 'correct'} />
-        </View>
+        </QuestionCard>
 
         {/* 反馈提示 */}
         {feedback && (
@@ -380,88 +378,24 @@ export default function BattlePage() {
           </View>
         )}
 
+        </View>
+
         {/* 答案输入区 */}
-        <View style={{ marginTop: 20, flex: 1 }}>
+        <View style={{ marginTop: 16, flexShrink: 0, paddingBottom: 20 + safeAreaBottom }}>
           {currentQ.type === 'choice' && currentQ.options && (
             <View>
-              <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-                {currentQ.options.map((opt, idx) => {
-                  const isPicked = selectedOption === opt
-                  const isAns = String(currentQ.answer) === opt
-                  const showCorrect = feedback === 'correct' && isPicked
-                  const showCorrectHighlight = feedback === 'wrong' && isAns
-                  const showWrong = feedback === 'wrong' && isPicked && !isAns
-                  return (
-                    <View
-                      key={opt}
-                      onClick={() => !feedback && setSelectedOption(opt)}
-                      style={{
-                        position: 'relative',
-                        width: '48%',
-                        height: 56, borderRadius: 12,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: showCorrect
-                          ? 'linear-gradient(135deg, rgba(88,204,2,0.25) 0%, rgba(88,204,2,0.12) 100%)'
-                          : showCorrectHighlight
-                            ? 'linear-gradient(135deg, rgba(88,204,2,0.2) 0%, rgba(88,204,2,0.08) 100%)'
-                            : showWrong
-                              ? 'linear-gradient(135deg, rgba(255,75,75,0.2) 0%, rgba(255,75,75,0.1) 100%)'
-                              : isPicked && !feedback ? theme.accentSoft : '#FFFFFF',
-                        borderWidth: 2, borderStyle: 'solid',
-                        borderColor: showCorrect ? C.semantic.primary : showCorrectHighlight ? C.semantic.primary : showWrong ? C.semantic.destructive : isPicked && !feedback ? theme.accent : '#E5E5E5',
-                        boxShadow: showCorrect
-                          ? '0 0 16px rgba(88,204,2,0.4), 0 4px 12px rgba(88,204,2,0.2)'
-                          : showCorrectHighlight
-                            ? '0 0 12px rgba(88,204,2,0.3)'
-                            : showWrong
-                              ? '0 0 12px rgba(255,75,75,0.3)'
-                              : isPicked && !feedback ? `0 4px 12px ${theme.accentSoft}` : '0 2px 8px rgba(0,0,0,0.04)',
-                        opacity: feedback && !isPicked && !isAns ? 0.5 : 1,
-                      }}
-                    >
-                      <Text style={{
-                        fontSize: 18, fontWeight: 700,
-                        color: showCorrect ? C.duolingo.greenDark : showCorrectHighlight ? C.duolingo.greenDark : showWrong ? '#E63A3A' : isPicked && !feedback ? theme.accent : '#4B4B4B',
-                      }}>{opt}</Text>
-                      {/* 正确标记 */}
-                      {showCorrect && (
-                        <View className="taro-pop-in" style={{
-                          position: 'absolute', top: -8, right: -8,
-                          width: 28, height: 28, borderRadius: 999,
-                          background: C.semantic.primary,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          <Icon name="check" size={20} color="#FFFFFF" />
-                        </View>
-                      )}
-                      {/* 错误标记 */}
-                      {showWrong && (
-                        <View className="taro-pop-in" style={{
-                          position: 'absolute', top: -8, right: -8,
-                          width: 28, height: 28, borderRadius: 999,
-                          background: C.semantic.destructive,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          <Icon name="x" size={20} color="#FFFFFF" />
-                        </View>
-                      )}
-                      {/* 答错时正确答案标记（延迟出现） */}
-                      {showCorrectHighlight && showHighlight && (
-                        <View className="taro-pop-in" style={{
-                          position: 'absolute', top: -8, right: -8,
-                          width: 28, height: 28, borderRadius: 999,
-                          background: C.semantic.primary,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          <Icon name="check" size={20} color="#FFFFFF" />
-                        </View>
-                      )}
-                    </View>
-                  )
-                })}
-              </View>
+              <ChoiceOptions
+                options={currentQ.options}
+                answer={currentQ.answer}
+                selectedOption={selectedOption}
+                feedback={feedback}
+                onSelect={(opt: string) => setSelectedOption(opt)}
+                themeAccent={theme.accent}
+                themeAccentSoft={theme.accentSoft}
+                showHighlight={showHighlight}
+              />
               {/* 提交按钮 */}
-              <View style={{ marginTop: 12 }}>
+              <View style={{ marginTop: 16 }}>
                 <View
                   className="taro-btn-press"
                   onClick={() => selectedOption && !feedback && handleSubmit()}
@@ -499,11 +433,15 @@ export default function BattlePage() {
               </View>
 
               {/* 数字键盘 */}
-              <Keypad
-                value={inputValue}
-                onChange={(v) => !feedback && setInputValue(v)}
-                allowDecimal={isDecimal}
-              />
+              <View style={{ marginLeft: -20, marginRight: -20 }}>
+                <Keypad
+                  value={inputValue}
+                  onChange={(v) => !feedback && setInputValue(v)}
+                  allowDecimal={isDecimal}
+                  allowSign={allowSign}
+                  accentColor={theme.accent}
+                />
+              </View>
 
               {/* 提交按钮 */}
               <View style={{ marginTop: 16 }}>
@@ -555,18 +493,18 @@ export default function BattlePage() {
           background: 'rgba(0,0,0,0.5)',
         }}>
           <View style={{
-            width: '80%', background: '#fff', borderRadius: 16, paddingTop: 24, paddingBottom: 24, paddingLeft: 24, paddingRight: 24,
+            width: '85%', minWidth: 280, background: '#fff', borderRadius: 16, paddingTop: 24, paddingBottom: 24, paddingLeft: 24, paddingRight: 24,
             display: 'flex', flexDirection: 'column', alignItems: 'center',
           }}>
             <Text style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>确定退出吗？</Text>
             <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 24 }}>当前答题进度将丢失。</Text>
-            <View style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
+            <View style={{ display: 'flex', flexDirection: 'row', gap: 12, width: '100%' }}>
               <View
                 className="taro-btn-press"
                 onClick={() => setShowExitConfirm(false)}
                 style={{ flex: 1, height: 44, borderRadius: 12, background: '#58CC02', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Text style={{ color: '#fff', fontSize: 14, fontWeight: 700 }}>继续答题</Text>
+                <Text style={{ color: '#fff', fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap' }}>继续答题</Text>
               </View>
               <View
                 className="taro-btn-press"
@@ -576,7 +514,7 @@ export default function BattlePage() {
                 }}
                 style={{ flex: 1, height: 44, borderRadius: 12, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Text style={{ color: '#6b7280', fontSize: 14, fontWeight: 700 }}>退出</Text>
+                <Text style={{ color: '#6b7280', fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap' }}>退出</Text>
               </View>
             </View>
           </View>

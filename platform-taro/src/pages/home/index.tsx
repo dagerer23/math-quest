@@ -8,7 +8,7 @@ import { getZigzagPositions, getLevelMastery } from '@/components/home/helpers'
 import { getThemeByGrade } from '@/components/home/themes'
 import { todayKey } from '@/utils/time'
 import { LevelNode } from '@/components/home/LevelNode'
-import { PathsCanvas, type PathSegment } from '@/components/home/PathsCanvas'
+import { PathConnector } from '@/components/home/PathConnector'
 import { C, TOKEN, btnShadow } from '@/styles/theme'
 import { Icon } from '@/components/Icon'
 import { getAvatarUrl } from '@/utils/avatar'
@@ -105,21 +105,6 @@ export default function HomePage() {
       return isUnlocked && !isCompleted
     })
   }, [visibleLevels, getLevelStatus])
-
-  // 关卡连接线（贝塞尔曲线段，对齐 Web 端 SVG path）
-  const paths: PathSegment[] = useMemo(() => {
-    if (visibleLevels.length < 2 || NODE_POSITIONS.length < 2) return []
-    const segments: PathSegment[] = []
-    for (let i = 0; i < visibleLevels.length - 1; i++) {
-      const { isCompleted } = getLevelStatus(visibleLevels[i].id, i)
-      segments.push({
-        from: NODE_POSITIONS[i],
-        to: NODE_POSITIONS[i + 1],
-        isCompleted,
-      })
-    }
-    return segments
-  }, [visibleLevels, NODE_POSITIONS, getLevelStatus])
 
   // 进入当前关卡时自动滚动定位
   useEffect(() => {
@@ -272,19 +257,26 @@ export default function HomePage() {
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'center',
-              paddingTop: 8,
-              paddingBottom: 32,
+              paddingTop: 0,
+              paddingBottom: 24,
             }}
           >
             <View style={{ position: 'relative', width: containerWidth, height: containerHeight }}>
-              {/* 连接线（Canvas 2D 贝塞尔曲线，对齐 Web 端 SVG path） */}
-              <PathsCanvas
-                paths={paths}
-                width={containerWidth}
-                height={containerHeight}
-                pathColor={theme.pathColor}
-                pathActive={theme.pathActive}
-              />
+              {/* 连接线（View 组件，避免 Canvas 原生层级导致压盖与滚动跟随） */}
+              {visibleLevels.map((level, i) => {
+                if (i >= visibleLevels.length - 1) return null
+                const { isCompleted } = getLevelStatus(level.id, i)
+                return (
+                  <PathConnector
+                    key={`path-${i}`}
+                    from={NODE_POSITIONS[i]}
+                    to={NODE_POSITIONS[i + 1]}
+                    isCompleted={isCompleted}
+                    pathColor={theme.pathColor}
+                    pathActive={theme.pathActive}
+                  />
+                )
+              })}
 
               {/* 关卡节点 */}
               {visibleLevels.map((level, i) => {

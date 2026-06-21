@@ -216,6 +216,23 @@ export async function initDB(): Promise<boolean> {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `)
 
+    // 存量数据库兼容：t_mistake 新增间隔重复字段
+    for (const col of [
+      'due_level_offset INT DEFAULT NULL',
+      'repetition TINYINT NOT NULL DEFAULT 0',
+      'last_level_sort INT DEFAULT NULL',
+      'correct_count TINYINT NOT NULL DEFAULT 0',
+    ]) {
+      const colName = col.split(' ')[0]
+      try {
+        await conn.query(`ALTER TABLE t_mistake ADD COLUMN ${col}`)
+        console.log(`[DB] t_mistake 已新增 ${colName} 列`)
+      } catch { /* 列已存在 */ }
+    }
+    try {
+      await conn.query(`ALTER TABLE t_mistake ADD INDEX idx_due (user_id, due_level_offset)`)
+    } catch { /* 索引已存在 */ }
+
     // 系统配置表
     await ensureTable('t_system_config', `
       CREATE TABLE t_system_config (

@@ -22,8 +22,8 @@ export interface NodePos {
 export function getZigzagPositions(count: number, width: number, height: number): NodePos[] {
   const positions: NodePos[] = []
   if (count <= 0) return positions
-  // 对齐 Web 端百分比逻辑，转为像素
-  const startY = height * 0.10
+  // 对齐 Web 端百分比逻辑，转为像素；startY 收紧以减少地图顶部留白
+  const startY = height * 0.04
   const endYPct = Math.min(80, 88 - (count > 6 ? 0 : 5))
   const endY = height * (endYPct / 100)
   const step = count > 1 ? (endY - startY) / (count - 1) : 0

@@ -11,11 +11,20 @@ interface PathConnectorProps {
   pathActive: string
 }
 
+// 节点圆半径（含边框余量），用于让线段从圆环边缘起止，不穿过节点中心
+const NODE_RADIUS = 30
+
 export function PathConnector({ from, to, isCompleted, pathColor, pathActive }: PathConnectorProps) {
   const dx = to.x - from.x
   const dy = to.y - from.y
   const length = Math.sqrt(dx * dx + dy * dy)
-  if (length <= 0) return null
+  if (length <= NODE_RADIUS * 2) return null
+
+  const ux = dx / length
+  const uy = dy / length
+  const startX = from.x + ux * NODE_RADIUS
+  const startY = from.y + uy * NODE_RADIUS
+  const drawLength = length - NODE_RADIUS * 2
   const angle = Math.atan2(dy, dx) * 180 / Math.PI
   const color = isCompleted ? pathActive : pathColor
 
@@ -23,16 +32,16 @@ export function PathConnector({ from, to, isCompleted, pathColor, pathActive }: 
     <View
       style={{
         position: 'absolute',
-        left: from.x,
-        top: from.y,
-        width: length,
+        left: startX,
+        top: startY,
+        width: drawLength,
         height: 0,
         // 已通关画实线，未通关画虚线
         borderTop: `2px ${isCompleted ? 'solid' : 'dashed'} ${color}`,
         transform: `rotate(${angle}deg)`,
         transformOrigin: '0 0',
         opacity: isCompleted ? 1 : 0.7,
-        zIndex: 2,
+        zIndex: 1,
       }}
     />
   )

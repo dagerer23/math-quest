@@ -45,6 +45,25 @@ const DEFAULT_CONFIGS: { key: string; value: string; description: string }[] = [
   { key: 'rate_limit.api.max', value: '50', description: '通用API限流窗口内最大请求数' },
   { key: 'rate_limit.auth.window_ms', value: '60000', description: '认证接口限流窗口（毫秒，60000=1分钟）' },
   { key: 'rate_limit.auth.max', value: '5', description: '认证接口限流窗口内最大请求数' },
+  // 出题策略 - 三档权重系数
+  { key: 'question.weight.struggle.easy', value: '5', description: '挣扎档-简单题权重' },
+  { key: 'question.weight.struggle.mid', value: '3', description: '挣扎档-中等题权重' },
+  { key: 'question.weight.struggle.hard', value: '1', description: '挣扎档-困难题权重' },
+  { key: 'question.weight.normal.easy', value: '2', description: '正常档-简单题权重' },
+  { key: 'question.weight.normal.mid', value: '5', description: '正常档-中等题权重' },
+  { key: 'question.weight.normal.hard', value: '3', description: '正常档-困难题权重' },
+  { key: 'question.weight.master.easy', value: '1', description: '精通档-简单题权重' },
+  { key: 'question.weight.master.mid', value: '3', description: '精通档-中等题权重' },
+  { key: 'question.weight.master.hard', value: '5', description: '精通档-困难题权重' },
+  { key: 'question.total.min', value: '8', description: '每关最少出题数' },
+  { key: 'question.total.max', value: '10', description: '每关最多出题数' },
+  // 错题重做 - 递增间隔
+  { key: 'mistake.interval.r0', value: '2', description: '首次错间隔（关）' },
+  { key: 'mistake.interval.r1', value: '5', description: '重做又错间隔（关）' },
+  { key: 'mistake.interval.r2', value: '10', description: '屡错间隔（关）' },
+  { key: 'mistake.interval.r3', value: '15', description: '封顶间隔（关）' },
+  { key: 'mistake.max_per_level', value: '2', description: '每关最多插入到期错题数' },
+  { key: 'mistake.correct_to_remove', value: '2', description: '答对几次移出错题本' },
   { key: 'version', value: '0.1.0', description: '服务版本号' },
 ]
 

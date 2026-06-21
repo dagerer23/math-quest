@@ -7,6 +7,8 @@ import { saveAssessment as saveAssessmentToBackend } from '@/services/auth'
 import Keypad from '@/components/Keypad'
 import ParticleBurst from '@/components/ParticleBurst'
 import { Icon } from '@/components/Icon'
+import { ChoiceOptions } from '@/components/ChoiceOptions'
+import { QuestionCard } from '@/components/QuestionCard'
 import type { Question } from '@/types/models'
 import { C, TOKEN, btnShadow } from '@/styles/theme'
 
@@ -206,29 +208,16 @@ export default function AssessmentPage() {
       {/* 题目区域 */}
       <View style={{ flex: 1, padding: 20, display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
         {/* 题目卡片 */}
-        <View
-          key={currentIndex}
+        <QuestionCard
           className="taro-slide-in-right"
-          style={{
-            position: 'relative',
-            borderRadius: TOKEN.radius.lg, paddingTop: 20, paddingBottom: 20, paddingLeft: 20, paddingRight: 20,
-            marginBottom: 16,
-            background: '#fff',
-            borderWidth: 2, borderStyle: 'solid',
-            borderColor: feedback === 'correct' ? C.semantic.primary : feedback === 'wrong' ? C.semantic.destructive : C.semantic.border,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            minHeight: 160,
-            boxShadow: TOKEN.shadow.md,
-            overflow: 'hidden',
-          }}>
-          {currentQuestion.illustration && (
-            <Icon name={currentQuestion.illustration} size={40} style={{ marginBottom: 12 }} />
-          )}
-          <Text style={{ fontSize: 20, fontWeight: 700, color: C.semantic.foreground, textAlign: 'center', lineHeight: 1.6, wordBreak: 'break-all', overflowWrap: 'break-word', maxWidth: '100%' }}>
-            {currentQuestion.prompt}
-          </Text>
+          prompt={currentQuestion.prompt}
+          illustration={currentQuestion.illustration}
+          feedback={feedback}
+          themeAccentSoft={C.semantic.border}
+          illustrationSize={40}
+        >
           <ParticleBurst trigger={showParticle} />
-        </View>
+        </QuestionCard>
 
         {/* 反馈 */}
         {feedback && (
@@ -256,40 +245,16 @@ export default function AssessmentPage() {
 
         {/* 选择题 */}
         {currentQuestion.options && (
-          <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-            {currentQuestion.options.map((option) => {
-              const isSelected = selectedOption === option
-              const isCorrectAnswer = String(option) === String(currentQuestion.answer)
-              const showResult = feedback !== null
-              let bg = '#fff'
-              let borderColor = C.semantic.border
-              let color = C.semantic.foreground
-              if (showResult) {
-                if (isCorrectAnswer) {
-                  bg = C.semantic.primary; borderColor = C.semantic.primary; color = '#fff'
-                } else if (isSelected) {
-                  bg = C.semantic.destructive; borderColor = C.semantic.destructive; color = '#fff'
-                } else {
-                  bg = C.icon.iconGrayBg; color = C.semantic.mutedForeground
-                }
-              } else if (isSelected) {
-                bg = C.semantic.primary; borderColor = C.semantic.primary; color = '#fff'
-              }
-              return (
-                <View
-                  key={option}
-                  onClick={() => handleSelectOption(option)}
-                  className="taro-btn-press"
-                  style={{
-                    width: '48%', height: 56, borderRadius: TOKEN.radius.md, marginBottom: 12,
-                    background: bg, borderWidth: 2, borderStyle: 'solid', borderColor,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}
-                >
-                  <Text style={{ fontSize: 18, fontWeight: 700, color }}>{option}</Text>
-                </View>
-              )
-            })}
+          <View style={{ marginTop: 16 }}>
+            <ChoiceOptions
+              options={currentQuestion.options}
+              answer={currentQuestion.answer}
+              selectedOption={selectedOption}
+              feedback={feedback}
+              onSelect={(option: string) => handleSelectOption(option)}
+              themeAccent={C.semantic.primary}
+              themeAccentSoft={primaryLight}
+            />
           </View>
         )}
 
@@ -309,11 +274,13 @@ export default function AssessmentPage() {
                 {inputAnswer || '—'}
               </Text>
             </View>
-            <Keypad
-              value={inputAnswer}
-              onChange={(v) => !feedback && setInputAnswer(v)}
-              allowDecimal={isDecimal}
-            />
+            <View style={{ marginLeft: -20, marginRight: -20 }}>
+              <Keypad
+                value={inputAnswer}
+                onChange={(v) => !feedback && setInputAnswer(v)}
+                allowDecimal={isDecimal}
+              />
+            </View>
           </View>
         )}
       </View>

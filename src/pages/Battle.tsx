@@ -13,6 +13,7 @@ import { Icon } from '@/components/Icon'
 import { Check, X, Star } from 'lucide-react'
 import { playSound } from '@/utils/sound'
 import { vibrate } from '@/utils/vibrate'
+import { recordMistakeApi, correctMistakeApi } from '@/services/content'
 
 // ═══════════════════════════════════════════════════════════════════
 // 答题中的鼓励文案
@@ -61,6 +62,8 @@ export default function Battle() {
   const level = useSessionStore((s) => s.level)
   const currentQ = sessionQuestions[sessionIndex]
   const theme = getBattleThemeByGrade(level?.grade || 1)
+  const isDecimal = currentQ ? String(currentQ.answer).includes('.') : false
+  const allowSign = currentQ ? String(currentQ.answer).startsWith('-') : false
 
   // 从配置读取连击阈值
   const comboShowThreshold = Number(user.systemConfigs['combo.show_threshold']) || 3
@@ -114,6 +117,86 @@ export default function Battle() {
     setEncouragement('')
     submitLock.current = false
   }, [sessionIndex, sessionStatus, currentQ])
+
+  // 物理键盘支持（仅 input 类型题目）
+  useEffect(() => {
+    if (currentQ?.type !== 'input' || feedback) return
+
+    let backspaceTimer: NodeJS.Timeout | null = null
+    let backspaceInterval: NodeJS.Timeout | null = null
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 忽略输入框聚焦时的按键（本页虽无输入框，但防御性处理）
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return
+
+      if (e.key >= '0' && e.key <= '9') {
+        setInputValue((prev) => prev + e.key)
+        return
+      }
+
+      if (e.key === '.' && isDecimal) {
+        setInputValue((prev) => (prev.includes('.') ? prev : prev + '.'))
+        return
+      }
+
+      if (e.key === '-' && allowSign) {
+        setInputValue((prev) => (prev.length > 0 ? prev : prev + '-'))
+        return
+      }
+
+      if (e.key === 'Backspace') {
+        e.preventDefault()
+        setInputValue((prev) => prev.slice(0, -1))
+        // 长按 Backspace 清空
+        if (!backspaceTimer) {
+          backspaceTimer = setTimeout(() => {
+            backspaceInterval = setInterval(() => {
+              setInputValue((prev) => {
+                if (prev.length === 0) {
+                  if (backspaceInterval) clearInterval(backspaceInterval)
+                  backspaceInterval = null
+                  return prev
+                }
+                return prev.slice(0, -1)
+              })
+            }, 80)
+          }, 500)
+        }
+        return
+      }
+
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        if (inputValue && !submitLock.current) {
+          handleSubmit()
+        }
+        return
+      }
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Backspace') {
+        if (backspaceTimer) {
+          clearTimeout(backspaceTimer)
+          backspaceTimer = null
+        }
+        if (backspaceInterval) {
+          clearInterval(backspaceInterval)
+          backspaceInterval = null
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+      if (backspaceTimer) clearTimeout(backspaceTimer)
+      if (backspaceInterval) clearInterval(backspaceInterval)
+    }
+  }, [currentQ?.type, feedback, isDecimal, allowSign, inputValue])
 
   // ═══════════════════════════════════════════════════════════════════
   // 状态检查
@@ -206,6 +289,11 @@ export default function Battle() {
       if (levelId === 'mistakes-revenge' && currentQ?.id) {
         user.incrementMistakeMastery(currentQ.id)
       }
+      // 答对错题：通知后端累计答对次数（非错题复仇模式）
+      if (levelId !== 'mistakes-revenge' && currentQ?.id && user.userId) {
+        const sortOrder = useSessionStore.getState().level?.sortOrder ?? 0
+        correctMistakeApi(user.userId, currentQ.id).catch(() => {})
+      }
     } else {
       setEncouragement(ENCOURAGEMENTS.wrong[Math.floor(Math.random() * ENCOURAGEMENTS.wrong.length)])
       playSound('wrong', user.settings.sound)
@@ -218,6 +306,11 @@ export default function Battle() {
         setHeartsJustLost(0)
       }, 600)
       if (currentQ?.id) user.addMistake(currentQ.id)
+      // 记录错题到后端（非错题复仇模式）
+      if (levelId !== 'mistakes-revenge' && currentQ?.id && user.userId) {
+        const sortOrder = useSessionStore.getState().level?.sortOrder ?? 0
+        recordMistakeApi(user.userId, currentQ.id, userAnswer, String(currentQ.answer), sortOrder).catch(() => {})
+      }
     }
 
     setTimeout(() => {
@@ -226,7 +319,6 @@ export default function Battle() {
   }
 
   const total = sessionQuestions.length
-  const isDecimal = String(currentQ.answer).includes('.')
   const progressPercent = ((sessionIndex + 1) / total) * 100
 
   // ═══════════════════════════════════════════════════════════════════
@@ -323,8 +415,9 @@ export default function Battle() {
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* 题目卡片（核心焦点） */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <div className="flex-1 px-5 flex flex-col">
-        {/* 知识点标签 */}
+      <div className="flex-1 px-5 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto min-h-0">
+          {/* 知识点标签 */}
         <div className="flex items-center justify-between mb-4">
           <motion.span
             initial={{ opacity: 0, x: -10 }}
@@ -433,10 +526,12 @@ export default function Battle() {
           )}
         </AnimatePresence>
 
+        </div>
+
         {/* ════════════════════════════════════════════════════════════ */}
         {/* 答案输入区 */}
         {/* ════════════════════════════════════════════════════════════ */}
-        <div className="mt-5 flex-1">
+        <div className="mt-4 shrink-0 pb-[max(16px,env(safe-area-inset-bottom))]">
           {currentQ.type === 'choice' && currentQ.options && (
             <div className="grid grid-cols-2 gap-3">
               {currentQ.options.map((opt, idx) => {
@@ -579,6 +674,8 @@ export default function Battle() {
                 value={inputValue}
                 onChange={(v) => !feedback && setInputValue(v)}
                 allowDecimal={isDecimal}
+                allowSign={allowSign}
+                accentColor={theme.accent}
               />
 
               {/* 提交按钮 */}

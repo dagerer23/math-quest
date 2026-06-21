@@ -13,7 +13,7 @@ import adminImportRoutes from './routes/adminImport'
 import adminConfigRoutes from './routes/adminConfig'
 import adminAccountsRoutes from './routes/adminAccounts'
 import { initDB, isMemoryMode } from './db'
-import { seedFromFallbackIfEmpty } from './services/content'
+import { seedFromFallbackIfEmpty, syncLevelsFromQuestions } from './services/content'
 import { initDefaultConfigs } from './services/config'
 import { initDefaultAdmin } from './services/adminAccount'
 import { apiLimiter, authLimiter, reloadRateLimiters } from './middleware/rateLimit'
@@ -91,6 +91,10 @@ app.use((_req, res) => {
 initDB().then(async () => {
   try { await seedFromFallbackIfEmpty() } catch (e: any) {
     console.log('[seed] 初始化数据失败:', e?.message || e)
+  }
+  // 按知识点动态同步关卡（每次启动时执行，确保地图反映题库）
+  try { await syncLevelsFromQuestions() } catch (e: any) {
+    console.log('[sync] 关卡同步失败:', e?.message || e)
   }
   try { await initDefaultConfigs() } catch (e: any) {
     console.log('[config] 初始化配置失败:', e?.message || e)
