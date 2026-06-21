@@ -6,10 +6,9 @@ import { useSessionStore } from '@/store/useSessionStore'
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { playSound } from '@/utils/sound'
 import { vibrate } from '@/utils/vibrate'
-import { getLevelMastery, getZigzagPositions } from '@/components/home/helpers'
 import { THEMES } from '@/components/home/themes'
-import { PathConnector } from '@/components/home/PathConnector'
-import { LevelNode } from '@/components/home/LevelNode'
+import { GameMap } from '@/components/map-preview/GameMap'
+import { COLORS as MAP_COLORS } from '@/components/map-preview/constants'
 import { Icon } from '@/components/Icon'
 
 
@@ -28,7 +27,6 @@ export default function Home() {
   const [visibleLevels, setVisibleLevels] = useState<any[]>([])
   const [loadingLevels, setLoadingLevels] = useState(true)
   const mapRef = useRef<HTMLDivElement>(null)
-  const currentLevelRef = useRef<HTMLDivElement>(null)
 
   // 从配置读取心形恢复时间
   const heartRecoverMinutes = Number(user.systemConfigs?.['heart.recover_minutes']) || 30
@@ -44,11 +42,6 @@ export default function Home() {
     })
     return () => { cancelled = true }
   }, [selectedGrade])
-
-  const NODE_POSITIONS = useMemo(
-    () => getZigzagPositions(visibleLevels.length),
-    [visibleLevels.length],
-  )
 
   const enterLevel = useCallback(async (levelId: string) => {
     if (navigating) return
@@ -109,14 +102,6 @@ export default function Home() {
       return isUnlocked && !isCompleted
     })
   }, [visibleLevels, getLevelStatus])
-
-  useEffect(() => {
-    if (currentLevelIndex < 0) return
-    const timer = setTimeout(() => {
-      currentLevelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 400)
-    return () => clearTimeout(timer)
-  }, [currentLevelIndex, selectedGrade])
 
   const theme = THEMES[selectedGrade] || THEMES[1]
 
@@ -210,7 +195,7 @@ export default function Home() {
         ref={mapRef}
         className="flex-1 px-3 pb-6 relative overflow-hidden"
         style={{
-          background: `linear-gradient(180deg, ${theme.bg} 0%, ${theme.bg} 40%, ${theme.bg} 100%)`,
+          background: MAP_COLORS.bgBot,
         }}
       >
         <AnimatePresence mode="wait">
@@ -220,8 +205,8 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="relative mx-auto"
-            style={{ maxWidth: '420px', height: `${Math.max(640, visibleLevels.length * 140)}px` }}
+            className="relative mx-auto w-full"
+            style={{ maxWidth: '420px' }}
           >
             {visibleLevels.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center px-6">
@@ -238,48 +223,19 @@ export default function Home() {
                 </div>
               </div>
             )}
-            {visibleLevels.map((level, i) => {
-              if (i >= visibleLevels.length - 1) return null
-              const { isCompleted } = getLevelStatus(level.id)
-              return (
-                <PathConnector
-                  key={`path-${i}`}
-                  from={{ x: NODE_POSITIONS[i].x, y: NODE_POSITIONS[i].y }}
-                  to={{ x: NODE_POSITIONS[i + 1].x, y: NODE_POSITIONS[i + 1].y }}
-                  isCompleted={isCompleted}
-                  pathColor={theme.pathColor}
-                  pathActive={theme.pathActive}
-                />
-              )
-            })}
-
-            {visibleLevels.map((level, i) => {
-              const { isUnlocked, isCompleted } = getLevelStatus(level.id)
-              const isCurrent = i === currentLevelIndex
-              const stars = user.completedLevels[level.id]?.stars || 0
-              const mastery = getLevelMastery(level.knowledgePoints || [], user.learningStats.knowledgeProgress || {})
-              return (
-                <LevelNode
-                  key={level.id}
-                  index={i}
-                  level={level}
-                  pos={NODE_POSITIONS[i]}
-                  isUnlocked={isUnlocked}
-                  isCompleted={isCompleted}
-                  isCurrent={isCurrent}
-                  stars={stars}
-                  mastery={mastery}
-                  theme={theme}
-                  forwardRef={isCurrent ? currentLevelRef : undefined}
-                  navigatingLevelId={navigatingLevelId}
-                  onClick={() => {
-                    if (isUnlocked) {
-                      enterLevel(level.id)
-                    }
-                  }}
-                />
-              )
-            })}
+            {visibleLevels.length > 0 && (
+              <GameMap
+                levels={visibleLevels}
+                starsByLevelId={Object.fromEntries(
+                  Object.entries(user.completedLevels).map(([id, v]) => [id, v?.stars || 0]),
+                )}
+                unlockedSet={new Set(user.unlockedLevels)}
+                completedSet={new Set(Object.keys(user.completedLevels))}
+                currentLevelIndex={currentLevelIndex}
+                navigatingLevelId={navigatingLevelId}
+                onLevelClick={(lvl) => enterLevel(lvl.id)}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
