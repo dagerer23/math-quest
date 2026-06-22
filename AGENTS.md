@@ -93,4 +93,6 @@ MySQL 启动后，按以下方式启动前后端（端口已固化）：
 - 2026-06-22：优化个人中心界面——成就模块改为可点击跳转入口并移至排行榜旁，学习数据卡片合并到学习统计页面并移除原卡片。变更文件：`platform-taro/src/pages/profile/index.tsx`、`platform-taro/src/pages/stats/index.tsx`。执行 `npm run build:weapp` 构建成功。
 - 2026-06-22：新增学习日历热力图功能（近30天答题统计）。变更文件：`platform-taro/src/types/models.ts`、`platform-taro/src/store/useUserStore.ts`、`platform-taro/src/components/ui/HeatmapCalendar.tsx`（新增）、`platform-taro/src/pages/profile/index.tsx`。执行 `npm run build:weapp` 构建成功。
 - 2026-06-22：Web 前端同步 Taro 端三项界面改动（成就跳转入口+学习数据合并到统计页+学习日历热力图）。变更文件：`src/types/models.ts`、`src/store/useUserStore.ts`、`src/components/ui/HeatmapCalendar.tsx`（新增）、`src/pages/Profile.tsx`、`src/pages/Stats.tsx`、`src/App.tsx`。TypeScript 编译通过，webapp-testing 回归测试通过。
-- 2026-06-23：优化登录页勾选框与协议文字的水平/垂直对齐，并移除底部“测试验证码：123456”提示。变更文件：`platform-taro/src/pages/login/index.tsx`。执行 `npm run build:weapp` 构建成功，产物输出至 `dist-weapp/`。
+- 2026-06-23：优化登录页勾选框与协议文字的水平/垂直对齐，并移除底部"测试验证码：123456"提示。变更文件：`platform-taro/src/pages/login/index.tsx`。执行 `npm run build:weapp` 构建成功，产物输出至 `dist-weapp/`。
+- 2026-06-23：修复真机预览微信登录报错 `[object Object]`——`request.ts` 错误对象序列化时未提取 `errMsg` 字段，导致微信 `Taro.request` 失败信息丢失。同时后端 `.env` 新增 `WX_APPID`/`WX_SECRET` 配置启用真实微信登录。变更文件：`platform-taro/src/utils/request.ts`、`.env`。执行 `npm run build:weapp` 构建成功。
+- 2026-06-23：优化"我的"页面学习日历卡片——由 30 天密集网格热力图改为进度环（本月活跃天占比）+ 近 7 天条形图，提升信息层级与激励感。变更文件：`platform-taro/src/components/ui/HeatmapCalendar.tsx`、`src/components/ui/HeatmapCalendar.tsx`。执行 `npm run build:weapp` 构建成功，TypeScript 编译通过，webapp-testing 回归测试通过。

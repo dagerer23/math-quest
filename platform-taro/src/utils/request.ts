@@ -143,7 +143,11 @@ export async function request<T>(
         return response.json()
       }
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error))
+      // 微信小程序 Taro.request 失败时 reject 的是普通对象 { errMsg: "request:fail ..." }，
+      // 不是 Error 实例，直接 String(error) 会得到 "[object Object]"，需先提取 errMsg/message
+      lastError = error instanceof Error
+        ? error
+        : new Error((error as any)?.errMsg || (error as any)?.message || String(error))
       if (lastError.message === 'Unauthorized') throw lastError
       if (lastError.message.includes('HTTP 4')) throw lastError
       if (attempt === retries) throw lastError
