@@ -3,7 +3,7 @@ import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useUserStore } from '@/store/useUserStore'
 import { getAchievements } from '@/services/content'
-import { getAchievementReward } from '@/data/achievements'
+import { getAchievementReward, getAchievementColor } from '@/data/achievements'
 import { C, TOKEN } from '@/styles/theme'
 import { Icon } from '@/components/Icon'
 
@@ -70,7 +70,7 @@ export default function AchievementsPage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: unlocked ? 'rgba(88,204,2,0.1)' : C.icon.iconGrayBg,
               }}>
-                {unlocked ? <Icon name={a.icon} size={24} color={C.semantic.foreground} /> : <Icon name="lock" size={24} color={C.semantic.mutedForeground} />}
+                {unlocked ? <Icon name={a.icon} size={24} color={getAchievementColor(a.id)} /> : <Icon name="lock" size={24} color={C.semantic.mutedForeground} />}
               </View>
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={{ fontSize: 15, fontWeight: 700, color: unlocked ? C.semantic.foreground : C.semantic.mutedForeground }}>{a.name}</Text>
@@ -120,7 +120,7 @@ export default function AchievementsPage() {
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
             }}
           >
-            <Icon name={selected.icon} size={48} color={C.semantic.foreground} />
+            <Icon name={selected.icon} size={48} color={getAchievementColor(selected.id)} />
             <Text style={{ fontSize: 18, fontWeight: 700, color: C.semantic.foreground }}>{selected.name}</Text>
             <Text style={{ fontSize: 12, color: C.semantic.mutedForeground, textAlign: 'center' }}>{selected.description}</Text>
             {(() => {

@@ -317,3 +317,18 @@ export async function wxLogin(code: string): Promise<{
   const token = await generateToken(user.id, user.phone || '')
   return { success: true, message: '登录成功', user, token }
 }
+
+/**
+ * 游客登录：创建一个临时用户，支持本地体验全部功能
+ */
+export async function guestLogin(): Promise<{
+  success: boolean
+  message: string
+  user?: any
+  token?: string
+}> {
+  const user = await createUser('', { nickname: '数学爱好者' })
+  console.log(`[Auth] 游客登录: id=${user.id}`)
+  const token = await generateToken(user.id, '')
+  return { success: true, message: '游客登录成功', user, token }
+}

@@ -6,6 +6,7 @@ import {
   sendVerificationCode,
   quickLogin as apiQuickLogin,
   wxLogin as apiWxLogin,
+  guestLogin as apiGuestLogin,
   TOKEN_KEY,
 } from '@/services/auth'
 import { Icon } from '@/components/Icon'
@@ -284,7 +285,11 @@ export default function LoginPage() {
       const code = loginRes.code
       if (!code) {
         setWxLoading(false)
-        Taro.showToast({ title: '微信登录失败', icon: 'none' })
+        Taro.showModal({
+          title: '微信登录失败',
+          content: '无法获取登录凭证，请检查微信开发者工具是否配置了有效的小程序 AppID。',
+          showCancel: false,
+        })
         return
       }
       const result = await apiWxLogin(code)
@@ -294,22 +299,50 @@ export default function LoginPage() {
       } else {
         Taro.showToast({ title: result.message || '微信登录失败', icon: 'none' })
       }
-    } catch {
+    } catch (err) {
       setWxLoading(false)
-      Taro.showToast({ title: '微信登录失败', icon: 'none' })
+      const msg = err instanceof Error ? err.message : String(err)
+      Taro.showModal({
+        title: '微信登录异常',
+        content: `${msg}\n\n请确认：\n1. 微信开发者工具已配置有效 AppID\n2. 后端服务已启动`,
+        showCancel: false,
+      })
     }
   }
 
-  const handleGuestLogin = () => {
-    setLoggedIn(true)
-    setProfile({
-      nickname: '数学爱好者',
-      avatar: '',
-      learningStage: 'primary',
-      learningGoal: 'consolidation',
-      targetGrade: 2,
-    })
-    setTimeout(() => Taro.redirectTo({ url: '/pages/onboarding/index' }), 250)
+  const handleGuestLogin = async () => {
+    Taro.showLoading({ title: '进入中...' })
+    try {
+      const result = await apiGuestLogin()
+      Taro.hideLoading()
+      if (result.success && result.user) {
+        const userId = result.user.id
+        Taro.setStorageSync('userId', userId)
+        if (result.token) Taro.setStorageSync(TOKEN_KEY, result.token)
+        // 同步 userId 到 zustand store（确保 profile 页等能读到）
+        const userStore = useUserStore.getState()
+        userStore.loginWithPhone('', userId)
+        setLoggedIn(true)
+        setProfile({
+          nickname: result.user.nickname || '数学爱好者',
+          avatar: result.user.avatar || '',
+          learningStage: result.user.learningStage || 'primary',
+          learningGoal: result.user.learningGoal || 'consolidation',
+          targetGrade: result.user.targetGrade || 2,
+        })
+        if (result.user.targetGrade) {
+          // 已有年级信息，跳过引导
+          setTimeout(() => Taro.redirectTo({ url: '/pages/index/index' }), 250)
+        } else {
+          setTimeout(() => Taro.redirectTo({ url: '/pages/onboarding/index' }), 250)
+        }
+      } else {
+        Taro.showToast({ title: result.message || '游客登录失败', icon: 'none' })
+      }
+    } catch {
+      Taro.hideLoading()
+      Taro.showToast({ title: '网络错误，请检查后端服务', icon: 'none' })
+    }
   }
 
   const toggleAgree = () => setAgreed((v) => !v)

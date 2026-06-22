@@ -270,9 +270,15 @@ export default function AssessmentPage() {
               boxShadow: TOKEN.shadow.md,
             }}>
               <Text style={{ fontSize: 12, color: C.semantic.mutedForeground, marginBottom: 8 }}>你的答案</Text>
-              <Text style={{ fontSize: 36, fontWeight: 700, color: inputAnswer ? C.semantic.primary : '#999', minHeight: 44 }}>
-                {inputAnswer || '—'}
-              </Text>
+              {inputAnswer ? (
+                <Text style={{ fontSize: 36, fontWeight: 700, color: C.semantic.primary, minHeight: 44 }}>
+                  {inputAnswer}
+                </Text>
+              ) : (
+                <Text style={{ fontSize: 28, fontWeight: 700, color: '#E0E0E0', minHeight: 44 }}>
+                  ?
+                </Text>
+              )}
             </View>
             <View style={{ marginLeft: -20, marginRight: -20 }}>
               <Keypad

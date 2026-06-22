@@ -10,6 +10,8 @@ interface QuestionCardProps {
   illustrationSize?: number
   className?: string
   children?: React.ReactNode
+  /** 紧凑模式：键盘弹出时降低卡片高度 */
+  compact?: boolean
 }
 
 export function QuestionCard({
@@ -20,6 +22,7 @@ export function QuestionCard({
   illustrationSize = 48,
   className = '',
   children,
+  compact = false,
 }: QuestionCardProps) {
   const borderColor =
     feedback === 'correct'
@@ -41,11 +44,11 @@ export function QuestionCard({
       style={{
         position: 'relative',
         borderRadius: TOKEN.radius.lg,
-        paddingTop: 24,
-        paddingBottom: 24,
-        paddingLeft: 24,
-        paddingRight: 24,
-        minHeight: 160,
+        paddingTop: compact ? 12 : 16,
+        paddingBottom: compact ? 12 : 16,
+        paddingLeft: 20,
+        paddingRight: 20,
+        minHeight: compact ? 80 : 110,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -55,24 +58,26 @@ export function QuestionCard({
         borderStyle: 'solid',
         borderColor,
         boxShadow,
+        overflow: 'hidden',
       }}
     >
       {illustration && (
         <Icon
           name={illustration}
           size={illustrationSize}
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 10 }}
         />
       )}
       <Text
         style={{
-          fontSize: 20,
+          fontSize: 18,
           fontWeight: 700,
           color: '#1d1d1f',
           textAlign: 'center',
-          lineHeight: 1.6,
+          lineHeight: 1.5,
           wordBreak: 'break-all',
           overflowWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
           maxWidth: '100%',
         }}
       >

@@ -19,18 +19,19 @@ export default function MapStarRow({ stars, visible, side, centerY, nodeRadius }
   const gap = 2
   const totalWidth = starSize * 3 + gap * 2
 
-  // 位置计算
-  const left = side === 'left' ? MAP.canvasLeft : undefined
-  const right = side === 'right' ? MAP.W - MAP.canvasRight : undefined
-  // 星星显示在节点上方，文字的上方
-  const top = centerY - nodeRadius - 40
+  // 位置计算：和知识标签同侧，在标签正上方水平居中
+  const labelLeft = side === 'left' ? MAP.canvasLeft : MAP.W - MAP.canvasRight - MAP.labelW
+  // 星星居中于标签：标签左边界 + (标签宽 - 星星总宽)/2
+  const left = labelLeft + (MAP.labelW - totalWidth) / 2
+  // 知识标签 top = centerY - labelH/2，星星紧贴在标签上方
+  const labelTop = centerY - MAP.labelH / 2
+  const top = labelTop - starSize - 6
 
   return (
     <View
       style={{
         position: 'absolute',
         left,
-        right,
         top,
         width: totalWidth,
         display: 'flex',

@@ -27,8 +27,8 @@ export interface ClassMember {
 export async function createClass(userId: string, name: string): Promise<{ success: boolean; message: string; class?: ClassInfo }> {
   try {
     return await post(`${API_BASE}/create`, { userId, name })
-  } catch {
-    return { success: false, message: '网络错误' }
+  } catch (err) {
+    return { success: false, message: err instanceof Error ? err.message : '网络错误' }
   }
 }
 
@@ -36,8 +36,8 @@ export async function createClass(userId: string, name: string): Promise<{ succe
 export async function joinClass(userId: string, code: string): Promise<{ success: boolean; message: string; class?: ClassInfo }> {
   try {
     return await post(`${API_BASE}/join`, { userId, code })
-  } catch {
-    return { success: false, message: '网络错误' }
+  } catch (err) {
+    return { success: false, message: err instanceof Error ? err.message : '网络错误' }
   }
 }
 
@@ -45,8 +45,8 @@ export async function joinClass(userId: string, code: string): Promise<{ success
 export async function leaveClass(userId: string, classId: string): Promise<{ success: boolean; message: string }> {
   try {
     return await post(`${API_BASE}/leave`, { userId, classId })
-  } catch {
-    return { success: false, message: '网络错误' }
+  } catch (err) {
+    return { success: false, message: err instanceof Error ? err.message : '网络错误' }
   }
 }
 

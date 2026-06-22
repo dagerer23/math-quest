@@ -13,7 +13,6 @@ const learningStageLabels: Record<string, string> = {
   primary: '小学',
   middle: '初中',
   high: '高中',
-  adult: '成人',
 }
 
 const learningGoalLabels: Record<string, string> = {

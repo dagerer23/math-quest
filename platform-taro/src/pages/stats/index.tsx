@@ -33,9 +33,6 @@ export default function StatsPage() {
   const rankProgress = getRankProgress(user.xp, user.systemConfigs)
   const rankColor = rankInfo?.color || C.semantic.primary
 
-  // 成就
-  const achievements = user.achievementsMeta || []
-
   // 鼓励
   const [encouragements, setEncouragements] = useState<EncouragementItem[]>([])
   const [encouragementTotal, setEncouragementTotal] = useState(0)
@@ -156,38 +153,6 @@ export default function StatsPage() {
                 </Col>
               )
             })
-          )}
-        </Col>
-      </Card>
-
-      <Spacer size={8} />
-
-      {/* 成就统计卡片 */}
-      <Card padding={20} style={{ margin: 8, boxShadow: TOKEN.shadow.md }}>
-        <Col gap={12}>
-          <Row justify="space-between" align="center">
-            <Title size={16} color={C.semantic.foreground}>成就墙</Title>
-            <Text style={{ fontSize: 13, fontWeight: 700, color: C.semantic.primary }}>{achievements.length} 个</Text>
-          </Row>
-          {achievements.length === 0 ? (
-            <View style={{ padding: 16, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-              <Icon name="trophy" size={36} color={C.semantic.mutedForeground} />
-              <Spacer size={6} />
-              <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>暂无成就，继续努力！</Text>
-            </View>
-          ) : (
-            <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {achievements.slice(0, 8).map((a) => (
-                <View key={a.id} style={{ width: 48, height: 48, borderRadius: 12, background: C.semantic.primary + '15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={a.icon || 'star'} size={24} color={C.semantic.primary} />
-                </View>
-              ))}
-              {achievements.length > 8 && (
-                <View style={{ width: 48, height: 48, borderRadius: 12, background: C.semantic.border, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 12, fontWeight: 700, color: C.semantic.mutedForeground }}>+{achievements.length - 8}</Text>
-                </View>
-              )}
-            </View>
           )}
         </Col>
       </Card>

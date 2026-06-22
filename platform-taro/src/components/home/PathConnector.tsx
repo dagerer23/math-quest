@@ -28,21 +28,23 @@ export function PathConnector({ from, to, isCompleted, pathColor, pathActive }: 
   const angle = Math.atan2(dy, dx) * 180 / Math.PI
   const color = isCompleted ? pathActive : pathColor
 
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        left: startX,
-        top: startY,
-        width: drawLength,
-        height: 0,
-        // 已通关画实线，未通关画虚线
-        borderTop: `2px ${isCompleted ? 'solid' : 'dashed'} ${color}`,
-        transform: `rotate(${angle}deg)`,
-        transformOrigin: '0 0',
-        opacity: isCompleted ? 1 : 0.7,
-        zIndex: 1,
-      }}
-    />
-  )
+ return (
+   <View
+     style={{
+       position: 'absolute',
+       left: startX,
+       top: startY - 1,
+       width: drawLength,
+       height: 2,
+       ...(isCompleted
+         ? { backgroundColor: color }
+         : { backgroundImage: `repeating-linear-gradient(90deg, ${color} 0 4px, transparent 4px 10px)` }),
+       transform: `rotate(${angle}deg)`,
+       transformOrigin: '0 50%',
+       opacity: isCompleted ? 1 : 0.7,
+       zIndex: 1,
+       borderRadius: 1,
+     }}
+   />
+ )
 }

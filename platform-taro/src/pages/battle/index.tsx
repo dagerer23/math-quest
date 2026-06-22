@@ -66,6 +66,8 @@ export default function BattlePage() {
   const currentQ = sessionQuestions[sessionIndex]
   const theme = getTheme(level?.grade || 1)
   const comboShowThreshold = Number(user.systemConfigs['combo.show_threshold']) || 3
+  // input 题型会显示数字键盘，上方区域需更紧凑以腾出空间
+  const isInput = currentQ?.type === 'input'
 
   const getEncouragement = (isCombo: boolean) => {
     const texts = isCombo ? ENCOURAGEMENTS.combo : ENCOURAGEMENTS.correct
@@ -325,7 +327,7 @@ export default function BattlePage() {
       <View style={{ flex: 1, paddingLeft: 20, paddingRight: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <View style={{ flex: 1, overflowY: 'auto' }}>
           {/* 知识点标签 */}
-        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: isInput ? 8 : 16 }}>
           <View style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: 12, paddingRight: 12, borderRadius: 999, background: theme.accentSoft }}>
             <Text style={{ fontSize: 12, fontWeight: 600, color: theme.accent }}>{currentQ.knowledgePoint}</Text>
           </View>
@@ -344,6 +346,7 @@ export default function BattlePage() {
           illustration={currentQ.illustration}
           feedback={feedback}
           themeAccentSoft={theme.accentSoft}
+          compact={isInput}
         >
           <ParticleBurst trigger={showParticle} color={theme.accent} />
           <ComboNumber value={sessionCombo} show={feedback === 'correct'} />
@@ -421,15 +424,21 @@ export default function BattlePage() {
             <View>
               {/* 答案显示区 */}
               <View style={{
-                borderRadius: 16, paddingTop: 20, paddingBottom: 20, paddingLeft: 24, paddingRight: 24,
-                marginBottom: 16, display: 'flex', alignItems: 'center',
+                borderRadius: 16, paddingTop: 12, paddingBottom: 12, paddingLeft: 24, paddingRight: 24,
+                marginBottom: 10, display: 'flex', alignItems: 'center',
                 background: theme.cardBg,
                 borderWidth: 2, borderStyle: 'solid', borderColor: theme.accentSoft,
               }}>
-                <Text style={{ fontSize: 12, fontWeight: 500, color: theme.accent, marginBottom: 8 }}>你的答案</Text>
-                <Text style={{ fontSize: 36, fontWeight: 700, color: inputValue ? theme.accent : '#999', minHeight: 44 }}>
-                  {inputValue || '—'}
-                </Text>
+                <Text style={{ fontSize: 12, fontWeight: 500, color: theme.accent, marginBottom: 4 }}>你的答案</Text>
+                {inputValue ? (
+                  <Text style={{ fontSize: 32, fontWeight: 700, color: theme.accent, minHeight: 38 }}>
+                    {inputValue}
+                  </Text>
+                ) : (
+                  <Text style={{ fontSize: 26, fontWeight: 700, color: '#E0E0E0', minHeight: 38 }}>
+                    ?
+                  </Text>
+                )}
               </View>
 
               {/* 数字键盘 */}

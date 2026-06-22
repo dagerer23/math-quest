@@ -29,15 +29,16 @@ export function PathConnector({
       preserveAspectRatio="none"
       style={{ zIndex: 2 }}
     >
-      <path
-        d={pathD}
-        fill="none"
-        stroke={isCompleted ? pathActive : pathColor}
-        strokeWidth="0.6"
-        strokeLinecap="round"
-        strokeDasharray={isCompleted ? undefined : '1.5 3'}
-        opacity={isCompleted ? 1 : 0.7}
-      />
+     <path
+       d={pathD}
+       fill="none"
+       stroke={isCompleted ? pathActive : pathColor}
+       strokeWidth="3"
+       strokeLinecap="round"
+       strokeDasharray={isCompleted ? undefined : '6 8'}
+       vectorEffect="non-scaling-stroke"
+       opacity={isCompleted ? 1 : 0.7}
+     />
     </svg>
   )
 }

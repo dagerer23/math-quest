@@ -80,3 +80,9 @@ MySQL 启动后，按以下方式启动前后端（端口已固化）：
 - **后台管理**: http://localhost:5173/admin/login （账号 admin / admin123）
 
 > 后端端口和数据库连接配置已写入项目根目录 `.env` 文件，`npm run dev:server` 会自动读取，无需手动指定 PORT。
+
+## Taro 小程序打包规则
+
+当 `platform-taro/src` 目录下的文件发生变更时，需要重新执行 `npm run build:weapp` 打包微信小程序，并将打包结果记录到本文件。
+
+**输出目录**：`platform-taro/dist-weapp`

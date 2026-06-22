@@ -19,12 +19,11 @@ function hexA(hex: string, a: number): string {
   return `rgba(${r},${g},${b},${a})`
 }
 
-// 学习阶段选项（含成人）
+// 学习阶段选项
 const STAGES: { id: LearningStage; name: string; icon: string; desc: string }[] = [
   { id: 'primary', name: '小学', icon: 'backpack', desc: '1-6年级学习' },
   { id: 'middle', name: '初中', icon: 'book', desc: '7-9年级学习' },
   { id: 'high', name: '高中', icon: 'book', desc: '10-12年级学习' },
-  { id: 'adult', name: '成人', icon: 'user', desc: '成人学习和思维训练' },
 ]
 
 // 学习目标选项（对齐 web 端四种）
@@ -36,7 +35,7 @@ const GOALS: { id: LearningGoal; name: string; icon: string; desc: string }[] = 
 ]
 
 // 年级选项按阶段划分
-const GRADE_MAP: Record<Exclude<LearningStage, 'adult'>, number[]> = {
+const GRADE_MAP: Record<LearningStage, number[]> = {
   primary: [1, 2, 3, 4, 5, 6],
   middle: [7, 8, 9],
   high: [10, 11, 12],
@@ -46,17 +45,14 @@ const GRADE_MAP: Record<Exclude<LearningStage, 'adult'>, number[]> = {
 type StepId = 'stage' | 'goal' | 'grade' | 'profile'
 interface StepDef { id: StepId; title: string; desc: string }
 
-// 根据学习阶段生成动态步骤（成人跳过年级步骤）
-function getSteps(stage: LearningStage): StepDef[] {
-  const steps: StepDef[] = [
+// 引导步骤（固定 4 步）
+function getSteps(): StepDef[] {
+  return [
     { id: 'stage', title: '选择学习阶段', desc: '告诉我们你在哪个学习阶段' },
     { id: 'goal', title: '设定学习目标', desc: '你的学习目标是什么' },
+    { id: 'grade', title: '选择年级', desc: '选择你当前的年级' },
+    { id: 'profile', title: '设置个人信息', desc: '最后，设置你的个人信息' },
   ]
-  if (stage !== 'adult') {
-    steps.push({ id: 'grade', title: '选择年级', desc: '选择你当前的年级' })
-  }
-  steps.push({ id: 'profile', title: '设置个人信息', desc: '最后，设置你的个人信息' })
-  return steps
 }
 
 interface FormState {
@@ -79,21 +75,20 @@ export default function OnboardingPage() {
   const [stepIndex, setStepIndex] = useState(0)
   const [submitting, setSubmitting] = useState(false)
 
-  // 动态步骤（成人 3 步，其余 4 步）
-  const steps = getSteps(form.stage)
+  // 引导步骤（固定 4 步）
+  const steps = getSteps()
   const currentStep = steps[stepIndex]
   const isLastStep = stepIndex === steps.length - 1
   const isFirstStep = stepIndex === 0
 
   // 切换学习阶段时重置年级为该阶段首个
   const handleStageChange = (stage: LearningStage) => {
-    const grades = stage === 'adult' ? [] : GRADE_MAP[stage]
-    const defaultGrade = grades[0] ?? 0
+    const defaultGrade = GRADE_MAP[stage][0] ?? 0
     setForm(f => ({ ...f, stage, grade: defaultGrade }))
   }
 
   // 当前阶段的年级选项
-  const currentGradeOptions = form.stage === 'adult' ? [] : GRADE_MAP[form.stage]
+  const currentGradeOptions = GRADE_MAP[form.stage]
 
   // 判断是否可以进入下一步
   const canProceed = () => {
@@ -109,7 +104,7 @@ export default function OnboardingPage() {
   // 完成引导：保存后端 + 更新本地状态 + 跳转
   const handleComplete = () => {
     setSubmitting(true)
-    const targetGrade = form.stage === 'adult' ? 0 : form.grade
+    const targetGrade = form.grade
     const nickname = form.nickname.trim()
 
     // 更新本地 store
@@ -120,10 +115,7 @@ export default function OnboardingPage() {
       nickname,
       avatar: form.avatar,
     })
-    // 成人没有年级，不调 setGrade（setGrade 内部对 grade<1 会直接 return）
-    if (form.stage !== 'adult') {
-      userStore.setGrade(form.grade)
-    }
+    userStore.setGrade(form.grade)
     userStore.completeOnboarding()
 
     // 保存到后端
@@ -155,7 +147,7 @@ export default function OnboardingPage() {
     } else {
       const nextStep = steps[stepIndex + 1]
       // 进入年级步骤时，重置年级为当前阶段首个（对齐 Web 端 handleEnterGradeStep）
-      if (nextStep?.id === 'grade' && form.stage !== 'adult') {
+      if (nextStep?.id === 'grade') {
         const defaultGrade = GRADE_MAP[form.stage][0] ?? 0
         setForm(f => ({ ...f, grade: defaultGrade }))
       }
@@ -217,7 +209,7 @@ export default function OnboardingPage() {
 
         {/* 步骤1：选择学习阶段 */}
         {currentStep?.id === 'stage' && (
-          <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <View style={{ display: 'flex', flexDirection: 'column' }}>
             {STAGES.map(stage => {
               const selected = form.stage === stage.id
               return (
@@ -226,24 +218,27 @@ export default function OnboardingPage() {
                   onClick={() => handleStageChange(stage.id)}
                   className="taro-btn-press"
                   style={{
-                    width: '48%',
-                    marginBottom: 12,
-                    padding: 16,
+                    marginBottom: 16,
+                    padding: 20,
                     borderRadius: TOKEN.radius.lg,
                     borderWidth: 2,
                     borderStyle: 'solid',
                     borderColor: selected ? C.semantic.primary : C.semantic.border,
                     background: selected ? primaryLight : C.semantic.card,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                     boxShadow: TOKEN.shadow.md,
                   }}
                 >
-                  <View><Icon name={stage.icon} size={32} /></View>
-                  <View style={{ marginTop: 8 }}>
-                    <Text style={{ fontSize: 16, fontWeight: 700, color: C.semantic.foreground }}>{stage.name}</Text>
+                  <View><Icon name={stage.icon} size={36} /></View>
+                  <View style={{ flex: 1, marginLeft: 16 }}>
+                    <Text style={{ fontSize: 17, fontWeight: 700, color: C.semantic.foreground }}>{stage.name}</Text>
+                    <View style={{ marginTop: 2 }}>
+                      <Text style={{ fontSize: 13, color: C.semantic.mutedForeground }}>{stage.desc}</Text>
+                    </View>
                   </View>
-                  <View style={{ marginTop: 4 }}>
-                    <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>{stage.desc}</Text>
-                  </View>
+                  {selected && <Icon name="check" size={22} color={C.semantic.primary} />}
                 </View>
               )
             })}

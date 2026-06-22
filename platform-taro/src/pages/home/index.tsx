@@ -15,9 +15,12 @@ import { getAvatarUrl } from '@/utils/avatar'
 import type { Level } from '@/types/models'
 
 // 顶部资源胶囊（带渐变浅底）
-function ResourceCapsule({ icon, value, gradient, color }: { icon: string; value: string | number; gradient: string; color: string }) {
+function ResourceCapsule({ icon, value, gradient, color, onClick }: { icon: string; value: string | number; gradient: string; color: string; onClick?: () => void }) {
   return (
-    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 3, paddingLeft: 8, paddingRight: 8, paddingTop: 4, paddingBottom: 4, borderRadius: 8, background: gradient, boxShadow: '0 1px 2px rgba(0,0,0,0.06)', borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(0,0,0,0.04)' }}>
+    <View
+      onClick={onClick}
+      style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 3, paddingLeft: 8, paddingRight: 8, paddingTop: 4, paddingBottom: 4, borderRadius: 8, background: gradient, boxShadow: '0 1px 2px rgba(0,0,0,0.06)', borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(0,0,0,0.04)' }}
+    >
       <Icon name={icon} size={15} color={color} />
       <Text style={{ fontSize: 13, fontWeight: 800, color: C.semantic.foreground }}>{value}</Text>
     </View>
@@ -56,6 +59,7 @@ export default function HomePage() {
   const [navigatingLevelId, setNavigatingLevelId] = useState<string | null>(null)
   const [scrollIntoView, setScrollIntoView] = useState('')
   const [showNoHearts, setShowNoHearts] = useState(false)
+  const [showResourcePopup, setShowResourcePopup] = useState<'hearts' | 'coins' | 'diamonds' | null>(null)
 
   useDidShow(() => {
     // 设置导航栏标题为品牌名
@@ -162,8 +166,9 @@ export default function HomePage() {
     Object.entries(user.completedLevels).forEach(([id, data]) => {
       starsByLevelId[id] = data.stars || 0
     })
-    // 已解锁集合
+    // 已解锁集合（兜底：第一关默认解锁）
     const unlockedSet = new Set(user.unlockedLevels)
+    if (visibleLevels.length > 0) unlockedSet.add(visibleLevels[0].id)
     // 已完成集合
     const completedSet = new Set(Object.keys(user.completedLevels))
     // 锚点 id
@@ -187,7 +192,10 @@ export default function HomePage() {
       <View style={{ paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 8 }}>
         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           {/* 左侧：头像 + 昵称 + Lv + 火焰 */}
-          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
+          <View
+            onClick={() => Taro.switchTab({ url: '/pages/profile/index' })}
+            style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}
+          >
             <View
               style={{
                 width: 40, height: 40, borderRadius: 16, overflow: 'hidden',
@@ -223,9 +231,9 @@ export default function HomePage() {
 
           {/* 右侧：资源胶囊 + 签到 */}
           <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-            <ResourceCapsule icon="heart" value={`${user.hearts}/${user.maxHearts}`} gradient="linear-gradient(135deg, #FFF0F0, #FFE8E8)" color={C.semantic.destructive} />
-            <ResourceCapsule icon="coin" value={user.coins} gradient="linear-gradient(135deg, #FFF8EB, #FFEDC8)" color={C.duolingo.gold} />
-            <ResourceCapsule icon="sparkles" value={user.diamonds} gradient="linear-gradient(135deg, #EEF3FF, #DDE8FF)" color={C.duolingo.purple} />
+            <ResourceCapsule icon="heart" value={`${user.hearts}/${user.maxHearts}`} gradient="linear-gradient(135deg, #FFF0F0, #FFE8E8)" color={C.semantic.destructive} onClick={() => setShowResourcePopup('hearts')} />
+            <ResourceCapsule icon="coin" value={user.coins} gradient="linear-gradient(135deg, #FFF8EB, #FFEDC8)" color={C.duolingo.gold} onClick={() => setShowResourcePopup('coins')} />
+            <ResourceCapsule icon="sparkles" value={user.diamonds} gradient="linear-gradient(135deg, #EEF3FF, #DDE8FF)" color={C.duolingo.purple} onClick={() => setShowResourcePopup('diamonds')} />
             <View
               onClick={handleCheckIn}
               style={{
@@ -358,6 +366,88 @@ export default function HomePage() {
                   立即恢复 {user.maxHearts}
                 </Text>
               </View>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* ═══ 资源详情弹窗（心数/金币/钻石） ═══ */}
+      {showResourcePopup && (
+        <View
+          onClick={() => setShowResourcePopup(null)}
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            paddingLeft: 24, paddingRight: 24, backgroundColor: 'rgba(0,0,0,0.45)',
+          }}
+        >
+          <View
+            className="taro-pop-in"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 320, backgroundColor: '#FFFFFF',
+              borderRadius: TOKEN.radius['2xl'], paddingTop: 24, paddingBottom: 24,
+              paddingLeft: 24, paddingRight: 24,
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              boxShadow: TOKEN.shadow.lg,
+            }}
+          >
+            {showResourcePopup === 'hearts' && (
+              <>
+                <Icon name="heart" size={48} color={C.semantic.destructive} style={{ marginBottom: 12 }} />
+                <Text style={{ fontSize: 18, fontWeight: 700, color: C.semantic.foreground, marginBottom: 6 }}>心数</Text>
+                <Text style={{ fontSize: 13, color: C.semantic.mutedForeground, lineHeight: 1.6, textAlign: 'center', marginBottom: 16 }}>
+                  当前：{user.hearts}/{user.maxHearts} 颗{'\n'}每 {heartRecoverMinutes} 分钟自动恢复 1 颗{'\n'}答错题会扣除 1 颗心
+                </Text>
+                {user.hearts < user.maxHearts && (
+                  <View
+                    className="taro-btn-press"
+                    onClick={() => { user.refillHearts(); setShowResourcePopup(null); Taro.showToast({ title: `已恢复 ${user.maxHearts} 颗心`, icon: 'none' }) }}
+                    style={{ width: '100%', paddingTop: 10, paddingBottom: 10, borderRadius: TOKEN.radius.lg, backgroundColor: C.semantic.primary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <Text style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF' }}>立即补充满</Text>
+                  </View>
+                )}
+              </>
+            )}
+            {showResourcePopup === 'coins' && (
+              <>
+                <Icon name="coin" size={48} color={C.duolingo.gold} style={{ marginBottom: 12 }} />
+                <Text style={{ fontSize: 18, fontWeight: 700, color: C.semantic.foreground, marginBottom: 6 }}>金币</Text>
+                <Text style={{ fontSize: 13, color: C.semantic.mutedForeground, lineHeight: 1.6, textAlign: 'center', marginBottom: 16 }}>
+                  当前：{user.coins} 金币{'\n'}通关、签到、成就均可获得{'\n'}用于补充心数和兑换道具
+                </Text>
+                <View
+                  className="taro-btn-press"
+                  onClick={() => { setShowResourcePopup(null); Taro.switchTab({ url: '/pages/daily-goals/index' }) }}
+                  style={{ width: '100%', paddingTop: 10, paddingBottom: 10, borderRadius: TOKEN.radius.lg, backgroundColor: C.duolingo.gold, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF' }}>去完成每日目标</Text>
+                </View>
+              </>
+            )}
+            {showResourcePopup === 'diamonds' && (
+              <>
+                <Icon name="sparkles" size={48} color={C.duolingo.purple} style={{ marginBottom: 12 }} />
+                <Text style={{ fontSize: 18, fontWeight: 700, color: C.semantic.foreground, marginBottom: 6 }}>钻石</Text>
+                <Text style={{ fontSize: 13, color: C.semantic.mutedForeground, lineHeight: 1.6, textAlign: 'center', marginBottom: 16 }}>
+                  当前：{user.diamonds} 钻石{'\n'}高连击、成就解锁可获得{'\n'}用于兑换稀有道具和皮肤
+                </Text>
+                <View
+                  className="taro-btn-press"
+                  onClick={() => { setShowResourcePopup(null); Taro.navigateTo({ url: '/pages/achievements/index' }) }}
+                  style={{ width: '100%', paddingTop: 10, paddingBottom: 10, borderRadius: TOKEN.radius.lg, backgroundColor: C.duolingo.purple, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF' }}>查看我的成就</Text>
+                </View>
+              </>
+            )}
+            <View
+              className="taro-btn-press"
+              onClick={() => setShowResourcePopup(null)}
+              style={{ width: '100%', paddingTop: 10, paddingBottom: 10, borderRadius: TOKEN.radius.lg, backgroundColor: '#FFFFFF', border: `1.5px solid ${C.semantic.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8 }}
+            >
+              <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.mutedForeground }}>关闭</Text>
             </View>
           </View>
         </View>

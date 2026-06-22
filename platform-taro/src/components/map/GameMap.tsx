@@ -3,7 +3,6 @@ import { View } from '@tarojs/components'
 import { MAP, COLORS } from './constants'
 import type { LevelStatus } from './constants'
 import { getWindingPositions } from './layout'
-import { WindingPath } from './WindingPath'
 import { MapLevelNode } from './MapLevelNode'
 import MapStarRow from './MapStarRow' // 改成default import
 import { KnowledgeLabel } from './KnowledgeLabel'
@@ -50,7 +49,7 @@ export function GameMap({
     return last
   }, [levels, completedSet, count])
 
-  const { nodes, segments } = useMemo(
+  const { nodes } = useMemo(
     () => getWindingPositions(count, completedUpTo),
     [count, completedUpTo],
   )
@@ -107,8 +106,7 @@ export function GameMap({
         }}
       />
 
-      {/* 蜿蜒路径 */}
-      <WindingPath segments={segments} />
+      {/* 蜿蜒路径已移除 */}
 
       {/* 所有关卡元素 */}
       {nodes.map((node, i) => {

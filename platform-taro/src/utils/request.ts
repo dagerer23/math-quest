@@ -37,7 +37,8 @@ export async function request<T>(
   url: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { retries = 3, retryDelay = 1000, timeout = 10000, ...rest } = options
+  // 读类接口（地图/排行榜/目标）失败后端时会走本地降级，无需重试拖慢首屏
+  const { retries = 0, retryDelay = 300, timeout = 8000, ...rest } = options
 
   const fullUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`
   const token = getToken()
@@ -66,6 +67,13 @@ export async function request<T>(
         }
         if (res.statusCode >= 200 && res.statusCode < 300) {
           return res.data as T
+        }
+        // 4xx 错误：解析响应体，保留后端返回的错误信息
+        if (res.statusCode >= 400 && res.statusCode < 500 && res.data) {
+          const msg = (res.data as any)?.message || `HTTP ${res.statusCode}`
+          const err = new Error(msg) as any
+          err.response = res.data
+          throw err
         }
         throw new Error(`HTTP ${res.statusCode}`)
       } else {

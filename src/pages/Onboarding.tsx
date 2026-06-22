@@ -9,19 +9,17 @@ import type { LearningStage, LearningGoal } from '@/types/models'
 import { saveProfile } from '@/services/auth'
 import { AVATAR_SEEDS, getAvatarUrl } from '@/utils/avatar'
 
-// 年级选项按阶段划分（adult 无年级选项）
-const GRADE_MAP: Record<LearningStage, readonly number[]> = {
+// 年级选项按阶段划分
+const GRADE_MAP: Record<Exclude<LearningStage, 'adult'>, readonly number[]> = {
   primary: [1, 2, 3, 4, 5, 6] as const,
   middle: [7, 8, 9] as const,
   high: [10, 11, 12] as const,
-  adult: [] as const,
 }
 
 const STAGES = [
   { id: 'primary', name: '小学', icon: 'backpack', desc: '1-6年级学习' },
   { id: 'middle', name: '初中', icon: 'book', desc: '7-9年级学习' },
   { id: 'high', name: '高中', icon: 'book', desc: '10-12年级学习' },
-  { id: 'adult', name: '成人', icon: 'user', desc: '成人学习和思维训练' },
 ] as const
 
 const GOALS = [
@@ -38,16 +36,13 @@ interface StepDef {
   title: string
 }
 
-function getSteps(stage: LearningStage): StepDef[] {
-  const base: StepDef[] = [
+function getSteps(): StepDef[] {
+  return [
     { id: 'stage', title: '选择学习阶段' },
     { id: 'goal', title: '设定学习目标' },
+    { id: 'grade', title: '选择年级' },
+    { id: 'profile', title: '设置个人信息' },
   ]
-  if (stage !== 'adult') {
-    base.push({ id: 'grade', title: '选择年级' })
-  }
-  base.push({ id: 'profile', title: '设置个人信息' })
-  return base
 }
 
 type FormState = {
@@ -73,12 +68,12 @@ export default function Onboarding() {
   const [stepIndex, setStepIndex] = useState(0)
   const [submitting, setSubmitting] = useState(false)
 
-  const steps = getSteps(form.stage)
+  const steps = getSteps()
   const currentStep = steps[stepIndex]
   const isLastStep = stepIndex === steps.length - 1
 
   // 切换学习阶段时重置年级选项
-  const handleStageChange = (stage: LearningStage) => {
+  const handleStageChange = (stage: Exclude<LearningStage, 'adult'>) => {
     const grades = GRADE_MAP[stage]
     const defaultGrade = grades[0] ?? 1
     setForm(f => ({ ...f, stage, grade: defaultGrade }))
@@ -86,7 +81,7 @@ export default function Onboarding() {
 
   // 切换到年级步骤时，根据当前阶段重置年级
   const handleEnterGradeStep = () => {
-    const grades = GRADE_MAP[form.stage]
+    const grades = GRADE_MAP[form.stage as Exclude<LearningStage, 'adult'>]
     setForm(f => ({ ...f, grade: grades[0] }))
   }
 
@@ -106,13 +101,11 @@ export default function Onboarding() {
       user.setProfile({
         learningStage: form.stage,
         learningGoal: form.goal,
-        targetGrade: form.stage === 'adult' ? 0 : form.grade,
+        targetGrade: form.grade,
         nickname: form.nickname.trim(),
         avatar: form.avatar,
       })
-      if (form.stage !== 'adult') {
-        user.setGrade(form.grade)
-      }
+      user.setGrade(form.grade)
       user.completeOnboarding()
 
       const userId = user.userId || localStorage.getItem('userId')
@@ -123,7 +116,7 @@ export default function Onboarding() {
           avatar: form.avatar,
           learningStage: form.stage,
           learningGoal: form.goal,
-          targetGrade: form.stage === 'adult' ? 0 : form.grade,
+          targetGrade: form.grade,
         }).finally(() => {
           setSubmitting(false)
           navigate('/assessment', { replace: true })
@@ -142,7 +135,7 @@ export default function Onboarding() {
   }
 
   // 当前年级选项
-  const currentGradeOptions = GRADE_MAP[form.stage]
+  const currentGradeOptions = GRADE_MAP[form.stage as Exclude<LearningStage, 'adult'>]
 
   // 步骤描述文本
   const stepDescriptions: Record<StepId, string> = {
@@ -187,21 +180,24 @@ export default function Onboarding() {
 
           {/* 步骤0：选择学习阶段 */}
           {currentStep?.id === 'stage' && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-4">
               {STAGES.map((stage) => (
                 <button
                   key={stage.id}
-                  onClick={() => handleStageChange(stage.id as LearningStage)}
+                  onClick={() => handleStageChange(stage.id as Exclude<LearningStage, 'adult'>)}
                   className={clsx(
-                    'p-4 rounded-2xl border-2 transition-all text-left',
+                    'w-full p-5 rounded-2xl border-2 transition-all text-left flex items-center gap-4',
                     form.stage === stage.id
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:border-gray-300 bg-white',
                   )}
                 >
-                  <div className="mb-2"><Icon name={stage.icon} size={32} /></div>
-                  <div className="font-bold text-foreground">{stage.name}</div>
-                  <div className="text-xs text-muted-foreground">{stage.desc}</div>
+                  <div><Icon name={stage.icon} size={36} /></div>
+                  <div className="flex-1">
+                    <div className="font-bold text-foreground text-base">{stage.name}</div>
+                    <div className="text-sm text-muted-foreground">{stage.desc}</div>
+                  </div>
+                  {form.stage === stage.id && <Check size={22} className="text-primary" />}
                 </button>
               ))}
             </div>

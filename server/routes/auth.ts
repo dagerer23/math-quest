@@ -13,6 +13,7 @@ import {
   quickLoginByPhone,
   exportUserData,
   wxLogin,
+  guestLogin,
 } from '../services/auth'
 
 const router = Router()
@@ -69,6 +70,12 @@ router.post('/wx-login', async (req: Request, res: Response) => {
     return
   }
   const result = await wxLogin(code)
+  res.json(result)
+})
+
+// 游客登录
+router.post('/guest', async (_req: Request, res: Response) => {
+  const result = await guestLogin()
   res.json(result)
 })
 

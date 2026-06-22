@@ -9,7 +9,7 @@ import type { ClassInfo } from '@/services/classApi'
 import { getRankInfo, getNextRankInfo, getRankProgress } from '@/utils/rank'
 import { C, TOKEN } from '@/styles/theme'
 import { AVATAR_SEEDS, getAvatarUrl } from '@/utils/avatar'
-import { getAchievementReward } from '@/data/achievements'
+import { getAchievementReward, getAchievementColor } from '@/data/achievements'
 import { Icon } from '@/components/Icon'
 
 // 浅主色背景（头像选中 / 成就解锁，对齐 Web 端 primary/10）
@@ -158,7 +158,7 @@ export default function ProfilePage() {
 
   // 班级操作
   const handleCreateClass = async () => {
-    if (!user.userId) return
+    if (!user.userId) { Taro.showToast({ title: '请先登录', icon: 'none' }); return }
     if (!className.trim()) { Taro.showToast({ title: '请输入班级名称', icon: 'none' }); return }
     setSubmittingClass(true)
     const res = await classApi.createClass(user.userId, className.trim())
@@ -174,7 +174,7 @@ export default function ProfilePage() {
   }
 
   const handleJoinClass = async () => {
-    if (!user.userId) return
+    if (!user.userId) { Taro.showToast({ title: '请先登录', icon: 'none' }); return }
     if (!classCode.trim()) { Taro.showToast({ title: '请输入班级码', icon: 'none' }); return }
     setSubmittingClass(true)
     const res = await classApi.joinClass(user.userId, classCode.trim())
@@ -389,7 +389,7 @@ export default function ProfilePage() {
                       opacity: unlocked ? 1 : 0.4,
                     }}
                   >
-                    <Icon name={a.icon} size={18} color={C.semantic.foreground} />
+                    <Icon name={a.icon} size={18} color={unlocked ? getAchievementColor(a.id) : C.semantic.mutedForeground} />
                     <Text style={{ fontSize: 9, fontWeight: 500, color: unlocked ? C.semantic.foreground : C.semantic.mutedForeground, textAlign: 'center' }} numberOfLines={1}>
                       {a.name.slice(0, 4)}
                     </Text>
@@ -492,53 +492,65 @@ export default function ProfilePage() {
 
         {/* ═══ 设置 ═══ */}
         <View style={{ background: C.semantic.card, borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}>
-          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
             <Icon name="settings" size={14} color={C.semantic.foreground} />
             <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>设置</Text>
           </View>
           {/* 音效 */}
-          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, padding: '10px 0' }}>
-            <Icon name={user.settings.sound ? 'soundOn' : 'soundOff'} size={16} color={C.semantic.foreground} />
-            <Text style={{ flex: 1, fontSize: 14, color: user.settings.sound ? C.semantic.foreground : C.semantic.mutedForeground }}>音效</Text>
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 12, paddingBottom: 12, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: C.semantic.border }}>
+            <View style={{ width: 36, height: 36, borderRadius: 10, background: user.settings.sound ? C.icon.iconGreenBg : C.icon.iconGrayBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name={user.settings.sound ? 'soundOn' : 'soundOff'} size={18} color={user.settings.sound ? C.semantic.primary : C.semantic.mutedForeground} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: 500, color: C.semantic.foreground }}>音效</Text>
+              <Text style={{ fontSize: 11, color: C.semantic.mutedForeground }}>{user.settings.sound ? '已开启' : '已关闭'}</Text>
+            </View>
             <View
               onClick={() => toggleSetting('sound')}
               style={{
-                width: 44, height: 24, borderRadius: 12,
-                background: user.settings.sound ? C.semantic.primary : C.semantic.border,
+                width: 48, height: 28, borderRadius: 14, padding: 3,
+                background: user.settings.sound ? C.semantic.primary : '#E5E7EB',
                 display: 'flex', flexDirection: 'row', alignItems: 'center',
-                paddingLeft: user.settings.sound ? 22 : 2, paddingRight: user.settings.sound ? 2 : 22,
-                transition: 'all 0.2s',
+                justifyContentContent: user.settings.sound ? 'flex-end' : 'flex-start',
               }}
             >
-              <View style={{ width: 20, height: 20, borderRadius: 10, background: '#fff' }} />
+              <View style={{ width: 22, height: 22, borderRadius: 11, background: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.15)' }} />
             </View>
           </View>
-          <View style={{ height: 1, background: C.semantic.border }} />
           {/* 震动 */}
-          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, padding: '10px 0' }}>
-            <Icon name={user.settings.vibration ? 'vibrateOn' : 'vibrateOff'} size={16} color={C.semantic.foreground} />
-            <Text style={{ flex: 1, fontSize: 14, color: user.settings.vibration ? C.semantic.foreground : C.semantic.mutedForeground }}>震动反馈</Text>
+          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 12, paddingBottom: 12, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: C.semantic.border }}>
+            <View style={{ width: 36, height: 36, borderRadius: 10, background: user.settings.vibration ? C.icon.iconGreenBg : C.icon.iconGrayBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name={user.settings.vibration ? 'vibrateOn' : 'vibrateOff'} size={18} color={user.settings.vibration ? C.semantic.primary : C.semantic.mutedForeground} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: 500, color: C.semantic.foreground }}>震动反馈</Text>
+              <Text style={{ fontSize: 11, color: C.semantic.mutedForeground }}>{user.settings.vibration ? '已开启' : '已关闭'}</Text>
+            </View>
             <View
               onClick={() => toggleSetting('vibration')}
               style={{
-                width: 44, height: 24, borderRadius: 12,
-                background: user.settings.vibration ? C.semantic.primary : C.semantic.border,
+                width: 48, height: 28, borderRadius: 14, padding: 3,
+                background: user.settings.vibration ? C.semantic.primary : '#E5E7EB',
                 display: 'flex', flexDirection: 'row', alignItems: 'center',
-                paddingLeft: user.settings.vibration ? 22 : 2, paddingRight: user.settings.vibration ? 2 : 22,
-                transition: 'all 0.2s',
+                justifyContentContent: user.settings.vibration ? 'flex-end' : 'flex-start',
               }}
             >
-              <View style={{ width: 20, height: 20, borderRadius: 10, background: '#fff' }} />
+              <View style={{ width: 22, height: 22, borderRadius: 11, background: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.15)' }} />
             </View>
           </View>
-          <View style={{ height: 1, background: C.semantic.border }} />
           {/* 导出数据 */}
           <View
             onClick={handleExport}
-            style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '12px 0' }}
+            style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 12, paddingBottom: 12, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: C.semantic.border }}
           >
-            <Icon name="download" size={14} color={C.semantic.foreground} />
-            <Text style={{ fontSize: 14, fontWeight: 500, color: C.semantic.foreground }}>导出我的数据</Text>
+            <View style={{ width: 36, height: 36, borderRadius: 10, background: C.icon.iconBlueBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="download" size={18} color={C.duolingo.blue} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 14, fontWeight: 500, color: C.semantic.foreground }}>导出我的数据</Text>
+              <Text style={{ fontSize: 11, color: C.semantic.mutedForeground }}>复制学习记录到剪贴板</Text>
+            </View>
+            <Icon name="chevronRight" size={14} color={C.semantic.mutedForeground} />
           </View>
         </View>
 

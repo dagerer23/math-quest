@@ -261,7 +261,14 @@ export default function ResultPage() {
                     border: `1px solid ${C.semantic.border}`,
                   }}
                 >
-                  <Text style={{ fontSize: 20 }}>{a.icon}</Text>
+                  <View style={{
+                    width: 40, height: 40, borderRadius: 10,
+                    background: 'rgba(88,204,2,0.12)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <Icon name={a.icon} size={22} color={C.semantic.primary} />
+                  </View>
                   <View style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <Text style={{ fontSize: 12, fontWeight: 700, color: C.semantic.foreground }}>{a.name}</Text>
                     <Text style={{ fontSize: 11, color: C.semantic.mutedForeground }}>{a.description}</Text>

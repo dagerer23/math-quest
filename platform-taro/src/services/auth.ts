@@ -61,6 +61,14 @@ export async function quickLogin(phone: string) {
   }
 }
 
+export async function guestLogin() {
+  try {
+    return await post<{ success: boolean; message: string; user?: BackendUser; token?: string }>(`${API_BASE}/guest`, {})
+  } catch {
+    return { success: false, message: '网络错误，请检查网络连接' }
+  }
+}
+
 export async function saveProfile(params: {
   userId: string; nickname?: string; avatar?: string
   learningStage?: string; learningGoal?: string; targetGrade?: number

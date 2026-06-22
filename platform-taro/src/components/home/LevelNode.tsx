@@ -89,14 +89,14 @@ export function LevelNode({
   // 题数文案：无题时显示“挑战”，避免“0题”
   const countLabel = questionCount > 0 ? `${questionCount}题` : '挑战'
 
-  // 副标题文案
+  // 副标题文案：用题数/状态替代知识点掌握度，避免被误读为答题进度
   let subtitle: string
   if (isCompleted) {
     subtitle = stars > 0 ? `${stars} 通关` : '已完成'
   } else if (isCurrent) {
-    subtitle = mastery > 0 ? `进行中 · ${Math.round(mastery * 100)}%` : `进行中 · ${countLabel}`
+    subtitle = `进行中 · ${countLabel}`
   } else if (isUnlocked) {
-    subtitle = mastery > 0 ? `${Math.round(mastery * 100)}%` : countLabel
+    subtitle = countLabel
   } else {
     subtitle = countLabel
   }
@@ -117,10 +117,10 @@ export function LevelNode({
         zIndex: isCurrent ? 30 : 10,
       }}
     >
-      {/* 当前关卡：上方三角标记 */}
-      {isCurrent && (
-        <Icon name="chevronDown" size={14} color={theme.accent} style={{ marginBottom: 2 }} />
-      )}
+     {/* 当前关卡：上方三角标记 */}
+     {isCurrent && (
+       <Icon name="chevronDown" size={14} color={theme.accent} style={{ position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)' }} />
+     )}
 
       {/* 圆形节点 */}
       <View
@@ -210,12 +210,15 @@ export function LevelNode({
         )}
       </View>
 
-      {/* 通关星徽章 */}
-      {isCompleted && stars > 0 && (
-        <View
-          style={{
-            marginTop: 4,
-            padding: '3px 7px',
+     {/* 通关星徽章 */}
+     {isCompleted && stars > 0 && (
+       <View
+         style={{
+           position: 'absolute',
+           top: 60,
+           left: '50%',
+           transform: 'translateX(-50%)',
+           padding: '3px 7px',
             borderRadius: 10,
             backgroundColor: C.semantic.card,
             border: `1px solid ${theme.accentSoft}`,
@@ -239,14 +242,17 @@ export function LevelNode({
         </View>
       )}
 
-      {/* 关卡标题信息：加背景遮罩避免与路径线重叠，并提升层级 */}
-      <View
-        style={{
-          marginTop: 6,
+     {/* 关卡标题信息：加背景遮罩避免与路径线重叠，并提升层级 */}
+     <View
+       style={{
+         position: 'absolute',
+         top: isCompleted && stars > 0 ? 82 : 60,
+         left: '50%',
+         transform: 'translateX(-50%)',
+         width: 112,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          maxWidth: 108,
           paddingLeft: 6,
           paddingRight: 6,
           paddingTop: 2,
@@ -258,10 +264,10 @@ export function LevelNode({
       >
         <Text
           style={{
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: 600,
             color: titleColor,
-            lineHeight: 14,
+            lineHeight: 18,
             textAlign: 'center',
           }}
         >
@@ -269,10 +275,10 @@ export function LevelNode({
         </Text>
         <Text
           style={{
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: 500,
             color: subtitleColor,
-            lineHeight: 14,
+            lineHeight: 16,
             marginTop: 1,
             textAlign: 'center',
           }}

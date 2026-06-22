@@ -37,7 +37,12 @@ async function main() {
   console.log('开始生成 DiceBear 头像 PNG...')
   console.log('输出目录:', outputDir)
 
-  const loreleiStyle = new Style(lorelei)
+  // 禁用胡子：将 beard 组件概率设为 0
+  const styleData = JSON.parse(JSON.stringify(lorelei))
+  if (styleData.components?.beard) {
+    styleData.components.beard.probability = 0
+  }
+  const loreleiStyle = new Style(styleData)
 
   for (const seed of AVATAR_SEEDS) {
     const colorBg = AVATAR_COLORS[getColorIndex(seed)]

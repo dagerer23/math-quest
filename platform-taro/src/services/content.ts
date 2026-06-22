@@ -63,12 +63,19 @@ export async function getAchievements(): Promise<AchievementData[]> {
   return []
 }
 
+// 每日目标本地兜底模板（游客模式或网络失败时使用）
+const LOCAL_DAILY_GOAL_TEMPLATES: DailyGoalTemplate[] = [
+  { id: 'daily-xp', title: '获得50经验值', description: '今天内通过答题获得50点经验值', icon: 'lightning', type: 'xp', target: 50, rewardXp: 30, rewardCoins: 20, sortOrder: 1 },
+  { id: 'daily-questions', title: '完成10道题目', description: '今天内完成10道数学题', icon: 'goal', type: 'questions', target: 10, rewardXp: 40, rewardCoins: 30, sortOrder: 2 },
+  { id: 'daily-streak', title: '保持签到', description: '今日已经完成签到', icon: 'fire', type: 'streak', target: 1, rewardXp: 20, rewardCoins: 10, sortOrder: 3 },
+]
+
 export async function getDailyGoalTemplates(): Promise<DailyGoalTemplate[]> {
   try {
     const data = await get<{ success: boolean; templates: DailyGoalTemplate[] }>(`${API_BASE}/daily-goals`)
-    if (data?.success && Array.isArray(data.templates)) return data.templates
+    if (data?.success && Array.isArray(data.templates) && data.templates.length > 0) return data.templates
   } catch { /* fallthrough */ }
-  return []
+  return LOCAL_DAILY_GOAL_TEMPLATES
 }
 
 export async function getConfigs(): Promise<Record<string, string>> {

@@ -56,6 +56,8 @@ export function Button({
         backgroundColor: disabled ? '#E5E7EB' : v.bg,
         border: v.border,
         width: block ? '100%' : 'auto',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
         opacity: disabled ? 0.5 : 1,
         ...style,
       }}
