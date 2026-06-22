@@ -6,7 +6,7 @@ import {
   Volume2, VolumeX, Vibrate, VibrateOff, Edit2, Save, RotateCcw,
   Settings, LogOut, Trophy, Zap, Target, Coins,
   BookOpen, BarChart3, Swords, X, Crown, Sparkles, Download,
-  Users, UserPlus, ArrowRight, Flower2, Copy, Check, ChevronRight,
+  Users, UserPlus, ArrowRight, Flower2, Copy, Check, ChevronRight, Medal,
 } from 'lucide-react'
 import { getAvatarUrl, getAvatarBorderColor, getInitial, getAvatarBgColor, getAvatarTextColor } from '@/utils/avatar'
 import { GRADE_LABELS } from '@/data/questionBank'
@@ -20,6 +20,7 @@ import clsx from 'clsx'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import { TOKEN_KEY } from '@/services/auth'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { HeatmapCalendar } from '@/components/ui/HeatmapCalendar'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
@@ -33,7 +34,6 @@ const AVATAR_SEEDS = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace
 export default function Profile() {
   const navigate = useNavigate()
   const user = useUserStore()
-  const achievementsMeta = useUserStore((s) => s.achievementsMeta)
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(user.profile.nickname)
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
@@ -121,9 +121,6 @@ export default function Profile() {
   const rankInfo = getRankInfo(user.xp, user.systemConfigs)
   const nextRank = getNextRankInfo(user.xp, user.systemConfigs)
   const rankProgress = getRankProgress(user.xp, user.systemConfigs)
-  const accuracy = user.learningStats.totalQuestions > 0
-    ? Math.round((user.learningStats.correctQuestions / user.learningStats.totalQuestions) * 100)
-    : 0
 
   const handleSaveName = async () => {
     const newName = name.trim() || '数学爱好者'
@@ -368,7 +365,7 @@ export default function Profile() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="grid grid-cols-2 gap-2.5"
+          className="grid grid-cols-3 gap-2.5"
         >
           <QuickAction
             icon={<Trophy size={20} />}
@@ -376,6 +373,13 @@ export default function Profile() {
             iconBg="bg-[#FFF5D6]"
             iconColor="text-[#FFC800]"
             onClick={() => navigate('/leaderboard')}
+          />
+          <QuickAction
+            icon={<Medal size={20} />}
+            label="成就"
+            iconBg="bg-[#E8F9D8]"
+            iconColor="text-[#58CC02]"
+            onClick={() => navigate('/achievements')}
           />
           <QuickAction
             icon={<BarChart3 size={20} />}
@@ -386,101 +390,15 @@ export default function Profile() {
           />
         </motion.div>
 
-        {/* ═══════════ 成就墙 ═══════════ */}
+        {/* ═══════════ 学习日历热力图 ═══════════ */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
           <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm flex items-center gap-1.5">
-                  <Trophy size={15} className="text-primary" />
-                  成就
-                </CardTitle>
-                <Badge variant="secondary" className="text-[10px] tabular-nums bg-muted text-muted-foreground hover:bg-muted">
-                  {user.achievements.length}/{achievementsMeta.length || 0}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-5 gap-2">
-                {achievementsMeta.map((a, idx) => {
-                  const unlocked = user.achievements.some((x) => x.id === a.id)
-                  return (
-                    <motion.div
-                      key={a.id}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={unlocked
-                        ? { opacity: 1, scale: [1, 1.02, 1] }
-                        : { opacity: 1, scale: 1 }
-                      }
-                      transition={unlocked
-                        ? { delay: 0.25 + idx * 0.02, duration: 2, repeat: Infinity }
-                        : { delay: 0.25 + idx * 0.02 }
-                      }
-                      className={clsx(
-                        'aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all',
-                        unlocked
-                          ? 'bg-primary/10 border border-primary/20'
-                          : 'bg-muted border border-border opacity-40 grayscale',
-                      )}
-                      title={unlocked ? `${a.name} · ${a.description}` : `${a.name}（未解锁）`}
-                    >
-                      <span className={clsx('text-lg', !unlocked && 'grayscale opacity-40')}>
-                        {a.icon}
-                      </span>
-                      <span className={clsx(
-                        'text-[9px] font-medium leading-none text-center px-0.5',
-                        unlocked ? 'text-foreground' : 'text-muted-foreground',
-                      )}>
-                        {a.name.slice(0, 4)}
-                      </span>
-                    </motion.div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ═══════════ 学情统计 ═══════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-        >
-          <Card>
-            <CardHeader className="pb-1">
-              <CardTitle className="text-sm flex items-center gap-1.5">
-                <BarChart3 size={15} className="text-muted-foreground" />
-                学习数据
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col">
-                <StatRow
-                  icon={<Target size={16} className="text-primary" />}
-                  label="已通关卡"
-                  value={String(Object.keys(user.completedLevels).length)}
-                  sub={`共 ${Object.keys(user.completedLevels).length} 个关卡`}
-                />
-                <Separator />
-                <StatRow
-                  icon={<Zap size={16} className="text-primary" />}
-                  label="最高连击"
-                  value={String(user.comboMax)}
-                  sub={`连击 ${user.comboMax} 次`}
-                />
-                <Separator />
-                <StatRow
-                  icon={<Trophy size={16} className="text-fuchsia-500" />}
-                  label="答题正确率"
-                  value={`${accuracy}%`}
-                  sub={`${user.learningStats.correctQuestions}/${user.learningStats.totalQuestions} 题正确`}
-                />
-              </div>
+            <CardContent className="pt-4">
+              <HeatmapCalendar dailyHistory={user.dailyHistory} />
             </CardContent>
           </Card>
         </motion.div>

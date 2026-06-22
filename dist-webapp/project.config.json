@@ -2,7 +2,7 @@
   "miniprogramRoot": "./",
   "h5Root": "dist/h5",
   "projectname": "math-quest-taro",
-  "appid": "wx0ea0a6172fd33",
+  "appid": "wx0ea0a6172fd1fd33",
   "setting": {
     "urlCheck": false,
     "es6": true,

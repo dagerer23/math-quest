@@ -163,7 +163,7 @@ export default function AssessmentPage() {
     return (
       <View style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Icon name="construction" size={64} color={C.semantic.mutedForeground} style={{ marginBottom: 16 }} />
+          <Icon name="construction" size={64} color={C.semantic.accent} style={{ marginBottom: 16 }} />
           <Text style={{ fontSize: 18, fontWeight: 700, color: C.semantic.foreground, marginBottom: 8 }}>该年级内容筹备中</Text>
           <Text style={{ fontSize: 14, color: C.semantic.mutedForeground, textAlign: 'center', marginBottom: 24, lineHeight: 1.6 }}>
             我们正在准备这一年级的测评题目，{'\n'}请返回选择其他年级体验。

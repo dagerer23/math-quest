@@ -24,6 +24,15 @@ mysql/
 # Superpowers IDE temp files
 .superpowers/
 
+# Playwright CLI test artifacts
+.playwright-cli/
+
+# Backup files
+*.bak
+
+# Design mockups
+scripts/map-design/
+
 # Screenshots (generated)
 screenshots/
 

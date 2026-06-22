@@ -75,6 +75,13 @@ export interface LearningStat {
   knowledgeProgress: Record<string, number>
 }
 
+export interface DailyStat {
+  date: string       // YYYY-MM-DD
+  questions: number  // 当日答题总数
+  correct: number    // 当日答对数
+  xp: number         // 当日获得 XP
+}
+
 export interface Level {
   id: string
   chapter: string
@@ -161,6 +168,7 @@ export interface UserState {
   inventory: InventoryItem[]
   treasureBoxes: TreasureBox[]
   learningStats: LearningStat
+  dailyHistory: DailyStat[]  // 每日答题历史（最近90天）
   hasCompletedOnboarding: boolean
   userId?: string      // 用户唯一ID
   lastLoginAt?: number // 最后登录时间

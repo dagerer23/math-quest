@@ -146,7 +146,7 @@ function Podium({ list, configs, isMe }: {
                 background: hexA(pos.accent, 0.15), border: `1px solid ${hexA(pos.accent, 0.35)}`, borderBottom: 'none',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start',
               }}>
-                <Icon name={RANK_ICON[rname]} size={crown ? 24 : 20} color={C.semantic.foreground} />
+                <Icon name={RANK_ICON[rname]} size={crown ? 24 : 20} color={pos.accent} />
                 <Text style={{ fontSize: 10, fontWeight: '700', color: pos.accent, marginTop: 4 }}>{rname}</Text>
               </View>
             </View>

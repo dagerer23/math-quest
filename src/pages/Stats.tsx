@@ -7,7 +7,7 @@ import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/prog
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getAvatarUrl, getAvatarBorderColor, getInitial, getAvatarBgColor, getAvatarTextColor } from '@/utils/avatar'
-import { Target, Zap, BookOpen, TrendingUp, Award, Calendar, Flame, Flower2 } from 'lucide-react'
+import { Target, Zap, BookOpen, TrendingUp, Award, Calendar, Flame, Flower2, CheckCircle2 } from 'lucide-react'
 import { getRankInfo, getRankProgress } from '@/utils/rank'
 import { getEncouragements, type EncouragementItem } from '@/services/classApi'
 
@@ -60,8 +60,10 @@ export default function Stats() {
   const statCards = [
     { icon: <BookOpen size={18} />, label: '答题总数', value: stats.totalQuestions, iconBg: 'bg-[#E8F9D8]', iconColor: 'text-[#58CC02]' },
     { icon: <Target size={18} />, label: '正确率', value: `${accuracy}%`, iconBg: 'bg-[#E0F4FF]', iconColor: 'text-[#1CB0F6]' },
+    { icon: <CheckCircle2 size={18} />, label: '已通关卡', value: Object.keys(user.completedLevels).length, iconBg: 'bg-[#E0F4FF]', iconColor: 'text-[#1CB0F6]' },
     { icon: <Zap size={18} />, label: '经验值', value: user.xp, iconBg: 'bg-[#E8F9D8]', iconColor: 'text-[#58CC02]' },
     { icon: <Flame size={18} />, label: '连续天数', value: `${user.streak}天`, iconBg: 'bg-[#FFE4E4]', iconColor: 'text-[#FF4B4B]' },
+    { icon: <Zap size={18} />, label: '最高连击', value: user.comboMax, iconBg: 'bg-[#FFF5D6]', iconColor: 'text-[#FFC800]' },
     { icon: <Calendar size={18} />, label: '学习天数', value: `${stats.totalDays}天`, iconBg: 'bg-[#F3F4F6]', iconColor: 'text-[#9CA3AF]' },
     { icon: <Award size={18} />, label: '当前段位', value: rankInfo.name, iconBg: 'bg-[#FFF5D6]', iconColor: 'text-[#FFC800]' },
   ]

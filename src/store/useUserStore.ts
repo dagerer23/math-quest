@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { UserState, Rank, SessionRecord, Achievement, UserProfile, LearningStage, LearningGoal, AssessmentRecord, DailyGoal, InventoryItem, TreasureBox, LearningStat } from '@/types/models'
+import type { UserState, Rank, SessionRecord, Achievement, UserProfile, LearningStage, LearningGoal, AssessmentRecord, DailyGoal, InventoryItem, TreasureBox, LearningStat, DailyStat } from '@/types/models'
 import { getRankFromXp } from '@/utils/rank'
 import { todayKey, isYesterday } from '@/utils/time'
 import { getLevelsByGrade } from '@/services/content'
@@ -101,6 +101,7 @@ const initial: UserState = {
   inventory: [],
   treasureBoxes: [],
   learningStats: initialLearningStats,
+  dailyHistory: [],
   hasCompletedOnboarding: false,
   userId: undefined,
   lastLoginAt: undefined,
@@ -194,6 +195,31 @@ export const useUserStore = create<UserState & UserActions>()(
           if (a) achievementUnlocks.push(a)
         }
 
+        // 写入每日答题历史
+        const today = todayKey()
+        const prevHistory = state.dailyHistory
+        const lastEntry = prevHistory[prevHistory.length - 1]
+        let newHistory: DailyStat[]
+        if (lastEntry && lastEntry.date === today) {
+          newHistory = [...prevHistory.slice(0, -1), {
+            date: today,
+            questions: lastEntry.questions + record.totalCount,
+            correct: lastEntry.correct + record.correctCount,
+            xp: lastEntry.xp + record.xpGained,
+          }]
+        } else {
+          newHistory = [...prevHistory, {
+            date: today,
+            questions: record.totalCount,
+            correct: record.correctCount,
+            xp: record.xpGained,
+          }]
+        }
+        // 保留最近 90 天
+        if (newHistory.length > 90) {
+          newHistory = newHistory.slice(newHistory.length - 90)
+        }
+
         const next: UserState = applyStreak({
           ...state,
           xp: newXp,
@@ -212,6 +238,7 @@ export const useUserStore = create<UserState & UserActions>()(
             correctQuestions: state.learningStats.correctQuestions + record.correctCount,
           },
           dailyQuestions: state.dailyQuestions + record.totalCount,
+          dailyHistory: newHistory,
         })
         set(next)
 

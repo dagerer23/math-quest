@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { UserState, Rank, SessionRecord, Achievement, UserProfile, LearningStat, DailyGoal, InventoryItem, TreasureBox } from '@/types/models'
+import type { UserState, Rank, SessionRecord, Achievement, UserProfile, LearningStat, DailyGoal, InventoryItem, TreasureBox, DailyStat } from '@/types/models'
 import { getRankFromXp } from '@/utils/rank'
 import { todayKey, isYesterday } from '@/utils/time'
 import { taroStorage } from '@/utils/storage'
@@ -93,6 +93,7 @@ const initial: UserState = {
   inventory: [],
   treasureBoxes: [],
   learningStats: initialLearningStats,
+  dailyHistory: [],
   hasCompletedOnboarding: false,
   userId: undefined,
   lastLoginAt: undefined,
@@ -177,6 +178,31 @@ export const useUserStore = create<UserState & UserActions>()(
           }
         }
 
+        // 写入每日答题历史
+        const today = todayKey()
+        const prevHistory = get().dailyHistory
+        const lastEntry = prevHistory[prevHistory.length - 1]
+        let newHistory: DailyStat[]
+        if (lastEntry && lastEntry.date === today) {
+          newHistory = [...prevHistory.slice(0, -1), {
+            date: today,
+            questions: lastEntry.questions + record.totalCount,
+            correct: lastEntry.correct + record.correctCount,
+            xp: lastEntry.xp + record.xpGained,
+          }]
+        } else {
+          newHistory = [...prevHistory, {
+            date: today,
+            questions: record.totalCount,
+            correct: record.correctCount,
+            xp: record.xpGained,
+          }]
+        }
+        // 保留最近 90 天
+        if (newHistory.length > 90) {
+          newHistory = newHistory.slice(newHistory.length - 90)
+        }
+
         const next: UserState = applyStreak({
           ...get(),
           xp: newXp,
@@ -195,6 +221,7 @@ export const useUserStore = create<UserState & UserActions>()(
             correctQuestions: get().learningStats.correctQuestions + record.correctCount,
           },
           dailyQuestions: get().dailyQuestions + record.totalCount,
+          dailyHistory: newHistory,
         })
         set(next)
 

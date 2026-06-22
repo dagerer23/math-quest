@@ -3,11 +3,62 @@
  */
 import Taro from '@tarojs/taro'
 
-// 后端服务地址
-// 小程序运行时无 process 对象，直接硬编码；生产部署时修改此处
-// 注意：必须用 127.0.0.1 而非 localhost，否则微信小程序中 localhost 可能解析到
-// IPv6(::1) 导致连接失败，触发 "Error: timeout"
-const BASE_URL = 'http://127.0.0.1:3001'
+/**
+ * 后端服务地址 - 根据运行环境自动切换
+ *
+ * 三种环境识别策略：
+ * 1. 本地开发环境（H5 浏览器 / 微信开发者工具）→ http://127.0.0.1:<port>
+ * 2. 真机预览本地开发环境（手机扫码预览小程序）→ http://<本机局域网IP>:<port>
+ * 3. 阿里云服务器环境（生产构建部署）→ http://<阿里云公网IP>:<port>
+ *
+ * 说明：
+ * - process.env.NODE_ENV / TARO_ENV / MQ_* 由 Taro 编译期通过 DefinePlugin 注入为字面量，
+ *   小程序运行时无 process 对象也可正常使用。
+ * - 局域网IP（MQ_LAN_HOST）在构建时由 config/index.ts 自动获取本机网卡IP。
+ * - 阿里云公网IP（MQ_PROD_HOST）通过构建环境变量注入，例如：
+ *   `MQ_PROD_HOST=8.219.x.x npm run build:weapp`
+ */
+const PORT = process.env.MQ_SERVER_PORT || '3001'
+const LAN_HOST = process.env.MQ_LAN_HOST || ''
+const PROD_HOST = process.env.MQ_PROD_HOST || ''
+
+/**
+ * 判断当前是否运行在微信开发者工具中
+ * 真机预览时 platform 为 'ios' / 'android'，开发者工具为 'devtools'
+ */
+function isDevtools(): boolean {
+  try {
+    const info = Taro.getSystemInfoSync()
+    return (info as any).platform === 'devtools'
+  } catch {
+    // 获取失败时按真机处理（使用局域网IP），保证真机预览可用
+    return false
+  }
+}
+
+function resolveBaseUrl(): string {
+  // 1. 阿里云服务器生产环境
+  if (process.env.NODE_ENV === 'production') {
+    if (PROD_HOST) {
+      return `http://${PROD_HOST}:${PORT}`
+    }
+    console.warn('[request] 生产环境未注入 MQ_PROD_HOST，降级使用 127.0.0.1，请通过环境变量配置阿里云公网IP')
+    return `http://127.0.0.1:${PORT}`
+  }
+
+  // 2. H5 端本地开发（浏览器访问本机后端）
+  if (process.env.TARO_ENV === 'h5') {
+    return `http://127.0.0.1:${PORT}`
+  }
+
+  // 3. 小程序端：开发者工具可用 127.0.0.1，真机预览必须用局域网IP
+  if (isDevtools()) {
+    return `http://127.0.0.1:${PORT}`
+  }
+  return `http://${LAN_HOST}:${PORT}`
+}
+
+const BASE_URL = resolveBaseUrl()
 
 export const TOKEN_KEY = 'mq_token'
 

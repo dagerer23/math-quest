@@ -97,6 +97,7 @@ function AppRoutes() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/daily-goals" element={<DailyGoals />} />
               <Route path="/stats" element={<Stats />} />
+              <Route path="/achievements" element={<Achievements />} />
               {/* 已完成 onboarding 但访问 onboarding → 去首页 */}
               <Route
                 path="/onboarding"

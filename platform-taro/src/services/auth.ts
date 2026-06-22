@@ -23,24 +23,33 @@ export function validatePhone(phone: string): boolean {
 export async function sendVerificationCode(phone: string) {
   try {
     return await post<{ success: boolean; message: string }>(`${API_BASE}/send-code`, { phone })
-  } catch {
-    return { success: false, message: '网络错误，请检查网络连接' }
+  } catch (err) {
+    return { success: false, message: err instanceof Error ? err.message : '网络错误，请检查网络连接' }
   }
 }
 
 export async function loginWithPhone(phone: string, code: string) {
   try {
     return await post<{ success: boolean; message: string; user?: BackendUser; token?: string }>(`${API_BASE}/login`, { phone, code })
-  } catch {
-    return { success: false, message: '网络错误，请检查网络连接' }
+  } catch (err) {
+    return { success: false, message: err instanceof Error ? err.message : '网络错误，请检查网络连接' }
   }
 }
 
 export async function wxLogin(code: string) {
   try {
     return await post<{ success: boolean; message: string; user?: BackendUser; token?: string }>(`${API_BASE}/wx-login`, { code })
-  } catch {
-    return { success: false, message: '网络错误，请检查网络连接' }
+  } catch (err) {
+    // 微信小程序错误对象可能含 errMsg 字段
+    let msg = '网络错误，请检查网络连接'
+    if (err instanceof Error) {
+      msg = err.message
+    } else if (err && typeof err === 'object') {
+      msg = (err as any).errMsg || (err as any).message || JSON.stringify(err)
+    } else if (typeof err === 'string') {
+      msg = err
+    }
+    return { success: false, message: msg }
   }
 }
 

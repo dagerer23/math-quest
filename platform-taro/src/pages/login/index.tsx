@@ -281,30 +281,66 @@ export default function LoginPage() {
     if (!ensureAgreed()) return
     setWxLoading(true)
     try {
-      const loginRes = await Taro.login()
-      const code = loginRes.code
-      if (!code) {
+      // 第一步：调用 Taro.login 获取微信登录凭证
+      let code = ''
+      try {
+        const loginRes = await Taro.login()
+        code = loginRes.code
+      } catch (loginErr) {
         setWxLoading(false)
+        let loginErrMsg = '未知错误'
+        if (loginErr instanceof Error) {
+          loginErrMsg = loginErr.message
+        } else if (typeof loginErr === 'string') {
+          loginErrMsg = loginErr
+        } else if (loginErr && typeof loginErr === 'object') {
+          loginErrMsg = (loginErr as any).message || (loginErr as any).errMsg || JSON.stringify(loginErr)
+        }
         Taro.showModal({
           title: '微信登录失败',
-          content: '无法获取登录凭证，请检查微信开发者工具是否配置了有效的小程序 AppID。',
+          content: `获取凭证失败：${loginErrMsg}\n\n请确认微信开发者工具已登录且 AppID 有效。`,
           showCancel: false,
         })
         return
       }
+      if (!code) {
+        setWxLoading(false)
+        Taro.showModal({
+          title: '微信登录失败',
+          content: '无法获取登录凭证（code 为空），请确认微信开发者工具已登录有效账号。',
+          showCancel: false,
+        })
+        return
+      }
+      // 第二步：用 code 请求后端
       const result = await apiWxLogin(code)
       setWxLoading(false)
-      if (result.success && result.user) {
+      if (result && result.success && result.user) {
         handleLoginSuccess(result, result.user.phone || '')
       } else {
-        Taro.showToast({ title: result.message || '微信登录失败', icon: 'none' })
+        const errMsg = (result && typeof result.message === 'string' && result.message)
+          ? result.message
+          : '后端返回未知错误，请检查后端服务是否启动'
+        Taro.showModal({
+          title: '微信登录失败',
+          content: errMsg,
+          showCancel: false,
+        })
       }
     } catch (err) {
       setWxLoading(false)
-      const msg = err instanceof Error ? err.message : String(err)
+      // 微信小程序错误对象可能是各种形态，统一安全提取
+      let msg = '未知错误'
+      if (err instanceof Error) {
+        msg = err.message
+      } else if (typeof err === 'string') {
+        msg = err
+      } else if (err && typeof err === 'object') {
+        msg = (err as any).message || (err as any).errMsg || JSON.stringify(err)
+      }
       Taro.showModal({
         title: '微信登录异常',
-        content: `${msg}\n\n请确认：\n1. 微信开发者工具已配置有效 AppID\n2. 后端服务已启动`,
+        content: `${msg}\n\n请确认：\n1. 微信开发者工具 → 详情 → 本地设置 → 勾选"不校验合法域名"\n2. 后端服务已启动（端口 3001）`,
         showCancel: false,
       })
     }
@@ -376,18 +412,18 @@ export default function LoginPage() {
           {/* 协议勾选区 */}
           <View
             onClick={toggleAgree}
-            style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', marginTop: 16, paddingLeft: 4, paddingRight: 4 }}
+            style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 16, paddingLeft: 4, paddingRight: 4 }}
           >
             <View style={{
               width: 18, height: 18, borderRadius: 999, borderWidth: 2, borderStyle: 'solid',
               borderColor: agreed ? C.semantic.primary : C.semantic.border,
               background: agreed ? C.semantic.primary : 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginTop: 1, marginRight: 8,
+              marginRight: 8,
             }}>
               {agreed && <Icon name="check" size={12} color="#fff" />}
             </View>
-            <Text style={{ flex: 1, fontSize: 11, color: C.semantic.mutedForeground, lineHeight: '16px' }}>
+            <Text style={{ flex: 1, fontSize: 11, color: C.semantic.mutedForeground, lineHeight: '18px' }}>
               <Text>我已阅读并同意</Text>
               <Text onClick={(e) => { e.stopPropagation(); openAgreement() }} style={{ color: C.semantic.primary }}>《用户协议》</Text>
               <Text>和</Text>
@@ -442,12 +478,11 @@ export default function LoginPage() {
           </View>
         </View>
 
-        {/* 底部协议文字 + 测试验证码提示 */}
+        {/* 底部协议文字 */}
         <View style={{ marginTop: 'auto', paddingTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Text style={{ fontSize: 10, color: C.semantic.mutedForeground, textAlign: 'center' }}>
             登录即代表同意《用户协议》与《隐私政策》
           </Text>
-          <Text style={{ fontSize: 9, color: C.semantic.mutedForeground, marginTop: 4 }}>测试验证码：123456</Text>
         </View>
       </View>
     </View>

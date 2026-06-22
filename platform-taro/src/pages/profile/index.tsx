@@ -9,8 +9,8 @@ import type { ClassInfo } from '@/services/classApi'
 import { getRankInfo, getNextRankInfo, getRankProgress } from '@/utils/rank'
 import { C, TOKEN } from '@/styles/theme'
 import { AVATAR_SEEDS, getAvatarUrl } from '@/utils/avatar'
-import { getAchievementReward, getAchievementColor } from '@/data/achievements'
 import { Icon } from '@/components/Icon'
+import { HeatmapCalendar } from '@/components/ui/HeatmapCalendar'
 
 // 浅主色背景（头像选中 / 成就解锁，对齐 Web 端 primary/10）
 const PRIMARY_LIGHT = 'rgba(88,204,2,0.08)'
@@ -69,10 +69,6 @@ export default function ProfilePage() {
   const rankInfo = getRankInfo(user.xp, user.systemConfigs)
   const nextRank = getNextRankInfo(user.xp, user.systemConfigs)
   const rankProgress = getRankProgress(user.xp, user.systemConfigs)
-  const accuracy = user.learningStats.totalQuestions > 0
-    ? Math.round((user.learningStats.correctQuestions / user.learningStats.totalQuestions) * 100)
-    : 0
-
   // 保存昵称
   const handleSaveName = async () => {
     const newName = nickName.trim() || '数学爱好者'
@@ -222,8 +218,6 @@ export default function ProfilePage() {
     user.setSettings({ [key]: !user.settings[key] })
   }
 
-  const achievementsMeta = user.achievementsMeta
-
   return (
     <ScrollView scrollY className="taro-fade-in" style={{ minHeight: '100vh', background: C.pageBg }}>
       {/* 顶部渐变条 */}
@@ -344,8 +338,9 @@ export default function ProfilePage() {
         {/* ═══ 快捷操作 ═══ */}
         <View style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
           {[
-            { icon: 'trophy', label: '排行榜', bg: C.icon.iconGoldBg, action: () => Taro.switchTab({ url: '/pages/leaderboard/index' }) },
-            { icon: 'chart', label: '学习统计', bg: C.icon.iconPurpleBg, action: () => Taro.navigateTo({ url: '/pages/stats/index' }) },
+            { icon: 'trophy', label: '排行榜', bg: C.icon.iconGoldBg, color: C.duolingo.gold, action: () => Taro.switchTab({ url: '/pages/leaderboard/index' }) },
+            { icon: 'medal', label: '成就', bg: C.icon.iconGreenBg, color: C.semantic.primary, action: () => Taro.navigateTo({ url: '/pages/achievements/index' }) },
+            { icon: 'chart', label: '学习统计', bg: C.icon.iconPurpleBg, color: C.duolingo.purple, action: () => Taro.navigateTo({ url: '/pages/stats/index' }) },
           ].map((a) => (
             <View
               key={a.label}
@@ -355,84 +350,22 @@ export default function ProfilePage() {
               style={{ flex: 1, background: C.semantic.card, borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderWidth: 1, borderStyle: 'solid', borderColor: C.semantic.border, boxShadow: TOKEN.shadow.md }}
             >
               <View style={{ width: 32, height: 32, borderRadius: 10, background: a.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name={a.icon} size={18} color={C.semantic.foreground} />
+                <Icon name={a.icon} size={18} color={a.color} />
               </View>
               <Text style={{ fontSize: 11, fontWeight: 500, color: C.semantic.mutedForeground }}>{a.label}</Text>
             </View>
           ))}
         </View>
 
-        {/* ═══ 成就墙 ═══ */}
+        {/* ═══ 学习日历热力图 ═══ */}
         <View style={{ background: C.semantic.card, borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}>
-          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Icon name="trophy" size={14} color={C.semantic.foreground} />
-              <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>成就</Text>
-            </View>
-            <View style={{ paddingTop: 2, paddingBottom: 2, paddingLeft: 8, paddingRight: 8, borderRadius: 999, background: C.icon.iconGrayBg }}>
-              <Text style={{ fontSize: 10, color: C.semantic.mutedForeground }}>{user.achievements.length}/{achievementsMeta.length || 0}</Text>
-            </View>
-          </View>
-          {achievementsMeta.length > 0 ? (
-            <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {achievementsMeta.map((a) => {
-                const unlocked = user.achievements.some((x) => x.id === a.id)
-                return (
-                  <View
-                    key={a.id}
-                    style={{
-                      width: '18%', aspectRatio: '1', borderRadius: 12,
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
-                      background: unlocked ? PRIMARY_LIGHT : C.icon.iconGrayBg,
-                      borderWidth: 1, borderStyle: 'solid',
-                      borderColor: unlocked ? 'rgba(88,204,2,0.2)' : 'transparent',
-                      opacity: unlocked ? 1 : 0.4,
-                    }}
-                  >
-                    <Icon name={a.icon} size={18} color={unlocked ? getAchievementColor(a.id) : C.semantic.mutedForeground} />
-                    <Text style={{ fontSize: 9, fontWeight: 500, color: unlocked ? C.semantic.foreground : C.semantic.mutedForeground, textAlign: 'center' }} numberOfLines={1}>
-                      {a.name.slice(0, 4)}
-                    </Text>
-                  </View>
-                )
-              })}
-            </View>
-          ) : (
-            <Text style={{ fontSize: 13, color: C.semantic.mutedForeground, textAlign: 'center', padding: 16 }}>暂无成就数据</Text>
-          )}
-        </View>
-
-        {/* ═══ 学习数据 ═══ */}
-        <View style={{ background: C.semantic.card, borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}>
-          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <Icon name="chart" size={14} color={C.semantic.foreground} />
-            <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>学习数据</Text>
-          </View>
-          {[
-            { icon: 'goal', label: '已通关卡', value: String(Object.keys(user.completedLevels).length), sub: '个关卡' },
-            { icon: 'lightning', label: '最高连击', value: String(user.comboMax), sub: '次连击' },
-            { icon: 'trophy', label: '答题正确率', value: `${accuracy}%`, sub: `${user.learningStats.correctQuestions}/${user.learningStats.totalQuestions}题` },
-          ].map((row, i) => (
-            <View key={row.label}>
-              {i > 0 && <View style={{ height: 1, background: C.semantic.border, margin: '4px 0' }} />}
-              <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12, padding: '8px 0' }}>
-                <View style={{ width: 32, height: 32, borderRadius: 10, background: C.icon.iconGreenBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={row.icon} size={16} color={C.semantic.foreground} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>{row.label}</Text>
-                  <Text style={{ fontSize: 10, color: C.semantic.mutedForeground, opacity: 0.6 }}>{row.sub}</Text>
-                </View>
-                <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>{row.value}</Text>
-              </View>
-            </View>
-          ))}
+          <HeatmapCalendar dailyHistory={user.dailyHistory} />
         </View>
 
         {/* ═══ 我的班级 ═══ */}
         <View style={{ background: C.semantic.card, borderRadius: 16, padding: 16, boxShadow: TOKEN.shadow.md }}>
           <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <Icon name="users" size={14} color={C.semantic.foreground} />
+            <Icon name="users" size={14} color={C.duolingo.blue} />
             <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>我的班级</Text>
           </View>
           {classLoading ? (

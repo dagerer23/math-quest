@@ -24,6 +24,12 @@ const ICON_BG: Record<string, string> = {
   'fire': C.icon.iconRedBg,
 }
 
+const ICON_COLOR: Record<string, string> = {
+  'lightning': C.semantic.accent,
+  'goal': C.semantic.primary,
+  'fire': C.semantic.destructive,
+}
+
 interface GoalView {
   template: DailyGoalTemplate
   progress: number
@@ -196,6 +202,7 @@ export default function DailyGoalsPage() {
         {!loading && goals.map((goal) => {
           const t = goal.template
           const iconBg = ICON_BG[t.icon] || C.icon.iconBlueBg
+          const iconColor = ICON_COLOR[t.icon] || C.semantic.primary
           return (
             <View
               key={t.id}
@@ -210,7 +217,7 @@ export default function DailyGoalsPage() {
             >
               <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
                 <View style={{ width: 44, height: 44, borderRadius: TOKEN.radius.md, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name={t.icon || 'goal'} size={24} color={C.semantic.foreground} />
+                  <Icon name={t.icon || 'goal'} size={24} color={iconColor} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>

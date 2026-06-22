@@ -86,3 +86,11 @@ MySQL 启动后，按以下方式启动前后端（端口已固化）：
 当 `platform-taro/src` 目录下的文件发生变更时，需要重新执行 `npm run build:weapp` 打包微信小程序，并将打包结果记录到本文件。
 
 **输出目录**：`platform-taro/dist-weapp`
+
+### 打包记录
+
+- 2026-06-22：实现 BASE_URL 环境区分配置（本地开发/真机预览/阿里云生产自动切换）。变更文件：`platform-taro/config/index.ts`、`platform-taro/src/utils/request.ts`、`platform-taro/src/env.d.ts`。执行 `npm run build:weapp` 构建成功，产物输出至 `dist-webapp/`，已验证 DefinePlugin 环境变量注入正常。
+- 2026-06-22：优化个人中心界面——成就模块改为可点击跳转入口并移至排行榜旁，学习数据卡片合并到学习统计页面并移除原卡片。变更文件：`platform-taro/src/pages/profile/index.tsx`、`platform-taro/src/pages/stats/index.tsx`。执行 `npm run build:weapp` 构建成功。
+- 2026-06-22：新增学习日历热力图功能（近30天答题统计）。变更文件：`platform-taro/src/types/models.ts`、`platform-taro/src/store/useUserStore.ts`、`platform-taro/src/components/ui/HeatmapCalendar.tsx`（新增）、`platform-taro/src/pages/profile/index.tsx`。执行 `npm run build:weapp` 构建成功。
+- 2026-06-22：Web 前端同步 Taro 端三项界面改动（成就跳转入口+学习数据合并到统计页+学习日历热力图）。变更文件：`src/types/models.ts`、`src/store/useUserStore.ts`、`src/components/ui/HeatmapCalendar.tsx`（新增）、`src/pages/Profile.tsx`、`src/pages/Stats.tsx`、`src/App.tsx`。TypeScript 编译通过，webapp-testing 回归测试通过。
+- 2026-06-23：优化登录页勾选框与协议文字的水平/垂直对齐，并移除底部“测试验证码：123456”提示。变更文件：`platform-taro/src/pages/login/index.tsx`。执行 `npm run build:weapp` 构建成功，产物输出至 `dist-weapp/`。

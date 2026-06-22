@@ -75,6 +75,13 @@ export default function StatsPage() {
           <Text style={{ fontSize: 22, fontWeight: 800, color: C.semantic.primary }}>{correctRate}%</Text>
           <Text style={{ fontSize: 11, color: C.semantic.mutedForeground }}>正确率</Text>
         </Card>
+
+        <Card padding={16} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', boxShadow: TOKEN.shadow.md }}>
+          <Icon name="checkCircle" size={28} color={C.duolingo.blue} />
+          <Spacer size={4} />
+          <Text style={{ fontSize: 22, fontWeight: 800, color: C.duolingo.blue }}>{Object.keys(user.completedLevels).length}</Text>
+          <Text style={{ fontSize: 11, color: C.semantic.mutedForeground }}>已通关卡</Text>
+        </Card>
       </Row>
 
       <Row gap={8} style={{ margin: 8 }}>
