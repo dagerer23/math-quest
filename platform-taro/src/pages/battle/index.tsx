@@ -352,39 +352,10 @@ export default function BattlePage() {
           <ComboNumber value={sessionCombo} show={feedback === 'correct'} />
         </QuestionCard>
 
-        {/* 反馈提示 */}
-        {feedback && (
-          <View
-            className="taro-fade-in"
-            style={{
-              marginTop: 16, paddingTop: 16, paddingBottom: 16, paddingLeft: 20, paddingRight: 20, borderRadius: TOKEN.radius.lg,
-              background: feedback === 'correct'
-                ? 'linear-gradient(135deg, rgba(88,204,2,0.12) 0%, rgba(88,204,2,0.06) 100%)'
-                : 'linear-gradient(135deg, rgba(255,75,75,0.12) 0%, rgba(255,75,75,0.06) 100%)',
-              borderWidth: 1, borderStyle: 'solid',
-              borderColor: feedback === 'correct' ? 'rgba(88,204,2,0.3)' : 'rgba(255,75,75,0.3)',
-            }}>
-            {feedback === 'correct' ? (
-              <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <Icon name="star" size={16} color={C.duolingo.gold} />
-                <Text style={{ fontSize: 16, fontWeight: 700, color: C.duolingo.greenDark }}>{encouragement} +{currentQ.xp} XP</Text>
-              </View>
-            ) : (
-              <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Text style={{ fontSize: 14, fontWeight: 700, color: '#E63A3A', marginBottom: 4 }}>正确答案</Text>
-                <Text style={{ fontSize: 20, fontWeight: 700, color: '#E63A3A' }}>{String(currentQ.answer)}</Text>
-                {currentQ.explanation && (
-                  <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 8, textAlign: 'center' }}>{currentQ.explanation}</Text>
-                )}
-              </View>
-            )}
-          </View>
-        )}
-
         </View>
 
         {/* 答案输入区 */}
-        <View style={{ marginTop: 16, flexShrink: 0, paddingBottom: 20 + safeAreaBottom }}>
+        <View style={{ marginTop: 10, flexShrink: 0, paddingBottom: 16 + safeAreaBottom }}>
           {currentQ.type === 'choice' && currentQ.options && (
             <View>
               <ChoiceOptions
@@ -398,12 +369,12 @@ export default function BattlePage() {
                 showHighlight={showHighlight}
               />
               {/* 提交按钮 */}
-              <View style={{ marginTop: 16 }}>
+              <View style={{ marginTop: 10 }}>
                 <View
                   className="taro-btn-press"
                   onClick={() => selectedOption && !feedback && handleSubmit()}
                   style={{
-                    width: '100%', height: 56, borderRadius: 12,
+                    width: '100%', height: 48, borderRadius: 12,
                     background: selectedOption && !feedback
                       ? `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent} 100%)`
                       : '#E0E0E0',
@@ -453,12 +424,12 @@ export default function BattlePage() {
               </View>
 
               {/* 提交按钮 */}
-              <View style={{ marginTop: 16 }}>
+              <View style={{ marginTop: 10 }}>
                 <View
                   className="taro-btn-press"
                   onClick={() => inputValue && !feedback && handleSubmit()}
                   style={{
-                    width: '100%', height: 56, borderRadius: 12,
+                    width: '100%', height: 48, borderRadius: 12,
                     background: inputValue && !feedback
                       ? `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent} 100%)`
                       : '#E0E0E0',
@@ -476,6 +447,37 @@ export default function BattlePage() {
           )}
         </View>
       </View>
+
+      {/* 浮动反馈 Toast（不占布局空间） */}
+      {feedback && (
+        <View
+          className="taro-fade-in"
+          style={{
+            position: 'fixed', top: '45%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 40, maxWidth: '80%',
+            paddingTop: 14, paddingBottom: 14, paddingLeft: 20, paddingRight: 20, borderRadius: 16,
+            background: feedback === 'correct' ? 'rgba(88,204,2,0.95)' : 'rgba(255,75,75,0.95)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+          }}
+        >
+          {feedback === 'correct' ? (
+            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Icon name="star" size={18} color="#FFD700" />
+              <Text style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{encouragement} +{currentQ.xp} XP</Text>
+            </View>
+          ) : (
+            <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Text style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)', marginBottom: 2 }}>正确答案</Text>
+              <Text style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>{String(currentQ.answer)}</Text>
+              {currentQ.explanation && (
+                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)', marginTop: 6, textAlign: 'center' }}>{currentQ.explanation}</Text>
+              )}
+            </View>
+          )}
+        </View>
+      )}
 
       {/* 心数耗尽遮罩 */}
       {noHearts && (

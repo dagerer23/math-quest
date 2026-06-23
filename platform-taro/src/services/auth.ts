@@ -36,11 +36,13 @@ export async function loginWithPhone(phone: string, code: string) {
   }
 }
 
-export async function wxLogin(code: string) {
+export async function wxLogin(params: { code: string; phoneCode?: string; avatar?: string }) {
+  console.log('[auth/wxLogin] 发送 wx-login 请求, code:', params.code, 'hasPhoneCode:', !!params.phoneCode, 'hasAvatar:', !!params.avatar)
   try {
-    return await post<{ success: boolean; message: string; user?: BackendUser; token?: string }>(`${API_BASE}/wx-login`, { code })
+    const res = await post<{ success: boolean; message: string; user?: BackendUser; token?: string }>(`${API_BASE}/wx-login`, params)
+    console.log('[auth/wxLogin] wx-login 请求成功:', JSON.stringify(res))
+    return res
   } catch (err) {
-    // 微信小程序错误对象可能含 errMsg 字段
     let msg = '网络错误，请检查网络连接'
     if (err instanceof Error) {
       msg = err.message
@@ -49,6 +51,7 @@ export async function wxLogin(code: string) {
     } else if (typeof err === 'string') {
       msg = err
     }
+    console.error('[auth/wxLogin] wx-login 请求异常:', err, '提取消息:', msg)
     return { success: false, message: msg }
   }
 }

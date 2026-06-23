@@ -192,7 +192,7 @@ export default function Onboarding() {
                       : 'border-border hover:border-gray-300 bg-white',
                   )}
                 >
-                  <div><Icon name={stage.icon} size={36} /></div>
+                  <div><Icon name={stage.icon} size={36} color={form.stage === stage.id ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'} /></div>
                   <div className="flex-1">
                     <div className="font-bold text-foreground text-base">{stage.name}</div>
                     <div className="text-sm text-muted-foreground">{stage.desc}</div>
@@ -217,7 +217,7 @@ export default function Onboarding() {
                       : 'border-border hover:border-gray-300 bg-white',
                   )}
                 >
-                  <div><Icon name={goal.icon} size={32} /></div>
+                  <div><Icon name={goal.icon} size={32} color={form.goal === goal.id ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'} /></div>
                   <div className="flex-1">
                     <div className="font-bold text-foreground">{goal.name}</div>
                     <div className="text-xs text-muted-foreground">{goal.desc}</div>

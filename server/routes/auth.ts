@@ -62,14 +62,17 @@ router.post('/quick-login', async (req: Request, res: Response) => {
   res.json(result)
 })
 
-// 微信小程序登录
+// 微信小程序登录（支持头像+手机号授权）
 router.post('/wx-login', async (req: Request, res: Response) => {
-  const { code } = req.body
+  console.log('[auth/wx-login] 收到请求, body keys:', Object.keys(req.body || {}))
+  const { code, phoneCode, avatar } = req.body
   if (!code) {
+    console.error('[auth/wx-login] 缺少 code')
     res.status(400).json({ success: false, message: '缺少微信登录凭证 code' })
     return
   }
-  const result = await wxLogin(code)
+  const result = await wxLogin({ code, phoneCode, avatar })
+  console.log('[auth/wx-login] 返回结果:', JSON.stringify(result))
   res.json(result)
 })
 

@@ -99,7 +99,7 @@ export function ChoiceOptions({
             >
               <Text
                 style={{
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: 700,
                   color,
                   textAlign: 'center',

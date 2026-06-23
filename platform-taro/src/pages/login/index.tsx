@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { View, Text, Input } from '@tarojs/components'
+import { View, Text, Input, Button, Image } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useUserStore } from '@/store/useUserStore'
 import {
@@ -189,6 +189,9 @@ export default function LoginPage() {
   const [sendingCode, setSendingCode] = useState(false)
   const [quickLoading, setQuickLoading] = useState(false)
   const [wxLoading, setWxLoading] = useState(false)
+  const [wxAvatar, setWxAvatar] = useState('')
+  const [wxAvatarUrl, setWxAvatarUrl] = useState('')
+  const [wxStep, setWxStep] = useState<'idle' | 'phone'>('idle')
   const [showOther, setShowOther] = useState(false)
   const [agreed, setAgreed] = useState(false)
 
@@ -227,6 +230,10 @@ export default function LoginPage() {
       setTimeout(() => Taro.switchTab({ url: '/pages/home/index' }), 250)
     } else {
       userStore.resetUserIdentity()
+      // 保存微信授权头像，onboarding 中不可修改
+      if (result.user.avatar) {
+        userStore.setProfile({ avatar: result.user.avatar })
+      }
       setTimeout(() => Taro.redirectTo({ url: '/pages/onboarding/index' }), 250)
     }
   }, [setLoggedIn])
@@ -277,70 +284,73 @@ export default function LoginPage() {
     }
   }
 
-  const handleWxLogin = async () => {
-    if (!ensureAgreed()) return
+  // Step 1: 微信头像授权回调（chooseAvatar）
+  const handleChooseAvatar = (e: any) => {
+    const avatarUrl = e.detail.avatarUrl
+    if (!avatarUrl) {
+      console.log('[login] 用户取消选择头像')
+      return
+    }
+    console.log('[login] chooseAvatar 成功:', avatarUrl)
+    setWxAvatarUrl(avatarUrl)
+    // 读取临时文件为 base64，用于提交后端
+    try {
+      const fs = Taro.getFileSystemManager()
+      const base64 = fs.readFileSync(avatarUrl, 'base64')
+      setWxAvatar(`data:image/png;base64,${base64}`)
+    } catch (err) {
+      console.error('[login] 读取头像 base64 失败，降级使用临时路径:', err)
+      setWxAvatar(avatarUrl)
+    }
+    setWxStep('phone')
+  }
+
+  // Step 2: 微信手机号授权回调（getPhoneNumber）
+  const handleGetPhoneNumber = async (e: any) => {
+    const errMsg = e.detail.errMsg
+    if (errMsg !== 'getPhoneNumber:ok') {
+      console.log('[login] 用户拒绝手机号授权:', errMsg)
+      Taro.showToast({ title: '需要授权手机号才能登录', icon: 'none' })
+      return
+    }
+    const phoneCode = e.detail.code
+    console.log('[login] getPhoneNumber 成功, phoneCode:', phoneCode)
     setWxLoading(true)
     try {
-      // 第一步：调用 Taro.login 获取微信登录凭证
-      let code = ''
-      try {
-        const loginRes = await Taro.login()
-        code = loginRes.code
-      } catch (loginErr) {
-        setWxLoading(false)
-        let loginErrMsg = '未知错误'
-        if (loginErr instanceof Error) {
-          loginErrMsg = loginErr.message
-        } else if (typeof loginErr === 'string') {
-          loginErrMsg = loginErr
-        } else if (loginErr && typeof loginErr === 'object') {
-          loginErrMsg = (loginErr as any).message || (loginErr as any).errMsg || JSON.stringify(loginErr)
-        }
-        Taro.showModal({
-          title: '微信登录失败',
-          content: `获取凭证失败：${loginErrMsg}\n\n请确认微信开发者工具已登录且 AppID 有效。`,
-          showCancel: false,
-        })
-        return
-      }
-      if (!code) {
-        setWxLoading(false)
-        Taro.showModal({
-          title: '微信登录失败',
-          content: '无法获取登录凭证（code 为空），请确认微信开发者工具已登录有效账号。',
-          showCancel: false,
-        })
-        return
-      }
-      // 第二步：用 code 请求后端
-      const result = await apiWxLogin(code)
+      // 获取微信登录 code（静默调用，无需用户点击）
+      const loginRes = await Taro.login()
+      const loginCode = loginRes.code
+      console.log('[login] Taro.login code:', loginCode)
+      // 提交后端：登录 code + 手机号 code + 头像 base64
+      const result = await apiWxLogin({ code: loginCode, phoneCode, avatar: wxAvatar })
+      console.log('[login] apiWxLogin 返回:', JSON.stringify(result))
       setWxLoading(false)
       if (result && result.success && result.user) {
         handleLoginSuccess(result, result.user.phone || '')
       } else {
-        const errMsg = (result && typeof result.message === 'string' && result.message)
+        const errText = (result && typeof result.message === 'string' && result.message)
           ? result.message
           : '后端返回未知错误，请检查后端服务是否启动'
         Taro.showModal({
           title: '微信登录失败',
-          content: errMsg,
+          content: errText,
           showCancel: false,
         })
       }
     } catch (err) {
       setWxLoading(false)
-      // 微信小程序错误对象可能是各种形态，统一安全提取
       let msg = '未知错误'
       if (err instanceof Error) {
         msg = err.message
-      } else if (typeof err === 'string') {
-        msg = err
       } else if (err && typeof err === 'object') {
         msg = (err as any).message || (err as any).errMsg || JSON.stringify(err)
+      } else if (typeof err === 'string') {
+        msg = err
       }
+      console.error('[login] handleGetPhoneNumber 异常:', err, '提取消息:', msg)
       Taro.showModal({
         title: '微信登录异常',
-        content: `${msg}\n\n请确认：\n1. 微信开发者工具 → 详情 → 本地设置 → 勾选"不校验合法域名"\n2. 后端服务已启动（端口 3001）`,
+        content: `${msg}\n\n请确认后端服务已启动（端口 3001）`,
         showCancel: false,
       })
     }
@@ -348,37 +358,22 @@ export default function LoginPage() {
 
   const handleGuestLogin = async () => {
     Taro.showLoading({ title: '进入中...' })
-    try {
-      const result = await apiGuestLogin()
-      Taro.hideLoading()
-      if (result.success && result.user) {
-        const userId = result.user.id
-        Taro.setStorageSync('userId', userId)
-        if (result.token) Taro.setStorageSync(TOKEN_KEY, result.token)
-        // 同步 userId 到 zustand store（确保 profile 页等能读到）
-        const userStore = useUserStore.getState()
-        userStore.loginWithPhone('', userId)
-        setLoggedIn(true)
-        setProfile({
-          nickname: result.user.nickname || '数学爱好者',
-          avatar: result.user.avatar || '',
-          learningStage: result.user.learningStage || 'primary',
-          learningGoal: result.user.learningGoal || 'consolidation',
-          targetGrade: result.user.targetGrade || 2,
-        })
-        if (result.user.targetGrade) {
-          // 已有年级信息，跳过引导
-          setTimeout(() => Taro.redirectTo({ url: '/pages/index/index' }), 250)
-        } else {
-          setTimeout(() => Taro.redirectTo({ url: '/pages/onboarding/index' }), 250)
-        }
-      } else {
-        Taro.showToast({ title: result.message || '游客登录失败', icon: 'none' })
-      }
-    } catch {
-      Taro.hideLoading()
-      Taro.showToast({ title: '网络错误，请检查后端服务', icon: 'none' })
-    }
+    // 纯本地游客模式，不发网络请求，避免真机网络不通时卡死
+    const guestId = `guest_${Date.now()}`
+    Taro.setStorageSync('userId', guestId)
+    const userStore = useUserStore.getState()
+    userStore.loginWithPhone('', guestId)
+    userStore.resetUserIdentity()
+    setLoggedIn(true)
+    setProfile({
+      nickname: '游客',
+      avatar: '',
+      learningStage: 'primary',
+      learningGoal: 'consolidation',
+      targetGrade: 2,
+    })
+    Taro.hideLoading()
+    setTimeout(() => Taro.redirectTo({ url: '/pages/onboarding/index' }), 250)
   }
 
   const toggleAgree = () => setAgreed((v) => !v)
@@ -393,21 +388,65 @@ export default function LoginPage() {
         </View>
 
         <View style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column' }}>
-          {/* 微信一键登录（主入口） */}
-          <View
-            onClick={wxLoading ? undefined : handleWxLogin}
-            className="taro-btn-press"
-            style={{
-              width: '100%', height: 52, borderRadius: TOKEN.radius.lg,
-              background: C.wx.wxGreen,
-              boxShadow: TOKEN.shadow.md,
-              display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-              opacity: wxLoading ? 0.7 : 1,
-            }}
-          >
-            <WxIcon />
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: 600 }}>{wxLoading ? '登录中...' : '微信一键登录'}</Text>
-          </View>
+          {/* 微信一键登录（主入口）- 两步授权：头像 → 手机号 */}
+          {wxStep === 'idle' ? (
+            agreed ? (
+              <Button
+                openType="chooseAvatar"
+                onChooseAvatar={handleChooseAvatar}
+                style={{
+                  width: '100%', height: 52, borderRadius: TOKEN.radius.lg,
+                  background: C.wx.wxGreen,
+                  boxShadow: TOKEN.shadow.md,
+                  display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                  border: 'none', padding: '0', margin: '0', lineHeight: 'normal',
+                }}
+              >
+                <WxIcon />
+                <Text style={{ color: '#fff', fontSize: 16, fontWeight: 600 }}>微信一键登录</Text>
+              </Button>
+            ) : (
+              <View
+                onClick={() => ensureAgreed()}
+                className="taro-btn-press"
+                style={{
+                  width: '100%', height: 52, borderRadius: TOKEN.radius.lg,
+                  background: C.wx.wxGreen,
+                  boxShadow: TOKEN.shadow.md,
+                  display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <WxIcon />
+                <Text style={{ color: '#fff', fontSize: 16, fontWeight: 600 }}>微信一键登录</Text>
+              </View>
+            )
+          ) : (
+            <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+              <Image src={wxAvatarUrl} style={{ width: 56, height: 56, borderRadius: 999, marginBottom: 8 }} mode="aspectFill" />
+              <Text style={{ fontSize: 12, color: C.semantic.mutedForeground, marginBottom: 12 }}>头像获取成功，请授权手机号完成登录</Text>
+              <Button
+                openType="getPhoneNumber"
+                onGetPhoneNumber={handleGetPhoneNumber}
+                style={{
+                  width: '100%', height: 52, borderRadius: TOKEN.radius.lg,
+                  background: C.wx.wxGreen,
+                  boxShadow: TOKEN.shadow.md,
+                  display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                  border: 'none', padding: '0', margin: '0', lineHeight: 'normal',
+                  opacity: wxLoading ? 0.7 : 1,
+                }}
+              >
+                <WxIcon />
+                <Text style={{ color: '#fff', fontSize: 16, fontWeight: 600 }}>{wxLoading ? '登录中...' : '授权手机号登录'}</Text>
+              </Button>
+              <View
+                onClick={() => { setWxStep('idle'); setWxAvatar(''); setWxAvatarUrl('') }}
+                style={{ marginTop: 12 }}
+              >
+                <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>重新选择头像</Text>
+              </View>
+            </View>
+          )}
 
           {/* 协议勾选区 */}
           <View

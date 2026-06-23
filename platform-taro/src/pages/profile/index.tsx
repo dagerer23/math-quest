@@ -8,7 +8,7 @@ import * as classApi from '@/services/classApi'
 import type { ClassInfo } from '@/services/classApi'
 import { getRankInfo, getNextRankInfo, getRankProgress } from '@/utils/rank'
 import { C, TOKEN } from '@/styles/theme'
-import { AVATAR_SEEDS, getAvatarUrl } from '@/utils/avatar'
+import { getAvatarUrl } from '@/utils/avatar'
 import { Icon } from '@/components/Icon'
 import { HeatmapCalendar } from '@/components/ui/HeatmapCalendar'
 
@@ -32,7 +32,6 @@ export default function ProfilePage() {
   const user = useUserStore()
   const [editing, setEditing] = useState(false)
   const [nickName, setNickName] = useState(user.profile.nickname || '')
-  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
 
   // 班级状态
@@ -77,16 +76,6 @@ export default function ProfilePage() {
     if (!user.userId) return
     setSavingProfile(true)
     await saveProfile({ userId: user.userId, nickname: newName, avatar: user.profile.avatar })
-    setSavingProfile(false)
-  }
-
-  // 选择头像
-  const handleSelectAvatar = async (seed: string) => {
-    user.setProfile({ avatar: seed })
-    setShowAvatarPicker(false)
-    if (!user.userId) return
-    setSavingProfile(true)
-    await saveProfile({ userId: user.userId, nickname: user.profile.nickname, avatar: seed })
     setSavingProfile(false)
   }
 
@@ -230,7 +219,6 @@ export default function ProfilePage() {
             {/* 头像 */}
             <View>
               <View
-                onClick={() => setShowAvatarPicker(true)}
                 style={{
                   width: 56, height: 56, borderRadius: 28, overflow: 'hidden',
                   borderWidth: 2, borderStyle: 'solid', borderColor: getAvatarBg(user.profile.nickname || '用户'),
@@ -239,7 +227,13 @@ export default function ProfilePage() {
                 }}
               >
                 {user.profile.avatar ? (
-                  <Image src={getAvatarUrl(user.profile.avatar)} mode="aspectFill" style={{ width: '100%', height: '100%' }} />
+                  <Image
+                    src={user.profile.avatar.startsWith('data:') || user.profile.avatar.startsWith('http')
+                      ? user.profile.avatar
+                      : getAvatarUrl(user.profile.avatar)}
+                    mode="aspectFill"
+                    style={{ width: '100%', height: '100%' }}
+                  />
                 ) : (
                   <Text style={{ fontSize: 22, fontWeight: 700, color: getAvatarBg(user.profile.nickname || '用户') }}>
                     {(user.profile.nickname || '?')[0]}
@@ -512,57 +506,6 @@ export default function ProfilePage() {
           </Text>
         </View>
       </View>
-
-      {/* ═══ 头像选择弹窗 ═══ */}
-      {showAvatarPicker && (
-        <View
-          onClick={() => setShowAvatarPicker(false)}
-          style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 60,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32,
-          }}
-        >
-          <View
-            className="taro-pop-in"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: 280, background: C.semantic.card, borderRadius: 20, padding: 20,
-              boxShadow: TOKEN.shadow.lg,
-            }}
-          >
-            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <Text style={{ fontSize: 15, fontWeight: 700, color: C.semantic.foreground }}>选择头像</Text>
-              <View
-                onClick={() => setShowAvatarPicker(false)}
-                style={{
-                  width: 28, height: 28, borderRadius: 14,
-                  background: C.icon.iconGrayBg,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >
-                <Icon name="x" size={16} color={C.semantic.mutedForeground} />
-              </View>
-            </View>
-            <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-              {AVATAR_SEEDS.map(seed => (
-                <View
-                  key={seed}
-                  onClick={() => handleSelectAvatar(seed)}
-                  style={{
-                    width: 52, height: 52, borderRadius: 12, overflow: 'hidden',
-                    borderWidth: user.profile.avatar === seed ? 2 : 0,
-                    borderStyle: 'solid',
-                    borderColor: user.profile.avatar === seed ? C.semantic.primary : 'transparent',
-                  }}
-                >
-                  <Image src={getAvatarUrl(seed)} mode="aspectFill" style={{ width: '100%', height: '100%' }} />
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
-      )}
 
       {/* ═══ 班级弹窗 ═══ */}
       {showClassDialog && (

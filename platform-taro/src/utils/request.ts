@@ -6,10 +6,16 @@ import Taro from '@tarojs/taro'
 /**
  * 后端服务地址 - 根据运行环境自动切换
  *
- * 三种环境识别策略：
- * 1. 本地开发环境（H5 浏览器 / 微信开发者工具）→ http://127.0.0.1:<port>
- * 2. 真机预览本地开发环境（手机扫码预览小程序）→ http://<本机局域网IP>:<port>
- * 3. 阿里云服务器环境（生产构建部署）→ http://<阿里云公网IP>:<port>
+ * 环境识别策略（基于编译期注入的 host 变量，而非 NODE_ENV）：
+ * 1. 阿里云生产部署（PROD_HOST 已注入）→ http://<阿里云公网IP>:<port>
+ * 2. 微信开发者工具（PROD_HOST 未注入 + 运行时 platform=devtools）→ http://127.0.0.1:<port>
+ * 3. 真机预览本地开发（PROD_HOST 未注入 + 运行时 platform=ios/android）→ http://<本机局域网IP>:<port>
+ * 4. H5 端本地开发 → http://127.0.0.1:<port>
+ *
+ * ⚠️ 不能用 process.env.NODE_ENV === 'production' 判断生产环境：
+ *    微信小程序构建时 NODE_ENV 恒为 'production'，会导致 webpack 死代码消除
+ *    移除真机预览分支（isDevtools + LAN_HOST），使真机预览降级为 127.0.0.1，
+ *    手机访问自身 3001 端口 → ERR_CONNECTION_REFUSED。
  *
  * 说明：
  * - process.env.NODE_ENV / TARO_ENV / MQ_* 由 Taro 编译期通过 DefinePlugin 注入为字面量，
@@ -37,21 +43,18 @@ function isDevtools(): boolean {
 }
 
 function resolveBaseUrl(): string {
-  // 1. 阿里云服务器生产环境
-  if (process.env.NODE_ENV === 'production') {
-    if (PROD_HOST) {
-      return `http://${PROD_HOST}:${PORT}`
-    }
-    console.warn('[request] 生产环境未注入 MQ_PROD_HOST，降级使用 127.0.0.1，请通过环境变量配置阿里云公网IP')
-    return `http://127.0.0.1:${PORT}`
-  }
-
-  // 2. H5 端本地开发（浏览器访问本机后端）
+  // 1. H5 端本地开发（编译期判断：小程序构建时此分支会被消除）
   if (process.env.TARO_ENV === 'h5') {
     return `http://127.0.0.1:${PORT}`
   }
 
-  // 3. 小程序端：开发者工具可用 127.0.0.1，真机预览必须用局域网IP
+  // 2. 小程序端：PROD_HOST 有值 → 阿里云生产部署
+  if (PROD_HOST) {
+    return `http://${PROD_HOST}:${PORT}`
+  }
+
+  // 3. 小程序端：PROD_HOST 无值 → 本地开发
+  //    开发者工具可用 127.0.0.1，真机预览必须用局域网IP
   if (isDevtools()) {
     return `http://127.0.0.1:${PORT}`
   }
@@ -99,11 +102,14 @@ export async function request<T>(
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 
+  console.log('[request] 发起请求:', rest.method || 'GET', fullUrl, 'data:', JSON.stringify(rest.data || rest.body))
+
   let lastError: Error | null = null
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       if (isWeapp()) {
+        console.log('[request] 使用 Taro.request, 当前 BASE_URL:', BASE_URL)
         const res = await Taro.request({
           url: fullUrl,
           method: (rest.method || 'GET') as any,
@@ -111,6 +117,7 @@ export async function request<T>(
           header: headers,
           timeout: timeout,
         })
+        console.log('[request] Taro.request 响应:', fullUrl, 'statusCode:', res.statusCode, 'data:', JSON.stringify(res.data))
         if (res.statusCode === 401) {
           Taro.removeStorageSync(TOKEN_KEY)
           Taro.redirectTo({ url: '/pages/login/index' })
@@ -122,12 +129,15 @@ export async function request<T>(
         // 4xx 错误：解析响应体，保留后端返回的错误信息
         if (res.statusCode >= 400 && res.statusCode < 500 && res.data) {
           const msg = (res.data as any)?.message || `HTTP ${res.statusCode}`
+          console.error('[request] 服务端返回 4xx:', fullUrl, 'statusCode:', res.statusCode, 'msg:', msg)
           const err = new Error(msg) as any
           err.response = res.data
           throw err
         }
+        console.error('[request] HTTP 错误:', fullUrl, 'statusCode:', res.statusCode)
         throw new Error(`HTTP ${res.statusCode}`)
       } else {
+        console.log('[request] 使用 fetch (H5/浏览器环境)')
         const response = await fetch(fullUrl, {
           method: rest.method || 'GET',
           headers,
@@ -145,12 +155,14 @@ export async function request<T>(
     } catch (error) {
       // 微信小程序 Taro.request 失败时 reject 的是普通对象 { errMsg: "request:fail ..." }，
       // 不是 Error 实例，直接 String(error) 会得到 "[object Object]"，需先提取 errMsg/message
+      console.error('[request] 请求异常:', fullUrl, 'attempt:', attempt, 'error:', error)
       lastError = error instanceof Error
         ? error
         : new Error((error as any)?.errMsg || (error as any)?.message || String(error))
       if (lastError.message === 'Unauthorized') throw lastError
       if (lastError.message.includes('HTTP 4')) throw lastError
       if (attempt === retries) throw lastError
+      console.warn('[request] 请求失败, 准备重试:', fullUrl, 'attempt:', attempt, 'delay:', retryDelay * (attempt + 1))
       await new Promise((resolve) => setTimeout(resolve, retryDelay * (attempt + 1)))
     }
   }

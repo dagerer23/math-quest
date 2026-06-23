@@ -206,7 +206,13 @@ export default function HomePage() {
               }}
             >
               {user.profile.avatar ? (
-                <Image src={getAvatarUrl(user.profile.avatar)} mode="aspectFill" style={{ width: '100%', height: '100%' }} />
+                <Image
+                  src={user.profile.avatar.startsWith('data:') || user.profile.avatar.startsWith('http')
+                    ? user.profile.avatar
+                    : getAvatarUrl(user.profile.avatar)}
+                  mode="aspectFill"
+                  style={{ width: '100%', height: '100%' }}
+                />
               ) : (
                 <Text style={{ fontSize: 16, fontWeight: 700, color: '#58CC02' }}>{getInitial(user.profile.nickname || '用户')}</Text>
               )}

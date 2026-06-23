@@ -279,42 +279,85 @@ export async function getAssessment(userId: string): Promise<{ success: boolean;
  * - 生成 30 天 token 返回
  * - 未配置 WX_APPID/WX_SECRET 时进入开发模式（用 code 作为模拟 openid）
  */
-export async function wxLogin(code: string): Promise<{
+export async function wxLogin(params: { code: string; phoneCode?: string; avatar?: string }): Promise<{
   success: boolean
   message: string
   user?: any
   token?: string
 }> {
+  const { code, phoneCode, avatar } = params
+  console.log('[Auth/wxLogin] 收到请求, code:', code, 'hasPhoneCode:', !!phoneCode, 'hasAvatar:', !!avatar)
   const WX_APPID = process.env.WX_APPID || ''
   const WX_SECRET = process.env.WX_SECRET || ''
+  console.log('[Auth/wxLogin] 微信配置状态:', { hasAppId: !!WX_APPID, hasSecret: !!WX_SECRET })
 
   let openid: string
 
   if (WX_APPID && WX_SECRET) {
     const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${WX_APPID}&secret=${WX_SECRET}&js_code=${encodeURIComponent(code)}&grant_type=authorization_code`
+    console.log('[Auth/wxLogin] 请求微信 jscode2session, url:', url)
     const resp = await fetch(url)
     const data: any = await resp.json()
+    console.log('[Auth/wxLogin] 微信响应:', JSON.stringify(data))
     if (data.errcode) {
-      console.error(`[Auth] 微信登录失败: errcode=${data.errcode}, errmsg=${data.errmsg}`)
+      console.error(`[Auth/wxLogin] 微信登录失败: errcode=${data.errcode}, errmsg=${data.errmsg}`)
       return { success: false, message: `微信登录失败: ${data.errmsg}` }
     }
     openid = data.openid
   } else {
-    console.warn('[Auth] 未配置 WX_APPID/WX_SECRET，使用开发模式（code 作为模拟 openid）')
+    console.warn('[Auth/wxLogin] 未配置 WX_APPID/WX_SECRET，使用开发模式（code 作为模拟 openid）')
     openid = `dev_${code}`
   }
 
+  // 用 phoneCode 获取微信授权手机号
+  let phone = ''
+  if (phoneCode && WX_APPID && WX_SECRET) {
+    try {
+      console.log('[Auth/wxLogin] 获取 access_token 以解密手机号')
+      const tokenUrl = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${WX_APPID}&secret=${WX_SECRET}`
+      const tokenResp = await fetch(tokenUrl)
+      const tokenData: any = await tokenResp.json()
+      if (tokenData.access_token) {
+        console.log('[Auth/wxLogin] 获取手机号, 使用 phoneCode')
+        const phoneUrl = `https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=${tokenData.access_token}`
+        const phoneResp = await fetch(phoneUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: phoneCode }),
+        })
+        const phoneResult: any = await phoneResp.json()
+        if (phoneResult.errcode === 0 && phoneResult.phone_info) {
+          phone = phoneResult.phone_info.phoneNumber
+          console.log('[Auth/wxLogin] 获取手机号成功:', phone)
+        } else {
+          console.error('[Auth/wxLogin] 获取手机号失败:', phoneResult.errcode, phoneResult.errmsg)
+        }
+      } else {
+        console.error('[Auth/wxLogin] 获取 access_token 失败:', tokenData.errmsg)
+      }
+    } catch (e: any) {
+      console.error('[Auth/wxLogin] 获取手机号异常:', e?.message)
+    }
+  }
+
   // 查找或创建用户
+  console.log('[Auth/wxLogin] 查找用户, openid:', openid)
   let user = await findUserByOpenid(openid)
   if (!user) {
-    user = await createUser('', { openid })
-    console.log(`[Auth] 微信新用户注册: openid=${openid}, id=${user.id}`)
+    console.log('[Auth/wxLogin] 用户不存在, 创建新用户')
+    user = await createUser(phone || '', { openid, avatar: avatar || '' })
+    console.log(`[Auth/wxLogin] 微信新用户注册: openid=${openid}, id=${user.id}, phone=${phone || '(空)'}`)
   } else {
-    user = await updateUser(user.id, { lastLoginAt: Date.now() })
-    console.log(`[Auth] 微信用户登录: openid=${openid}, id=${user.id}`)
+    console.log('[Auth/wxLogin] 用户已存在, 更新登录时间, id:', user.id)
+    const updates: any = { lastLoginAt: Date.now() }
+    if (phone) updates.phone = phone
+    if (avatar) updates.avatar = avatar
+    user = await updateUser(user.id, updates)
+    console.log(`[Auth/wxLogin] 微信用户登录: openid=${openid}, id=${user.id}`)
   }
 
   const token = await generateToken(user.id, user.phone || '')
+  console.log('[Auth/wxLogin] 生成 token, 返回登录成功')
   return { success: true, message: '登录成功', user, token }
 }
 

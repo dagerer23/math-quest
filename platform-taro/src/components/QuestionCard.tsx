@@ -70,11 +70,11 @@ export function QuestionCard({
       )}
       <Text
         style={{
-          fontSize: 18,
+          fontSize: 17,
           fontWeight: 700,
           color: '#1d1d1f',
           textAlign: 'center',
-          lineHeight: 1.5,
+          lineHeight: 1.4,
           wordBreak: 'break-all',
           overflowWrap: 'break-word',
           whiteSpace: 'pre-wrap',

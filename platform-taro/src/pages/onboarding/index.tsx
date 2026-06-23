@@ -65,12 +65,14 @@ interface FormState {
 
 export default function OnboardingPage() {
   const userStore = useUserStore()
+  const existingAvatar = userStore.profile?.avatar || ''
+  const hasWxAvatar = existingAvatar.startsWith('data:') || existingAvatar.startsWith('http')
   const [form, setForm] = useState<FormState>({
     stage: 'primary',
     goal: 'consolidation',
     grade: 1,
     nickname: '',
-    avatar: 'Alice',
+    avatar: existingAvatar || 'Alice',
   })
   const [stepIndex, setStepIndex] = useState(0)
   const [submitting, setSubmitting] = useState(false)
@@ -231,7 +233,7 @@ export default function OnboardingPage() {
                     boxShadow: TOKEN.shadow.md,
                   }}
                 >
-                  <View><Icon name={stage.icon} size={36} /></View>
+                  <View><Icon name={stage.icon} size={36} color={selected ? C.semantic.primary : C.semantic.mutedForeground} /></View>
                   <View style={{ flex: 1, marginLeft: 16 }}>
                     <Text style={{ fontSize: 17, fontWeight: 700, color: C.semantic.foreground }}>{stage.name}</Text>
                     <View style={{ marginTop: 2 }}>
@@ -269,7 +271,7 @@ export default function OnboardingPage() {
                     boxShadow: TOKEN.shadow.md,
                   }}
                 >
-                  <View><Icon name={goal.icon} size={32} /></View>
+                  <View><Icon name={goal.icon} size={32} color={selected ? C.semantic.primary : C.semantic.mutedForeground} /></View>
                   <View style={{ flex: 1, marginLeft: 12 }}>
                     <Text style={{ fontSize: 16, fontWeight: 700, color: C.semantic.foreground }}>{goal.name}</Text>
                     <View style={{ marginTop: 2 }}>
@@ -314,7 +316,7 @@ export default function OnboardingPage() {
                       boxShadow: TOKEN.shadow.md,
                     }}
                   >
-                    <Text style={{ fontSize: 18, fontWeight: 700, color: selected ? C.semantic.primary : C.semantic.mutedForeground }}>
+                    <Text style={{ fontSize: 18, fontWeight: 700, color: selected ? C.semantic.primary : C.semantic.foreground }}>
                       {grade}年级
                     </Text>
                   </View>
@@ -329,34 +331,43 @@ export default function OnboardingPage() {
           <View style={{ display: 'flex', flexDirection: 'column' }}>
             {/* 头像选择 */}
             <View style={{ marginBottom: 24 }}>
-              <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>选择头像</Text>
-              </View>
-              <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                {AVATAR_SEEDS.map(seed => {
-                  const selected = form.avatar === seed
-                  return (
-                    <View
-                      key={seed}
-                      onClick={() => setForm(f => ({ ...f, avatar: seed }))}
-                      className="taro-btn-press"
-                      style={{
-                        width: '14%',
-                        marginBottom: 12,
-                        height: 56,
-                        borderRadius: TOKEN.radius.lg,
-                        borderWidth: 2,
-                        borderStyle: 'solid',
-                        borderColor: selected ? C.semantic.primary : C.semantic.border,
-                        background: selected ? primaryLight : C.semantic.card,
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <Image src={getAvatarUrl(seed)} mode="aspectFill" style={{ width: '100%', height: '100%' }} />
-                    </View>
-                  )
-                })}
-              </View>
+              {hasWxAvatar ? (
+                <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <Image src={form.avatar} mode="aspectFill" style={{ width: 72, height: 72, borderRadius: 999, marginBottom: 8 }} />
+                  <Text style={{ fontSize: 12, color: C.semantic.mutedForeground }}>微信头像（不可修改）</Text>
+                </View>
+              ) : (
+                <>
+                  <View style={{ marginBottom: 12 }}>
+                    <Text style={{ fontSize: 14, fontWeight: 700, color: C.semantic.foreground }}>选择头像</Text>
+                  </View>
+                  <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                    {AVATAR_SEEDS.map(seed => {
+                      const selected = form.avatar === seed
+                      return (
+                        <View
+                          key={seed}
+                          onClick={() => setForm(f => ({ ...f, avatar: seed }))}
+                          className="taro-btn-press"
+                          style={{
+                            width: '14%',
+                            marginBottom: 12,
+                            height: 56,
+                            borderRadius: TOKEN.radius.lg,
+                            borderWidth: 2,
+                            borderStyle: 'solid',
+                            borderColor: selected ? C.semantic.primary : C.semantic.border,
+                            background: selected ? primaryLight : C.semantic.card,
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <Image src={getAvatarUrl(seed)} mode="aspectFill" style={{ width: '100%', height: '100%' }} />
+                        </View>
+                      )
+                    })}
+                  </View>
+                </>
+              )}
             </View>
             {/* 昵称输入 */}
             <View>
