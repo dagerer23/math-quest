@@ -3,7 +3,6 @@
  */
 import { Router } from 'express'
 import {
-  adminLogin,
   listAdmins,
   createAdmin,
   updateAdmin,
@@ -11,7 +10,6 @@ import {
   listLoginLog,
 } from '../services/adminAccount'
 import { requireAdminAuth } from '../middleware/adminAuth'
-import { auditLogger } from '../middleware/auditLog'
 
 /** 密码强度验证：至少8位，包含字母和数字 */
 function validatePasswordStrength(password: string): string | null {
@@ -22,18 +20,6 @@ function validatePasswordStrength(password: string): string | null {
 }
 
 const router = Router()
-
-// 登录 - 不需要认证
-router.post('/login', async (req, res) => {
-  const { username, password } = req.body
-  if (!username || !password) {
-    res.status(400).json({ success: false, message: '用户名和密码必填' })
-    return
-  }
-  const ip = req.ip || req.headers['x-forwarded-for'] || ''
-  const result = await adminLogin(username, password, String(ip))
-  res.json(result)
-})
 
 // 以下接口需要认证
 router.get('/', requireAdminAuth, async (_req, res) => {

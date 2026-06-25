@@ -67,13 +67,15 @@ const DEFAULT_CONFIGS: { key: string; value: string; description: string }[] = [
   { key: 'version', value: '0.1.0', description: '服务版本号' },
 ]
 
-/** 初始化默认配置 */
+/** 初始化默认配置：自动补齐数据库中缺失的 key，不覆盖已有值 */
 export async function initDefaultConfigs() {
   if (db.useMemory) return
   const pool = db.getPool()!
   for (const c of DEFAULT_CONFIGS) {
     await pool.query(
-      `INSERT IGNORE INTO t_system_config (\`key\`, \`value\`, description, updated_at) VALUES (?, ?, ?, ?)`,
+      `INSERT INTO t_system_config (\`key\`, \`value\`, description, updated_at)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE \`key\` = \`key\``,
       [c.key, c.value, c.description, Date.now()],
     )
   }

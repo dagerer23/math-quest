@@ -25,6 +25,7 @@ import {
 import { getUserRanking } from '../services/stats'
 import { getAllConfigs } from '../services/config'
 import { requireAdminAuth } from '../middleware/adminAuth'
+import { auditLogger } from '../middleware/auditLog'
 
 const router = Router()
 
@@ -185,7 +186,8 @@ router.get('/leaderboard', async (req: Request, res: Response) => {
   res.json({ success: true, users })
 })
 
-// ===== 管理后台接口（CRUD，需认证）=====
+// ===== 管理后台接口（CRUD，需认证+审计）=====
+router.use('/admin', requireAdminAuth, auditLogger)
 
 // 列出所有关卡（管理后台用）
 router.get('/admin/levels', requireAdminAuth, async (req: Request, res: Response) => {

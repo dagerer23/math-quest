@@ -30,8 +30,12 @@ router.get('/summary', safe(async (_req, res) => {
 }))
 
 router.get('/daily-trend', safe(async (req, res) => {
-  const days = Math.min(30, Math.max(1, Number(req.query.days) || 7))
-  const data = await getDailyTrend(days)
+  const rawDays = Number(req.query.days)
+  if (!req.query.days || !Number.isInteger(rawDays) || rawDays < 1 || rawDays > 30) {
+    res.status(400).json({ success: false, message: 'days 参数必须是 1-30 的整数' })
+    return
+  }
+  const data = await getDailyTrend(rawDays)
   res.json({ success: true, data })
 }))
 

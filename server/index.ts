@@ -12,6 +12,7 @@ import adminStatsRoutes from './routes/adminStats'
 import adminImportRoutes from './routes/adminImport'
 import adminConfigRoutes from './routes/adminConfig'
 import adminAccountsRoutes from './routes/adminAccounts'
+import adminLoginRoutes from './routes/adminLogin'
 import { initDB, isMemoryMode } from './db'
 import { seedFromFallbackIfEmpty, syncLevelsFromQuestions } from './services/content'
 import { initDefaultConfigs } from './services/config'
@@ -58,7 +59,9 @@ app.use('/api/content', contentRoutes)
 app.use('/api/admin/stats', requireAdminAuth, adminStatsRoutes)
 app.use('/api/admin/import', requireAdminAuth, auditLogger, requireWriteAccess, adminImportRoutes)
 app.use('/api/admin/config', requireAdminAuth, auditLogger, requireWriteAccess, adminConfigRoutes)
-app.use('/api/admin/accounts', adminAccountsRoutes) // login 在此路由内，单独处理
+// 管理员账号：login 单独放行，其余接口需认证+审计
+app.use('/api/admin/accounts/login', adminLoginRoutes)
+app.use('/api/admin/accounts', requireAdminAuth, auditLogger, adminAccountsRoutes)
 
 // 审计日志查看（仅 super 角色）
 app.get('/api/admin/audit-log', requireAdminAuth, (req, res) => {

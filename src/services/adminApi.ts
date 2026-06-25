@@ -77,7 +77,18 @@ export interface LoginLog {
   username: string
   ip: string
   success: boolean
-  createdAt: string
+  loginAt: string
+}
+
+export interface AuditEntry {
+  timestamp: number
+  adminId: string
+  username: string
+  role: string
+  method: string
+  path: string
+  body?: Record<string, unknown>
+  ip: string
 }
 
 export interface Level {
@@ -179,6 +190,11 @@ export const adminAccountsApi = {
     request<{ success: boolean; message: string }>(`/admin/accounts/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   remove: (id: string) => request<{ success: boolean; message: string }>(`/admin/accounts/${id}`, { method: 'DELETE' }),
   loginLog: (limit = 30) => request<{ success: boolean; data: LoginLog[] }>(`/admin/accounts/login-log?limit=${limit}`).then(r => r.data),
+}
+
+// ============= 审计日志 =============
+export const adminAuditApi = {
+  list: (limit = 100) => request<{ success: boolean; data: AuditEntry[] }>(`/admin/audit-log?limit=${limit}`).then(r => r.data),
 }
 
 // ============= 内容（题库）=============

@@ -31,6 +31,7 @@ const DataCenter = lazy(() => import('@/pages/admin/DataCenter'))
 const ImportExport = lazy(() => import('@/pages/admin/ImportExport'))
 const SystemConfig = lazy(() => import('@/pages/admin/SystemConfig'))
 const AccountManagement = lazy(() => import('@/pages/admin/AccountManagement'))
+const AuditLog = lazy(() => import('@/pages/admin/AuditLog'))
 import { useUserStore } from '@/store/useUserStore'
 import { tokenLogin, TOKEN_KEY, fetchAssessment } from '@/services/auth'
 import { getAchievements, getConfigs } from '@/services/content'
@@ -58,6 +59,7 @@ function AppRoutes() {
           <Route path="/admin/import" element={<ImportExport />} />
           <Route path="/admin/config" element={<SystemConfig />} />
           <Route path="/admin/accounts" element={<AccountManagement />} />
+          <Route path="/admin/audit-log" element={<AuditLog />} />
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Routes>

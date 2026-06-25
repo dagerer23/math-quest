@@ -247,7 +247,7 @@ export default function AccountManagement() {
             <tbody>
               {logs.map(l => (
                 <tr key={l.id}>
-                  <td>{new Date(l.createdAt).toLocaleString('zh-CN')}</td>
+                  <td>{new Date(l.loginAt).toLocaleString('zh-CN')}</td>
                   <td>{l.username}</td>
                   <td className="admin-mono">{l.ip || '-'}</td>
                 </tr>

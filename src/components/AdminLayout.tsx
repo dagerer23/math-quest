@@ -6,7 +6,7 @@ import { useState, useEffect, createContext, useContext, type ReactNode } from '
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { getAdmin, setAdmin } from '@/store/adminAuth'
 import {
-  LayoutDashboard, BookOpen, BarChart3, Upload, Settings, Users,
+  LayoutDashboard, BookOpen, BarChart3, Upload, Settings, Users, Shield,
   ExternalLink, LogOut, ChevronRight, Menu, X
 } from 'lucide-react'
 
@@ -23,6 +23,7 @@ const NAV: NavItem[] = [
   { to: '/admin/import', icon: <Upload size={18} />, label: '导入导出' },
   { to: '/admin/config', icon: <Settings size={18} />, label: '系统配置' },
   { to: '/admin/accounts', icon: <Users size={18} />, label: '账号管理' },
+  { to: '/admin/audit-log', icon: <Shield size={18} />, label: '审计日志' },
 ]
 
 const TITLE_MAP: Record<string, string> = {
@@ -32,6 +33,7 @@ const TITLE_MAP: Record<string, string> = {
   '/admin/import': '导入导出',
   '/admin/config': '系统配置',
   '/admin/accounts': '账号管理',
+  '/admin/audit-log': '审计日志',
 }
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
