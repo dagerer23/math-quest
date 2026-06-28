@@ -61,8 +61,7 @@ function BrandLogo() {
         </View>
       </View>
       <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 12 }}>
-        <Text style={{ fontSize: 24, fontWeight: 800, color: C.semantic.foreground, letterSpacing: -0.5 }}>算力先锋</Text>
-        <Text style={{ fontSize: 11, color: C.semantic.mutedForeground, marginTop: 2, letterSpacing: 2 }}>MATH QUEST</Text>
+        <Text style={{ fontSize: 24, fontWeight: 800, color: C.semantic.foreground, letterSpacing: -0.5 }}>数学逆袭</Text>
       </View>
     </View>
   )

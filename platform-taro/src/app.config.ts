@@ -20,7 +20,7 @@ export default defineAppConfig({
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#FFFFFF',
-    navigationBarTitleText: '算力先锋',
+    navigationBarTitleText: '数学逆袭',
     navigationBarTextStyle: 'black',
     backgroundColor: '#F8FAF5'
   },

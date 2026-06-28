@@ -63,7 +63,7 @@ export default function HomePage() {
 
   useDidShow(() => {
     // 设置导航栏标题为品牌名
-    Taro.setNavigationBarTitle({ title: '算力先锋' })
+    Taro.setNavigationBarTitle({ title: '数学逆袭' })
     if (!user.isLoggedIn) {
       Taro.redirectTo({ url: '/pages/login/index' })
     }

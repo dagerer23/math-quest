@@ -543,7 +543,7 @@ export default function Profile() {
             </Button>
           )}
           <p className="text-center text-[10px] text-muted-foreground pt-2">
-            算力先锋 MathQuest · v0.1
+            数学逆袭 · v0.1
           </p>
         </motion.div>
       </div>

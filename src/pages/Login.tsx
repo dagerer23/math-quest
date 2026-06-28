@@ -60,8 +60,7 @@ function BrandLogo() {
         </motion.div>
       </div>
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">算力先锋</h1>
-        <p className="text-[11px] text-muted-foreground/80 mt-0.5 tracking-widest uppercase">Math Quest</p>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">数学逆袭</h1>
       </div>
     </div>
   )

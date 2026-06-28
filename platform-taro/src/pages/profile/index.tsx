@@ -502,7 +502,7 @@ export default function ProfilePage() {
             </View>
           ) : null}
           <Text style={{ fontSize: 10, color: C.semantic.mutedForeground, textAlign: 'center', paddingTop: 8 }}>
-            算力先锋 MathQuest · v0.1
+            数学逆袭 · v0.1
           </Text>
         </View>
       </View>

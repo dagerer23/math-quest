@@ -15,7 +15,7 @@ export default function Index() {
         textAlign: 'center'
       }}>
         <Text style={{ color: '#fff', fontSize: '28px', fontWeight: 'bold' }}>
-          Hello Math Quest
+          数学逆袭
         </Text>
         <Text style={{
           display: 'block',

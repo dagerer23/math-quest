@@ -50,7 +50,7 @@ export default function AdminLogin() {
               <path d="M4 4h6v6H4z" /><path d="M14 4h6v6h-6z" /><path d="M4 14h6v6H4z" /><path d="M14 14h6v6h-6z" />
             </svg>
           </div>
-          <h1 className="admin-login-title">算力先锋</h1>
+          <h1 className="admin-login-title">数学逆袭</h1>
           <p className="admin-login-subtitle">管理控制台</p>
         </div>
 

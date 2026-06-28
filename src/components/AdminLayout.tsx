@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
             {!sidebarCollapsed && (
               <div>
-                <div className="admin-logo-text">算力先锋</div>
+                <div className="admin-logo-text">数学逆袭</div>
                 <div className="admin-logo-sub">ADMIN</div>
               </div>
             )}
